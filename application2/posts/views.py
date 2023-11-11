@@ -53,3 +53,9 @@ class PostsFromCategories(ModelViewSet):
     def get_queryset(self):
         self.serializer_class = serializers.PostSerializer
         return queries.get_posts_by_category_personalized(self)
+class PostsFromFollowing(ModelViewSet):
+    queryset = models.Post.objects.all()[:1]
+    serializer_class = serializers.EmptySerializer
+    def get_queryset(self):
+        self.serializer_class = serializers.PostSerializer
+        return queries.get_posts_by_following(self)

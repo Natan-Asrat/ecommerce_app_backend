@@ -65,6 +65,23 @@ def get_posts_with_user_category_collaborative_filtering(self):
             )[:10]
     return posts
 
+def get_posts_by_following(self):
+    most_interacted_following = following_for_FollowingBased(self)
+    posts = models.Post.objects.filter(
+                Q(sellerId__in=Subquery(most_interacted_following.values('user_performed_on')))
+            ).exclude(
+                sellerId=self.request.user.id
+            ).select_related('categoryId', 'sellerId').annotate(
+                hasLiked=Exists(models.Like.objects.filter(
+                    user_id = self.request.user, post_id = OuterRef('postId')
+                )),
+                hasSaved=Exists(models.Favourite.objects.filter(
+                    user_id = self.request.user, post_id = OuterRef('postId')
+                ))
+            ).order_by(
+                '-engagement'
+            )[:20]
+    return posts
 def get_posts_by_category_personalized(self):
     most_interacted_categories = categories_for_UCCF(self)
     posts = models.Post.objects.filter(
@@ -162,3 +179,18 @@ def sellers_for_UCCF(self, most_interacted_categories):
                 '-cumulative'
             )[:20]
     return most_interacted_users
+def following_for_FollowingBased(self):
+    following = models.Follower.objects.filter(
+        user_follower = self.request.user.id
+    ).values(
+        'user_followed'
+    )
+    most_interacted_following = models.InteractionUserToUser.objects.filter(
+            user_performer=self.request.user.id,
+            user_performed_on__in = Subquery(following.values('user_followed'))
+            ).values(
+                'user_performed_on', 'strength'
+            ).order_by(
+                '-strength'
+            )[:10]
+    return most_interacted_following

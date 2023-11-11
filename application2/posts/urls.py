@@ -10,6 +10,8 @@ router.register('posts_new',views.NewPostsAPI)
 router.register('posts_UUCF',views.PostsFromUUCF_API)
 router.register('posts_UCCF',views.PostsFromUCCF_API)
 router.register('posts_category', views.PostsFromCategories)
+router.register('posts_following', views.PostsFromFollowing)
+
 urlpatterns = [
     path('', include(router.urls))
 ]
