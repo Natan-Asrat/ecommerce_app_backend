@@ -12,6 +12,7 @@ router.register('posts_UCCF',views.PostsFromUCCF_API)
 router.register('posts_category', views.PostsFromCategories)
 router.register('posts_following', views.PostsFromFollowing)
 
+router.register('posts_recommended', views.PostsRecommended)
 urlpatterns = [
     path('', include(router.urls))
 ]

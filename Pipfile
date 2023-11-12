@@ -9,6 +9,7 @@ neomodel = "*"
 django-neomodel = "*"
 djangorestframework = "*"
 django-debug-toolbar = "*"
+psycopg2 = "*"
 
 [dev-packages]
 

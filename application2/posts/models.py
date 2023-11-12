@@ -45,7 +45,7 @@ class Post(models.Model):
     categoryId = models.ForeignKey(to="Category", on_delete=models.SET_NULL, null=True, blank = True)
     sellerId = models.ForeignKey(to="User", on_delete=models.PROTECT)
     likes = models.IntegerField(default=0, blank = True)
-    engagement = models.IntegerField(default=0)
+    strength = models.DecimalField(decimal_places=2, max_digits=10)
     nextIconAction = models.CharField(max_length=1, choices=NEXT_ICON_ACTION_CHOICES)
 
     def __str__(self) -> str:
@@ -117,7 +117,7 @@ class Interaction(models.Model):
 class InteractionUserToPost(models.Model):
     user_id = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='interaction_with_posts')
     post_id = models.ForeignKey(to = Post, on_delete=models.CASCADE)
-    strength = models.IntegerField(default = 1)
+    strength_sum = models.IntegerField(default = 1)
     last_updated_time_of_strength = models.DateField(auto_now=True)
     strength_over_time = models.DecimalField(decimal_places=2, max_digits=10)
     def __str__(self) -> str:
@@ -125,7 +125,7 @@ class InteractionUserToPost(models.Model):
 class InteractionUserToUser(models.Model):
     user_performer = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='friends')
     user_performed_on = models.ForeignKey(to = User, on_delete=models.CASCADE, related_name='fans')
-    strength = models.IntegerField(default = 1)
+    strength_sum = models.IntegerField(default = 1)
     last_updated_time_of_strength = models.DateField(auto_now=True)
     strength_over_time = models.DecimalField(decimal_places=2, max_digits=10)
     def __str__(self) -> str:
@@ -133,7 +133,7 @@ class InteractionUserToUser(models.Model):
 class InteractionUserToCategory(models.Model):
     user_id = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='interaction_with_category')
     category_id = models.ForeignKey(to = Category, on_delete=models.CASCADE)
-    strength = models.IntegerField(default = 1)
+    strength_sum = models.IntegerField(default = 1)
     last_updated_time_of_strength = models.DateField(auto_now=True)
     strength_over_time = models.DecimalField(decimal_places=2, max_digits=10)
     def __str__(self) -> str:
