@@ -1,11 +1,3 @@
-# from neo4django.db import models
-
-# class Post(models.NodeModel):
-#     name = models.StringProperty()
-#     age = models.IntegerProperty()
-
-# Create your models here.
-# from neomodel import StructuredNode, UniqueIdProperty, DateProperty, IntegerProperty, BooleanProperty, StringProperty, DateProperty, db, config
 from django.db import models
 import uuid
 from django.contrib.auth.models import AbstractUser
@@ -13,14 +5,6 @@ CURRENCY_CHOICES = [
     ('Br', 'Birr')
 ]
 CURRENCY_LENGTH = 5
-# class Post4J(StructuredNode):
-#     title = StringProperty()
-#     description = StringProperty()
-#     price = IntegerProperty()
-#     currency = StringProperty()
-#     hasDiscount = BooleanProperty()
-#     date = DateProperty()
-#     sqlite_id = UniqueIdProperty()
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
@@ -30,7 +14,8 @@ class User(AbstractUser):
 
 NEXT_ICON_ACTION_CHOICES = [
     ('D', 'detail'),
-    ('L', 'link')
+    ('L', 'link'),
+    ('P', 'pay')
 ]
 class Post(models.Model):
     postId = models.UUIDField(primary_key=True, default=uuid.uuid4)
@@ -51,23 +36,12 @@ class Post(models.Model):
     def __str__(self) -> str:
         return self.title
 
-
-# class Category4J(StructuredNode):
-#     sqlite_id = UniqueIdProperty()
-#     name = StringProperty()
-
 class Category(models.Model):
     id = models.UUIDField(primary_key = True, default=uuid.uuid4)
     name = models.CharField(max_length=255)
     def __str__(self) -> str:
         return self.name
 
-
-
-# class Seller(StructuredNode):
-#     sqlite_id = UniqueIdProperty
-#     name = StringProperty()
-#     phone = StringProperty()
 NOTIFICATION_ACTIONS = [
     ('L', 'link'),
     ('C', 'call'),
@@ -163,11 +137,10 @@ class NewPost(models.Model):
 
     def __str__(self) -> str:
         return "Seller: " + str(self.seller_id.username) + ", New Post: " + self.post_id.title + ", Category: " + str(self.category_id.name)
-# person = Post4J(title="Nate")
-# person.save()
-# print("id: ", person.element_id)
-# try:
-#     db.cypher_query("CREATE (e:Person {name: 'nate' })")
-#     print("Connected to Neo4j")
-# except Exception as e:
-#     print("failed to connect to neo4j: ", str(e))
+
+class Recommended(models.Model):
+    date = models.DateField(auto_now_add=True)
+    userId = models.ForeignKey(to=User, on_delete=models.CASCADE)
+    postId = models.UUIDField(default=uuid.uuid4)
+    tag = models.CharField(max_length = 10)
+    rank = models.DecimalField(decimal_places=2, max_digits=10)

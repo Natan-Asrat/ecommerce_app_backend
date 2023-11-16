@@ -97,7 +97,7 @@ DATABASES = {
         'PORT': '5433'
     }
 }
-CONN_MAX_AGE = None
+# CONN_MAX_AGE = None
 AUTH_USER_MODEL = 'posts.User'
 from neomodel import config
 config.DATABASE_URL = 'bolt://neo4j:12345678@localhost:7687/application2'
