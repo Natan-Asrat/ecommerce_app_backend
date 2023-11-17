@@ -4,7 +4,25 @@ from django.db.models.functions import Coalesce, Ln
 from datetime import date, timedelta
 from itertools import chain
 
+NEW_POST_RECOMMENDATION_LIMIT = 30
+FOLLOWING_BASED_RECOMMENDATION_LIMIT = 35
+CATEGORY_BASED_RECOMMENDATION_LIMIT = 5
+IICF_RECOMMENDATION_LIMIT = 45
+UUCF_RECOMMENDATION_LIMIT = 20
+UCCF_RECOMMENDATION_LIMIT = 15
+RECOMMENDATION_LIMIT = 25
+POSTS_INITIAL_IICF = 5
+USERS_INITIAL_IICF = 20
 
+USERS_INITIAL_UUCF = 20
+
+CATEGORIES_INITIAL_UCCF = 5
+SELLERS_INITIAL_UCCF = 20
+
+FOLLOWING_INITIAL_FOLLOWING = 50
+
+CATEGORY_REDUCER_CONSTANT = 100
+USER_REDUCER_CONSTANT = 10
 def reduce_seen_posts_influence(user):
     return Coalesce(
                 Ln(
@@ -16,6 +34,29 @@ def reduce_seen_posts_influence(user):
                     Value(2, output_field=IntegerField()), 
                     output_field=FloatField()),
                 1.0, output_field=FloatField())
+def reduce_category_influence(user):
+    return Coalesce(
+        Value(1, output_field=IntegerField()) +  
+        models.InteractionUserToCategory.objects.filter(
+                        user_id=user.id,
+                        category_id = OuterRef('categoryId')
+                    ).values('strength_sum')[:1]
+        /              
+        Value(CATEGORY_REDUCER_CONSTANT, output_field=IntegerField()) ,
+        1.0, output_field=FloatField()
+        )
+def reduce_user_influence(user):
+    return Coalesce(
+        Value(1, output_field=IntegerField()) +  
+        models.InteractionUserToUser.objects.filter(
+                        user_performer=user.id,
+                        user_performed_on__in = OuterRef('sellerId')
+                    ).values('strength_sum')[:1]
+        /             
+        Value(USER_REDUCER_CONSTANT, output_field=IntegerField()) ,
+        1.0, output_field=FloatField()
+        )
+
 def reduce_follower_influence():
     return Coalesce(
                 Value(1, output_field=IntegerField()) + 
@@ -52,7 +93,7 @@ def get_post_ids_with_item_item_collaborative_filtering(user):
                 ~Q(post_id__in=Subquery(most_interacted_posts.values('post_id')))
             ).order_by(
                 '-strength_sum'
-            )[:20]
+            )[:IICF_RECOMMENDATION_LIMIT]
     posts = models.Post.objects.filter(
          Q(postId__in = Subquery(iposts.values('post_id')))
         ).select_related('categoryId', 'sellerId').annotate(
@@ -80,7 +121,7 @@ def get_post_ids_with_user_user_collaborative_filtering(user):
                 user_id=user.id
             ).order_by(
                 '-strength_sum'
-            )[:10]
+            )[:UUCF_RECOMMENDATION_LIMIT]
     posts = models.Post.objects.filter(
         Q(postId__in = Subquery(iposts.values('post_id')))
     ).select_related('categoryId', 'sellerId').annotate(
@@ -117,18 +158,17 @@ def get_post_ids_with_user_category_collaborative_filtering(user):
                 hasSaved=Exists(models.Favourite.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
                 )),
-                rank = models.InteractionUserToCategory.objects.filter(
-                        user_id=user.id,
-                        category_id = OuterRef('categoryId')
-                    ).values('strength_sum')[:1] 
-                    / reduce_seen_posts_influence(user)
+                rank = 
+                    reduce_category_influence(user)
+                    / 
+                    reduce_seen_posts_influence(user)
             ).values(
                 'postId',
                 'tag',
                 'rank'
             ).order_by(
                 '-strength'
-            )[:10]
+            )[:UCCF_RECOMMENDATION_LIMIT]
     return posts
 
 def get_post_ids_by_following(user):
@@ -157,7 +197,7 @@ def get_post_ids_by_following(user):
                 'rank'
             ).order_by(
                 '-strength'
-            )[:20]
+            )[:FOLLOWING_BASED_RECOMMENDATION_LIMIT]
     return posts
 
 def get_post_ids_by_category_personalized(user):
@@ -175,18 +215,17 @@ def get_post_ids_by_category_personalized(user):
                 hasSaved=Exists(models.Favourite.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
                 )),
-                rank = models.InteractionUserToCategory.objects.filter(
-                        user_id=user.id,
-                        category_id = OuterRef('categoryId')
-                    ).values('strength_sum')[:1] 
-                    / reduce_seen_posts_influence(user)
+                rank = 
+                    reduce_category_influence(user)
+                    / 
+                    reduce_seen_posts_influence(user)
                 ).values(
                 'postId',
                 'tag',
                 'rank'
             ).order_by(
                 '-strength'
-            )[:10]
+            )[:CATEGORY_BASED_RECOMMENDATION_LIMIT]
     return posts
 def get_new_post_ids_personalized(user):
     most_interacted_categories = categories_for_UCCF(user)
@@ -220,7 +259,7 @@ def get_new_post_ids_personalized(user):
                 'rank'
             ).order_by(
                 '-rank'
-            )[:20]
+            )[:NEW_POST_RECOMMENDATION_LIMIT]
     return posts
 
 def combined_queryset(user):
@@ -237,6 +276,7 @@ def get_recommendations(user):
     return queryset
 
 
+
 def posts_for_IICF(user):
     most_interacted_posts = models.InteractionUserToPost.objects.filter(
             user_id=user.id
@@ -244,7 +284,7 @@ def posts_for_IICF(user):
                 'post_id', 'strength_sum'
             ).order_by(
                 '-strength_sum'
-            )[:5]
+            )[:POSTS_INITIAL_IICF]
     return most_interacted_posts
 
 def users_for_IICF(user, most_interacted_posts):
@@ -261,9 +301,8 @@ def users_for_IICF(user, most_interacted_posts):
                 'post_id', 'cumulative'
             ).order_by(
                 '-cumulative'
-            )[:20]
+            )[:USERS_INITIAL_IICF]
     return most_interacted_users
-
 def users_for_UUCF(user):
     most_interacted_users = models.InteractionUserToUser.objects.filter(
             user_performer=user.id
@@ -271,9 +310,8 @@ def users_for_UUCF(user):
                 'user_performed_on', s = F('strength_sum')
             ).order_by(
                 '-s'
-            )[:5]
+            )[:USERS_INITIAL_UUCF]
     return most_interacted_users
-
 def categories_for_UCCF(user):
     most_interacted_categories = models.InteractionUserToCategory.objects.filter(
             user_id=user.id
@@ -281,9 +319,8 @@ def categories_for_UCCF(user):
                 'category_id', s=F('strength_sum')
             ).order_by(
                 '-s'
-            )[:5]
+            )[:CATEGORIES_INITIAL_UCCF]
     return most_interacted_categories
-
 def sellers_for_UCCF(user, most_interacted_categories):
     most_interacted_users = models.AssociationCategoryToSeller.objects.filter(
                 category_id__in=Subquery(most_interacted_categories.values('category_id'))
@@ -298,13 +335,15 @@ def sellers_for_UCCF(user, most_interacted_categories):
                 'seller_id', 'cumulative'
             ).order_by(
                 '-cumulative'
-            )[:20]
+            )[:SELLERS_INITIAL_UCCF]
     return most_interacted_users
 def following_for_FollowingBased(user):
     following = models.Follower.objects.filter(
         user_follower = user.id
     ).values(
         'user_followed'
+    ).order_by(
+        '-strength'
     )
     most_interacted_following = models.InteractionUserToUser.objects.filter(
             user_performer=user.id,
@@ -313,7 +352,7 @@ def following_for_FollowingBased(user):
                 'user_performed_on', s = F('strength_sum')
             ).order_by(
                 '-s'
-            )[:10]
+            )[:FOLLOWING_INITIAL_FOLLOWING]
     return most_interacted_following
 
 def recommended_from_table(user):
@@ -352,5 +391,5 @@ def recommended_from_table(user):
                 rank = recommended.filter(postId=OuterRef('postId')).values('sum')[:1],
             ).order_by(
                 '-rank'
-            )
+            )[:RECOMMENDATION_LIMIT]
     return posts
