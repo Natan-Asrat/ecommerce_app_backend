@@ -10,6 +10,7 @@ django-neomodel = "*"
 djangorestframework = "*"
 django-debug-toolbar = "*"
 psycopg2 = "*"
+cloudinary = "*"
 
 [dev-packages]
 
