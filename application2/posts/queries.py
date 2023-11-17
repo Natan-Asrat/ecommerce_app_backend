@@ -1,8 +1,30 @@
 from . import models
-from django.db.models import Exists, OuterRef, Q, F,Max, Subquery, Count, Sum, Prefetch, CharField, Value, IntegerField
+from django.db.models import Exists, OuterRef, FloatField, ExpressionWrapper, DecimalField, Q, F,Max,Avg, Subquery, Count, Sum, Prefetch, CharField, Value, IntegerField
+from django.db.models.functions import Coalesce, Ln
+from datetime import date, timedelta
 from itertools import chain
+
+
+def reduce_seen_posts_influence(user):
+    return Coalesce(
+                Ln(
+                    models.Seen.objects.filter(
+                        user = user.id,
+                        post = OuterRef('postId')
+                    ).values('count')[:1] 
+                    + 
+                    Value(2, output_field=IntegerField()), 
+                    output_field=FloatField()),
+                1.0, output_field=FloatField())
+def reduce_follower_influence():
+    return Coalesce(
+                Value(1, output_field=IntegerField()) + 
+                Avg('sellerId__followers__strength') / 
+                Value(models.HOW_MUCH_FOLLOWER_STRENGTH_SHOULD_REDUCE_INFLUENCE_ON_NEW_POSTS, output_field=IntegerField()) ,
+                1.0, output_field=FloatField()
+            )
 def get_all_posts(request):
-    posts = models.Post.objects.all().select_related(
+    posts = models.Post.objects.select_related(
         'categoryId', 
         'sellerId', 
         'categoryId__parent', 
@@ -19,7 +41,7 @@ def get_all_posts(request):
             user_id = request.user, post_id = OuterRef('postId')
         )), hasSaved= Exists(models.Favourite.objects.filter(
             user_id = request.user, post_id = OuterRef('postId')
-        )))[:10]
+        ))).all()[:10]
     return posts
 
 def get_post_ids_with_item_item_collaborative_filtering(user):
@@ -41,7 +63,9 @@ def get_post_ids_with_item_item_collaborative_filtering(user):
                 hasSaved=Exists(models.Favourite.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
                 )),
-                rank = F('strength')
+                rank = ExpressionWrapper(F('strength'), output_field=FloatField()) 
+                    / reduce_seen_posts_influence(user)
+                    
             ).values(
                 'postId',
                 'tag',
@@ -67,7 +91,8 @@ def get_post_ids_with_user_user_collaborative_filtering(user):
                 hasSaved=Exists(models.Favourite.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
                 )),
-                rank = F('strength')
+                rank = ExpressionWrapper(F('strength'), output_field=FloatField())
+                    / reduce_seen_posts_influence(user)
             ).values(
                 'postId',
                 'tag',
@@ -95,7 +120,8 @@ def get_post_ids_with_user_category_collaborative_filtering(user):
                 rank = models.InteractionUserToCategory.objects.filter(
                         user_id=user.id,
                         category_id = OuterRef('categoryId')
-                    ).values('strength_sum')[:1]
+                    ).values('strength_sum')[:1] 
+                    / reduce_seen_posts_influence(user)
             ).values(
                 'postId',
                 'tag',
@@ -123,7 +149,8 @@ def get_post_ids_by_following(user):
                 rank = models.InteractionUserToUser.objects.filter(
                         user_performer=user.id,
                         user_performed_on__in = OuterRef('sellerId')
-                    ).values('strength_sum')[:1]
+                    ).values('strength_sum')[:1] 
+                    / reduce_seen_posts_influence(user)
             ).values(
                 'postId',
                 'tag',
@@ -151,8 +178,9 @@ def get_post_ids_by_category_personalized(user):
                 rank = models.InteractionUserToCategory.objects.filter(
                         user_id=user.id,
                         category_id = OuterRef('categoryId')
-                    ).values('strength_sum')[:1]
-            ).values(
+                    ).values('strength_sum')[:1] 
+                    / reduce_seen_posts_influence(user)
+                ).values(
                 'postId',
                 'tag',
                 'rank'
@@ -162,13 +190,13 @@ def get_post_ids_by_category_personalized(user):
     return posts
 def get_new_post_ids_personalized(user):
     most_interacted_categories = categories_for_UCCF(user)
-    new_posts = models.NewPost.objects.filter(
-                category_id__in=Subquery(most_interacted_categories.values('category_id'))
-            ).values('post_id').exclude(
-                seller_id=user.id
-            )[:20]
+    now = date.today()
+    one_week = now - timedelta(days=models.HOW_LONG_A_POST_STAYS_NEW_IN_DAYS)
     posts = models.Post.objects.filter(
-                postId__in = Subquery(new_posts.values('post_id'))
+                categoryId__in=Subquery(most_interacted_categories.values('category_id')),
+                date__range = [one_week, now]
+            ).exclude(
+                sellerId=user.id
             ).select_related('categoryId', 'sellerId').annotate(
                 post_id = F('postId'),
                 tag=Value('new', output_field=CharField()),
@@ -178,16 +206,20 @@ def get_new_post_ids_personalized(user):
                 hasSaved=Exists(models.Favourite.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
                 )),
-                rank = models.InteractionUserToCategory.objects.filter(
+                rank = 
+                    models.InteractionUserToCategory.objects.filter(
                         user_id= user.id,
                         category_id = OuterRef('categoryId')
-                    ).values('strength_sum')[:1]
+                    ).values('strength_sum')[:1] 
+                    / reduce_seen_posts_influence(user)
+                    / reduce_follower_influence()
+                
             ).values(
                 'postId',
                 'tag',
                 'rank'
             ).order_by(
-                '-strength'
+                '-rank'
             )[:20]
     return posts
 
@@ -317,7 +349,8 @@ def recommended_from_table(user):
                 hasSaved=Exists(models.Favourite.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
                 )),
-                rank = recommended.filter(postId=OuterRef('postId')).values('sum')[:1]
-            ).order_by('-rank')
-    return posts
+                rank = recommended.filter(postId=OuterRef('postId')).values('sum')[:1],
+            ).order_by(
+                '-rank'
+            )
     return posts

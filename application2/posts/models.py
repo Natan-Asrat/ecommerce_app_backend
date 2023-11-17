@@ -17,6 +17,8 @@ NEXT_ICON_ACTION_CHOICES = [
     ('L', 'link'),
     ('P', 'pay')
 ]
+
+HOW_LONG_A_POST_STAYS_NEW_IN_DAYS = 7
 class Post(models.Model):
     postId = models.UUIDField(primary_key=True, default=uuid.uuid4)
     title = models.CharField(max_length=255)
@@ -32,7 +34,7 @@ class Post(models.Model):
     likes = models.IntegerField(default=0, blank = True)
     strength = models.DecimalField(decimal_places=2, max_digits=10)
     nextIconAction = models.CharField(max_length=1, choices=NEXT_ICON_ACTION_CHOICES)
-
+    date = models.DateField(auto_now_add=True)
     def __str__(self) -> str:
         return self.title
 
@@ -122,26 +124,25 @@ class AssociationCategoryToSeller(models.Model):
     def __str__(self) -> str:
         return "Category: " + str(self.category_id.name) + ", Seller: " + str(self.seller_id.username)
 
+
+HOW_MUCH_FOLLOWER_STRENGTH_SHOULD_REDUCE_INFLUENCE_ON_NEW_POSTS = 50
 class Follower(models.Model):
     user_follower = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='following')
     user_followed = models.ForeignKey(to = User, on_delete=models.CASCADE, related_name='followers')
     strength = models.IntegerField(default = 1)
-    last_updated_time_of_strength = models.DateField(auto_now=True)
-    strength_over_time = models.DecimalField(decimal_places=2, max_digits=10)
     def __str__(self) -> str:
         return "Follower: " + str(self.user_follower.username) + ", Followed: " + str(self.user_followed.username)
     
-class NewPost(models.Model):
-    seller_id = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    category_id = models.ForeignKey(to = Category, on_delete=models.CASCADE)
-    post_id = models.ForeignKey(to = Post, on_delete=models.CASCADE)
-
-    def __str__(self) -> str:
-        return "Seller: " + str(self.seller_id.username) + ", New Post: " + self.post_id.title + ", Category: " + str(self.category_id.name)
-
 class Recommended(models.Model):
     date = models.DateField(auto_now_add=True)
     userId = models.ForeignKey(to=User, on_delete=models.CASCADE)
     postId = models.UUIDField(default=uuid.uuid4)
     tag = models.CharField(max_length = 10)
     rank = models.DecimalField(decimal_places=2, max_digits=10)
+
+class Seen(models.Model):
+    user = models.ForeignKey(to = User, on_delete=models.CASCADE)
+    post = models.ForeignKey(to = Post, on_delete=models.CASCADE)
+    count = models.IntegerField(default = 0)
+    def __str__(self) -> str:
+        return 'User: ' + str(self.user) + ", Post: " + str(self.post) + ", Count: " + str(self.count)

@@ -70,4 +70,7 @@ def populate_recommendations(user):
                 )
                 for post in list(recommendations)
         ]
+    print(recommendations)
     models.Recommended.objects.bulk_create(recommended_list)
+
+    

@@ -151,22 +151,27 @@ class EditPostSerializer(serializers.ModelSerializer):
             'hasDiscount'
             ]
     def update(self, instance, validated_data):
-        category_names = validated_data.pop('categories')
-        if not isinstance(category_names, list):
-            category_names = [category_names]
-        if len(category_names)>10:
-            category_names = category_names[:10]
-        last_category = None
-        for name in category_names:
-            category, _ = Category.objects.get_or_create(name = name, parent = last_category)
-            last_category = category
-        
-        validated_data['categoryId'] = last_category
-        print(validated_data)
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
+        request = self.context.get('request')
+        user = request.user if request else None
+        if user and (user.id != instance.sellerId.id):
+            raise serializers.ValidationError("This is not your post, so you cant edit it")
+        else:
+            category_names = validated_data.pop('categories')
+            if not isinstance(category_names, list):
+                category_names = [category_names]
+            if len(category_names)>10:
+                category_names = category_names[:10]
+            last_category = None
+            for name in category_names:
+                category, _ = Category.objects.get_or_create(name = name, parent = last_category)
+                last_category = category
+            
+            validated_data['categoryId'] = last_category
+            print(validated_data)
+            for attr, value in validated_data.items():
+                setattr(instance, attr, value)
+            instance.save()
+            return instance
 class RecommendedSerializer(serializers.Serializer):
     postId = serializers.UUIDField()
     tag = serializers.CharField(max_length = 10)
