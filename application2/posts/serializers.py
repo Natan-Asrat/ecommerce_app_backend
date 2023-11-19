@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import *
+app_name = __package__.split('.')[-1]
 
 class EmptySerializer(serializers.Serializer):
     pass
@@ -57,7 +58,7 @@ class PostSerializer(serializers.ModelSerializer):
             'categories', 
             'sellerId',
             'likes',
-            'strength', 
+            'engagement', 
             'nextIconAction', 
             'hasDiscount',
             'hasLiked', 
@@ -85,11 +86,10 @@ class PostSerializer(serializers.ModelSerializer):
     #     instance = self.Meta.model(**validated_data)
     #     instance.save()
     #     return instance
-
+MAX_CATEGORY_LEVELS = 5
 class NewPostSerializer(serializers.ModelSerializer):
     categories = serializers.ListField(child = serializers.CharField(), required = False)
     postId = serializers.UUIDField(read_only = True)
-
     class Meta:
         model = Post
         fields = [
@@ -105,27 +105,32 @@ class NewPostSerializer(serializers.ModelSerializer):
             'categories', 
             'sellerId',
             'likes',
-            'strength', 
+            'engagement', 
             'nextIconAction', 
             'hasDiscount'
             ]
     def create(self, validated_data):
-        category_names = validated_data.pop('categories')
-        if not isinstance(category_names, list):
-            category_names = [category_names]
-        if len(category_names)>10:
-            category_names = category_names[:10]
-        last_category = None
-        # category_names = category_names[:-1]
-        for name in category_names:
-            category, _ = Category.objects.get_or_create(name = name, parent = last_category)
-            last_category = category
-        
-        validated_data['categoryId'] = last_category
-        print(validated_data)
-        instance = self.Meta.model(**validated_data)
-        instance.save()
-        return instance
+        request = self.context.get('request')
+        user = request.user if request else None
+        if user and (user.id != validated_data["sellerId"].id) and not user.has_perm(f'{app_name}.edit_and_add_posts_of_others'):
+            raise serializers.ValidationError("This is not your account, so you cant post with it")
+        else:
+            category_names = validated_data.pop('categories')
+            if not isinstance(category_names, list):
+                category_names = [category_names]
+            if len(category_names)>MAX_CATEGORY_LEVELS:
+                category_names = category_names[:MAX_CATEGORY_LEVELS]
+            last_category = None
+            # category_names = category_names[:-1]
+            for name in category_names:
+                category, _ = Category.objects.get_or_create(name = name, parent = last_category)
+                last_category = category
+            
+            validated_data['categoryId'] = last_category
+            print(validated_data)
+            instance = self.Meta.model(**validated_data)
+            instance.save()
+            return instance
 
 class EditPostSerializer(serializers.ModelSerializer):
     categories = serializers.ListField(child = serializers.CharField(), required = False)    
@@ -146,21 +151,21 @@ class EditPostSerializer(serializers.ModelSerializer):
             'categories', 
             'sellerId',
             'likes',
-            'strength', 
+            'engagement', 
             'nextIconAction', 
             'hasDiscount'
             ]
     def update(self, instance, validated_data):
         request = self.context.get('request')
         user = request.user if request else None
-        if user and (user.id != instance.sellerId.id):
+        if user and (user.id != instance.sellerId.id) and not user.has_perm(f'{app_name}.edit_and_add_posts_of_others'):
             raise serializers.ValidationError("This is not your post, so you cant edit it")
         else:
             category_names = validated_data.pop('categories')
             if not isinstance(category_names, list):
                 category_names = [category_names]
-            if len(category_names)>10:
-                category_names = category_names[:10]
+            if len(category_names)>MAX_CATEGORY_LEVELS:
+                category_names = category_names[:MAX_CATEGORY_LEVELS]
             last_category = None
             for name in category_names:
                 category, _ = Category.objects.get_or_create(name = name, parent = last_category)
@@ -196,7 +201,7 @@ class SendRecommendedPosts(PostSerializer):
             'categories', 
             'sellerId',
             'likes',
-            'strength', 
+            'engagement', 
             'nextIconAction', 
             'hasDiscount',
             'hasLiked', 

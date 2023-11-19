@@ -32,11 +32,15 @@ class Post(models.Model):
     categoryId = models.ForeignKey(to="Category", on_delete=models.SET_NULL, null=True, blank = True)
     sellerId = models.ForeignKey(to="User", on_delete=models.PROTECT)
     likes = models.IntegerField(default=0, blank = True)
-    strength = models.DecimalField(decimal_places=2, max_digits=10)
+    engagement = models.DecimalField(decimal_places=2, max_digits=10)
     nextIconAction = models.CharField(max_length=1, choices=NEXT_ICON_ACTION_CHOICES)
     date = models.DateField(auto_now_add=True)
     def __str__(self) -> str:
         return self.title
+    class Meta:
+        permissions = [
+            ("edit_and_add_posts_of_others", "Can edit and add posts of others"),
+        ]
 
 class Category(models.Model):
     id = models.UUIDField(primary_key = True, default=uuid.uuid4)
@@ -83,11 +87,9 @@ INTERACTION_ACTORS_OPTIONS = [
 class Interaction(models.Model):
     action_performer_id = models.UUIDField()
     action_performed_on_id = models.UUIDField()
-    last_updated_time_of_strength = models.DateField(auto_now=True)
     label_performer = models.CharField(max_length=2, choices=INTERACTION_ACTORS_OPTIONS)
     label_performed_on = models.CharField(max_length=2, choices=INTERACTION_ACTORS_OPTIONS)
     strength = models.IntegerField(default=1)
-    strength_latest = models.DecimalField(decimal_places=2, max_digits=10)
     def __str__(self) -> str:
         return "User: " + str(User.objects.get(id = self.action_performer_id)) + ", Post: " + Post.objects.get(postId = self.action_performed_on_id).title
 
@@ -95,32 +97,24 @@ class InteractionUserToPost(models.Model):
     user_id = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='interaction_with_posts')
     post_id = models.ForeignKey(to = Post, on_delete=models.CASCADE)
     strength_sum = models.IntegerField(default = 1)
-    last_updated_time_of_strength = models.DateField(auto_now=True)
-    strength_over_time = models.DecimalField(decimal_places=2, max_digits=10)
     def __str__(self) -> str:
         return "User: " + str(self.user_id.username) + ", Post: " + self.post_id.title
 class InteractionUserToUser(models.Model):
     user_performer = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='friends')
     user_performed_on = models.ForeignKey(to = User, on_delete=models.CASCADE, related_name='fans')
     strength_sum = models.IntegerField(default = 1)
-    last_updated_time_of_strength = models.DateField(auto_now=True)
-    strength_over_time = models.DecimalField(decimal_places=2, max_digits=10)
     def __str__(self) -> str:
         return "User: " + str(self.user_performer.username) + ", User2: " + str(self.user_performed_on.username)
 class InteractionUserToCategory(models.Model):
     user_id = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='interaction_with_category')
     category_id = models.ForeignKey(to = Category, on_delete=models.CASCADE)
     strength_sum = models.IntegerField(default = 1)
-    last_updated_time_of_strength = models.DateField(auto_now=True)
-    strength_over_time = models.DecimalField(decimal_places=2, max_digits=10)
     def __str__(self) -> str:
         return "User: " + str(self.user_id.username) + ", Category: " + self.category_id.name
 class AssociationCategoryToSeller(models.Model):
     category_id = models.ForeignKey(to = Category, on_delete=models.CASCADE)
     seller_id = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='association_to_category')
     strength = models.IntegerField(default = 1)
-    last_updated_time_of_strength = models.DateField(auto_now=True)
-    strength_over_time = models.DecimalField(decimal_places=2, max_digits=10)
     def __str__(self) -> str:
         return "Category: " + str(self.category_id.name) + ", Seller: " + str(self.seller_id.username)
 

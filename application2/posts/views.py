@@ -6,16 +6,17 @@ from django.db.models import Exists, OuterRef, Q, F, Subquery, Count, Prefetch
 from datetime import date
 from django.db import connection
 from django.http import HttpResponse
-from rest_framework.response import Response
-from django.http import QueryDict
+from . import paginators
 # Create your views here.
 class CategoriesAPI(ModelViewSet):
     queryset = models.Category.objects.all()[:30]
     serializer_class = serializers.CategorySerializer
 
+
 class PostsAPI(ModelViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
+    pagination_class = paginators.Pages
     
     def get_queryset(self):
         self.serializer_class = serializers.PostSerializer
@@ -31,25 +32,31 @@ class EditPostAPI(ModelViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EditPostSerializer 
     
-class PostsRecommended(ListAPIView, GenericViewSet):
-    queryset = models.Post.objects.none()
-    serializer_class = serializers.EmptySerializer
-    def list(self, request, *args, **kwargs):
-        self.serializer_class = serializers.SendRecommendedPosts
-        reset_recommendations(self.request.user)
-        populate_recommendations(self.request.user)
-        posts = queries.recommended_from_table(request.user)
-        serializer = self.get_serializer(posts, many=True)
-        return Response(serializer.data)
+# class PostsRecommended(ListAPIView, GenericViewSet):
+#     queryset = models.Post.objects.none()
+#     serializer_class = serializers.EmptySerializer
+#     def list(self, request, *args, **kwargs):
+#         self.serializer_class = serializers.SendRecommendedPosts
+#         reset_recommendations(self.request.user)
+#         populate_recommendations(self.request.user)
+#         # posts = queries.recommended_from_table(request.user)
+#         # serializer = self.get_serializer(posts, many=True)
+#         # self.serializer_class.data = posts
+#         return Response("Poppulated recommendations, go to /posts_r")
+#         # return Response(serializer.data)
+#         # return super().list(self, request, *args, **kwargs)
     
+def create_recommendations_api(request):
+    create_recommendations(request)
+    return HttpResponse('Done, check /posts_recommended')
 def create_recommendations(request):
     reset_recommendations(request.user)
     populate_recommendations(request.user)
-    return HttpResponse('Done')
 
 class GetRecommendation(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()[:1]
     serializer_class = serializers.EmptySerializer
+    pagination_class = paginators.RecommendedPages
     def get_queryset(self):
         self.serializer_class = serializers.SendRecommendedPosts
         posts = queries.recommended_from_table(self.request.user)
@@ -70,7 +77,6 @@ def populate_recommendations(user):
                 )
                 for post in list(recommendations)
         ]
-    print(recommendations)
     models.Recommended.objects.bulk_create(recommended_list)
 
     

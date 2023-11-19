@@ -36,32 +36,53 @@ def reduce_seen_posts_influence(user):
                 1.0, output_field=FloatField())
 def reduce_category_influence(user):
     return Coalesce(
-        Value(1, output_field=IntegerField()) +  
+        Value(1.0, output_field=FloatField()) +  
         models.InteractionUserToCategory.objects.filter(
-                        user_id=user.id,
-                        category_id = OuterRef('categoryId')
-                    ).values('strength_sum')[:1]
+                        Q(
+                            category_id = OuterRef('categoryId')
+                        ) 
+                        | 
+                        Q(
+                            category_id = OuterRef('categoryId__parent')
+                        )
+                        |
+                        Q(
+                            category_id = OuterRef('categoryId__parent__parent')
+                        ) 
+                        | 
+                        Q(
+                            category_id = OuterRef('categoryId__parent__parent__parent')
+                        )
+                        |
+                        Q(
+                            category_id = OuterRef('categoryId__parent__parent__parent__parent')
+                        ),
+                        user_id=user.id
+                    ).annotate(
+                        total_strength = Sum('strength_sum')
+                    ).values('total_strength')[:1]
+                    
         /              
-        Value(CATEGORY_REDUCER_CONSTANT, output_field=IntegerField()) ,
+        Value(CATEGORY_REDUCER_CONSTANT, output_field=FloatField()) ,
         1.0, output_field=FloatField()
         )
 def reduce_user_influence(user):
     return Coalesce(
-        Value(1, output_field=IntegerField()) +  
+        Value(1.0, output_field=FloatField()) +  
         models.InteractionUserToUser.objects.filter(
                         user_performer=user.id,
                         user_performed_on__in = OuterRef('sellerId')
                     ).values('strength_sum')[:1]
         /             
-        Value(USER_REDUCER_CONSTANT, output_field=IntegerField()) ,
+        Value(USER_REDUCER_CONSTANT, output_field=FloatField()) ,
         1.0, output_field=FloatField()
         )
 
 def reduce_follower_influence():
     return Coalesce(
-                Value(1, output_field=IntegerField()) + 
+                Value(1.0, output_field=FloatField()) + 
                 Avg('sellerId__followers__strength') / 
-                Value(models.HOW_MUCH_FOLLOWER_STRENGTH_SHOULD_REDUCE_INFLUENCE_ON_NEW_POSTS, output_field=IntegerField()) ,
+                Value(models.HOW_MUCH_FOLLOWER_STRENGTH_SHOULD_REDUCE_INFLUENCE_ON_NEW_POSTS, output_field=FloatField()) ,
                 1.0, output_field=FloatField()
             )
 def get_all_posts(request):
@@ -71,18 +92,12 @@ def get_all_posts(request):
         'categoryId__parent', 
         'categoryId__parent__parent', 
         'categoryId__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent__parent__parent__parent__parent',
-        'categoryId__parent__parent__parent__parent__parent__parent__parent__parent__parent__parent'
+        'categoryId__parent__parent__parent__parent'
         ).annotate(hasLiked= Exists(models.Like.objects.filter(
             user_id = request.user, post_id = OuterRef('postId')
         )), hasSaved= Exists(models.Favourite.objects.filter(
             user_id = request.user, post_id = OuterRef('postId')
-        ))).all()[:10]
+        ))).all()
     return posts
 
 def get_post_ids_with_item_item_collaborative_filtering(user):
@@ -104,7 +119,8 @@ def get_post_ids_with_item_item_collaborative_filtering(user):
                 hasSaved=Exists(models.Favourite.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
                 )),
-                rank = ExpressionWrapper(F('strength'), output_field=FloatField()) 
+                rank = 
+                    reduce_category_influence(user)
                     / reduce_seen_posts_influence(user)
                     
             ).values(
@@ -132,7 +148,8 @@ def get_post_ids_with_user_user_collaborative_filtering(user):
                 hasSaved=Exists(models.Favourite.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
                 )),
-                rank = ExpressionWrapper(F('strength'), output_field=FloatField())
+                rank = 
+                    reduce_category_influence(user)
                     / reduce_seen_posts_influence(user)
             ).values(
                 'postId',
@@ -167,7 +184,7 @@ def get_post_ids_with_user_category_collaborative_filtering(user):
                 'tag',
                 'rank'
             ).order_by(
-                '-strength'
+                '-engagement'
             )[:UCCF_RECOMMENDATION_LIMIT]
     return posts
 
@@ -196,14 +213,28 @@ def get_post_ids_by_following(user):
                 'tag',
                 'rank'
             ).order_by(
-                '-strength'
+                '-engagement'
             )[:FOLLOWING_BASED_RECOMMENDATION_LIMIT]
     return posts
 
 def get_post_ids_by_category_personalized(user):
     most_interacted_categories = categories_for_UCCF(user)
     posts = models.Post.objects.filter(
-                Q(categoryId__in=Subquery(most_interacted_categories.values('category_id')))
+                Q(
+                    categoryId__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                |Q(
+                    categoryId__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                | Q(
+                    categoryId__parent__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
             ).exclude(
                 sellerId=user.id
             ).select_related('categoryId', 'sellerId').annotate(
@@ -224,7 +255,7 @@ def get_post_ids_by_category_personalized(user):
                 'tag',
                 'rank'
             ).order_by(
-                '-strength'
+                '-engagement'
             )[:CATEGORY_BASED_RECOMMENDATION_LIMIT]
     return posts
 def get_new_post_ids_personalized(user):
@@ -232,7 +263,22 @@ def get_new_post_ids_personalized(user):
     now = date.today()
     one_week = now - timedelta(days=models.HOW_LONG_A_POST_STAYS_NEW_IN_DAYS)
     posts = models.Post.objects.filter(
-                categoryId__in=Subquery(most_interacted_categories.values('category_id')),
+                Q(
+                    categoryId__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                |Q(
+                    categoryId__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                | Q(
+                    categoryId__parent__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                ,
                 date__range = [one_week, now]
             ).exclude(
                 sellerId=user.id
@@ -246,10 +292,7 @@ def get_new_post_ids_personalized(user):
                     user_id = user, post_id = OuterRef('postId')
                 )),
                 rank = 
-                    models.InteractionUserToCategory.objects.filter(
-                        user_id= user.id,
-                        category_id = OuterRef('categoryId')
-                    ).values('strength_sum')[:1] 
+                    reduce_category_influence(user) 
                     / reduce_seen_posts_influence(user)
                     / reduce_follower_influence()
                 
@@ -323,7 +366,21 @@ def categories_for_UCCF(user):
     return most_interacted_categories
 def sellers_for_UCCF(user, most_interacted_categories):
     most_interacted_users = models.AssociationCategoryToSeller.objects.filter(
-                category_id__in=Subquery(most_interacted_categories.values('category_id'))
+                Q(
+                    category_id__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                |Q(
+                    category_id__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                | Q(
+                    category_id__parent__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                |Q(
+                    category_id__parent__parent__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
+                |Q(
+                    category_id__parent__parent__parent__parent__in=Subquery(most_interacted_categories.values('category_id'))
+                    ) 
             ).annotate(
                 cumulative = models.InteractionUserToCategory.objects.filter(
                         user_id=user.id,
@@ -374,13 +431,7 @@ def recommended_from_table(user):
         'categoryId__parent', 
         'categoryId__parent__parent', 
         'categoryId__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent__parent__parent__parent__parent__parent',
-        'categoryId__parent__parent__parent__parent__parent__parent__parent__parent__parent__parent').annotate(
+        'categoryId__parent__parent__parent__parent').annotate(
                 tag=recommended.filter(postId=OuterRef('postId')).values('recommender')[:1],
                 hasLiked=Exists(models.Like.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
@@ -391,5 +442,5 @@ def recommended_from_table(user):
                 rank = recommended.filter(postId=OuterRef('postId')).values('sum')[:1],
             ).order_by(
                 '-rank'
-            )[:RECOMMENDATION_LIMIT]
+            )
     return posts
