@@ -8,6 +8,7 @@ from django.db import connection
 from django.http import HttpResponse
 from rest_framework.response import Response
 from . import paginators
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 class CategoriesAPI(ModelViewSet):
@@ -82,7 +83,7 @@ def populate_recommendations(user):
     models.Recommended.objects.bulk_create(recommended_list)
 
 class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
-    queryset = models.Like.objects.all().select_related('post_id', 'user_id')
+    queryset = models.Like.objects.all()
     serializer_class = serializers.LikePostSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = 'post_id'
@@ -91,11 +92,32 @@ class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
         serializer.save(user_id= self.request.user, post_id = post)
     def retrieve(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
-        likes = models.Like.objects.filter(post_id = post_id).prefetch_related('post_id', 'user_id').values(
+        likes = models.Like.objects.filter(
+            post_id = post_id
+        ).values(
             'post_id',
             'user_id'
         ).first()
         serializer = self.get_serializer(data = likes)
-        serializer.is_valid(raise_exception = True)
-        return Response(serializer.data)
+        try:
+            serializer.is_valid(raise_exception = True)
+        except Exception:
+            return Response({
+                'likes': 0,
+                'hasLiked': False
+            })
 
+        return Response(serializer.data)
+    def destroy(self, request, *args, **kwargs):
+        user_id = request.user.id
+        post_id = self.kwargs['post_id']
+        likes = models.Like.objects.filter(user_id = user_id, post_id = post_id)
+        if likes.exists():
+            likes.delete()
+            return Response(status =status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(
+                {
+                    'error': 'Post and associated user not found in likes table'
+                }, status = status.HTTP_404_NOT_FOUND
+            )

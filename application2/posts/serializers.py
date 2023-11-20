@@ -209,18 +209,23 @@ class SendRecommendedPosts(PostSerializer):
             'tag', 
             'rank'
             ]
+        
+        
 class LikePostSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField(read_only = True)
     hasLiked = serializers.SerializerMethodField(read_only = True)
+    post_id = serializers.UUIDField(required = False)
+    user_id = serializers.UUIDField(required = False)
     class Meta:
         model = Like
         fields = ['user_id', 'post_id', 'likes', 'hasLiked']
+    
     def create(self, validated_data):
         like, created = Like.objects.get_or_create(**validated_data)
         return like
     def get_likes(self, obj):
         if isinstance(obj, OrderedDict) :
-            post_id = obj.get('post_id')
+            post_id = obj['post_id']
         else:            
             post_id = obj.post_id
         return Like.objects.filter(post_id=post_id).count()
@@ -230,8 +235,8 @@ class LikePostSerializer(serializers.ModelSerializer):
             post_id = obj['post_id']
         else:            
             post_id = obj.post_id
-
         return Like.objects.filter(post_id = post_id, user_id = user.id).exists()
+    
     # def create(self, validated_data):
     #     request = self.context['request']
     #     user = request.user
