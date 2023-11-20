@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import *
+from django.db.models import Count
+from collections import OrderedDict
 app_name = __package__.split('.')[-1]
 
 class EmptySerializer(serializers.Serializer):
@@ -28,10 +30,10 @@ class CategoryListSerializer(serializers.Serializer):
             validated_data.append({'name': name, 'parent': parent})
             parent = category
         return validated_data
-class LikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Like
-        fields = "__all__"
+# class LikeSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Like
+#         fields = "__all__"
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -68,7 +70,7 @@ class PostSerializer(serializers.ModelSerializer):
         category = obj.categoryId
         ancestors = []
         depth = 0
-        while category and depth < 10:
+        while category and depth < MAX_CATEGORY_LEVELS:
             ancestors.append(category.name)
             category = category.parent
             depth+=1
@@ -127,7 +129,6 @@ class NewPostSerializer(serializers.ModelSerializer):
                 last_category = category
             
             validated_data['categoryId'] = last_category
-            print(validated_data)
             instance = self.Meta.model(**validated_data)
             instance.save()
             return instance
@@ -172,7 +173,6 @@ class EditPostSerializer(serializers.ModelSerializer):
                 last_category = category
             
             validated_data['categoryId'] = last_category
-            print(validated_data)
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()
@@ -209,3 +209,31 @@ class SendRecommendedPosts(PostSerializer):
             'tag', 
             'rank'
             ]
+class LikePostSerializer(serializers.ModelSerializer):
+    likes = serializers.SerializerMethodField(read_only = True)
+    hasLiked = serializers.SerializerMethodField(read_only = True)
+    class Meta:
+        model = Like
+        fields = ['user_id', 'post_id', 'likes', 'hasLiked']
+    def create(self, validated_data):
+        like, created = Like.objects.get_or_create(**validated_data)
+        return like
+    def get_likes(self, obj):
+        if isinstance(obj, OrderedDict) :
+            post_id = obj.get('post_id')
+        else:            
+            post_id = obj.post_id
+        return Like.objects.filter(post_id=post_id).count()
+    def get_hasLiked(self, obj):
+        user = self.context['request'].user
+        if isinstance(obj, OrderedDict) :
+            post_id = obj['post_id']
+        else:            
+            post_id = obj.post_id
+
+        return Like.objects.filter(post_id = post_id, user_id = user.id).exists()
+    # def create(self, validated_data):
+    #     request = self.context['request']
+    #     user = request.user
+    #     validated_data['user_id'] = user.id
+    #     return super().create(validated_data)

@@ -8,6 +8,8 @@ router.register('posts', views.PostsAPI)
 router.register('posts_recommended', views.GetRecommendation)
 router.register('new', views.NewPostAPI)
 router.register('edit', views.EditPostAPI)
+
+router.register('like', views.LikeAPI)
 urlpatterns = [
     path('', include(router.urls)),
     path('create_recommendations', views.create_recommendations_api)

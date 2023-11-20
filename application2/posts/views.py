@@ -1,12 +1,14 @@
 from django.shortcuts import render
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView
+from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, DestroyAPIView
 from . import serializers, queries, models
 from django.db.models import Exists, OuterRef, Q, F, Subquery, Count, Prefetch
 from datetime import date
 from django.db import connection
 from django.http import HttpResponse
+from rest_framework.response import Response
 from . import paginators
+from rest_framework.permissions import IsAuthenticated
 # Create your views here.
 class CategoriesAPI(ModelViewSet):
     queryset = models.Category.objects.all()[:30]
@@ -79,4 +81,21 @@ def populate_recommendations(user):
         ]
     models.Recommended.objects.bulk_create(recommended_list)
 
-    
+class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
+    queryset = models.Like.objects.all().select_related('post_id', 'user_id')
+    serializer_class = serializers.LikePostSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = 'post_id'
+    def perform_create(self, serializer):
+        post = models.Post.objects.get(postId =self.kwargs.get('post_id') )
+        serializer.save(user_id= self.request.user, post_id = post)
+    def retrieve(self, request, *args, **kwargs):
+        post_id = self.kwargs['post_id']
+        likes = models.Like.objects.filter(post_id = post_id).prefetch_related('post_id', 'user_id').values(
+            'post_id',
+            'user_id'
+        ).first()
+        serializer = self.get_serializer(data = likes)
+        serializer.is_valid(raise_exception = True)
+        return Response(serializer.data)
+
