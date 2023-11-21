@@ -1,6 +1,7 @@
 from django.db import models
 import uuid
 from django.contrib.auth.models import AbstractUser
+from cloudinary.models import CloudinaryField
 CURRENCY_CHOICES = [
     ('Br', 'Birr')
 ]
@@ -9,6 +10,7 @@ CURRENCY_LENGTH = 5
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     phone = models.CharField(max_length=255)
+    profilePicture = CloudinaryField('image', null=True)
     REQUIRED_FIELDS = ['phone']
 
 
@@ -41,7 +43,6 @@ class Post(models.Model):
         permissions = [
             ("edit_and_add_posts_of_others", "Can edit and add posts of others"),
         ]
-
 class Category(models.Model):
     id = models.UUIDField(primary_key = True, default=uuid.uuid4)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True)
@@ -54,18 +55,25 @@ NOTIFICATION_ACTIONS = [
     ('C', 'call'),
     ('F', 'follow'),
 ]
+GET_NOTIFICATION_IMAGE_FROM = [
+    ('U', 'User'),
+    ('P', 'Post')
+]
 class Notification(models.Model):
+    # date = models.DateField(auto_now_add=True)
     date = models.DateField()
     message = models.CharField(max_length=255)
-    image = models.TextField(default="", blank=True)
-    link = models.TextField(default="", blank=True)
-    sellerId = models.ForeignKey(to = "User", on_delete=models.CASCADE)
-    phone = models.CharField(max_length=20)
+    notifyUser = models.ForeignKey(to = "User", on_delete=models.CASCADE, related_name='notify_to')
+    profileId = models.ForeignKey(to = "User", on_delete=models.CASCADE, blank=True, null = True, related_name='profile_seller')
+    postId = models.ForeignKey(to = "Post", on_delete=models.CASCADE, blank=True, null = True)
+    image_from = models.CharField(max_length=1, choices = GET_NOTIFICATION_IMAGE_FROM)
     buttonPressed = models.BooleanField(default=False)
     seen = models.BooleanField(default=False)
     action = models.CharField(max_length=1, choices=NOTIFICATION_ACTIONS)
     def __str__(self) -> str:
-        return "To: " + self.sellerId.username + ", Message: " + self.message
+        return "To: " + self.notifyUser.username + ", Message: " + self.message
+    class Meta:
+        ordering = ['-date']
 
 class Favourite(models.Model):
     user_id = models.ForeignKey(to = "User", on_delete=models.CASCADE, db_index=True)
@@ -84,15 +92,14 @@ INTERACTION_ACTORS_OPTIONS = [
     ('Po', 'Post'),
     ('Ca', 'Category')
 ]
-class Interaction(models.Model):
-    action_performer_id = models.UUIDField()
-    action_performed_on_id = models.UUIDField()
-    label_performer = models.CharField(max_length=2, choices=INTERACTION_ACTORS_OPTIONS)
-    label_performed_on = models.CharField(max_length=2, choices=INTERACTION_ACTORS_OPTIONS)
-    strength = models.IntegerField(default=1)
+class Image(models.Model):
+    post = models.ForeignKey(to="Post", on_delete=models.CASCADE, related_name='postImage', db_index=True)
+    image = CloudinaryField('image')
+    order = models.PositiveIntegerField(default=1)
     def __str__(self) -> str:
-        return "User: " + str(User.objects.get(id = self.action_performer_id)) + ", Post: " + Post.objects.get(postId = self.action_performed_on_id).title
-
+        return "Image of Post: " + str(self.post)
+    class Meta:
+        ordering = ['order']
 class InteractionUserToPost(models.Model):
     user_id = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='interaction_with_posts')
     post_id = models.ForeignKey(to = Post, on_delete=models.CASCADE)
@@ -140,3 +147,4 @@ class Seen(models.Model):
     count = models.IntegerField(default = 0)
     def __str__(self) -> str:
         return 'User: ' + str(self.user) + ", Post: " + str(self.post) + ", Count: " + str(self.count)
+    

@@ -99,8 +99,8 @@ DATABASES = {
 }
 # CONN_MAX_AGE = None
 AUTH_USER_MODEL = 'posts.User'
-from neomodel import config
-config.DATABASE_URL = 'bolt://neo4j:12345678@localhost:7687/application2'
+# from neomodel import config
+# config.DATABASE_URL = 'bolt://neo4j:12345678@localhost:7687/application2'
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
 
@@ -144,3 +144,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # DEBUG_TOOLBAR_PANELS = [
 #     'debug_toolbar.panels.profiling.ProfilingPanel'
 # ]
+
+import cloudinary
+          
+cloudinary.config( 
+  cloud_name = "dgyblgiuq", 
+  api_key = "326714553129399", 
+  api_secret = "CozE8QQIhyXS0I8WroOXIgnPVVc" 
+)

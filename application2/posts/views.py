@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from collections import defaultdict
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, DestroyAPIView
 from . import serializers, queries, models
@@ -23,6 +24,8 @@ class PostsAPI(ModelViewSet):
     
     def get_queryset(self):
         self.serializer_class = serializers.PostSerializer
+        if self.action == 'retrieve':
+            self.serializer_class = serializers.PostDetailSerializer
         return queries.get_all_posts(self.request)
     # def get_serializer(self, *args, **kwargs):
     #     if self.action == 'create':
@@ -121,3 +124,60 @@ class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
                     'error': 'Post and associated user not found in likes table'
                 }, status = status.HTTP_404_NOT_FOUND
             )
+
+
+
+class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
+    queryset = models.Notification.objects.all(
+    ).values(
+        'action', 
+        'buttonPressed', 
+        'date', 
+        'id', 
+        'image_from',
+        'message', 
+        'notifyUser', 
+        'postId', 
+        'profileId', 
+        'seen'
+    )
+    def get_queryset(self):
+        return models.Notification.objects.filter(
+                notifyUser = self.request.user.id
+            ).values(
+                'action', 
+                'buttonPressed', 
+                'date', 
+                'id', 
+                'image_from',
+                'message', 
+                'notifyUser', 
+                'postId', 
+                'profileId', 
+                'seen'
+            )
+    pagination_class = paginators.Pages
+    serializer_class = serializers.NotificationDaySerializer
+    def list(self, request, *args, **kwargs):
+        notifications = self.filter_queryset(self.get_queryset())
+        page = self.paginate_queryset(notifications)
+        serialized = []
+        if page is not None:
+            groups = group_by_days(page)
+            
+            for daysBefore, notifications in groups.items():
+                serialized.append(
+                    {
+                        "daysBefore": daysBefore,
+                        "notificationsThatDay": serializers.NotificationSerializer(notifications, many = True).data
+                    }
+                )
+
+        return self.get_paginated_response(serialized)
+    
+def group_by_days(notifications):
+    groups = defaultdict(list)
+    for notification in notifications:
+        daysBefore = (date.today() - notification['date']).days
+        groups[daysBefore].append(notification)
+    return groups

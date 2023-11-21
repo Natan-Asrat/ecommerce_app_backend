@@ -10,6 +10,7 @@ router.register('new', views.NewPostAPI)
 router.register('edit', views.EditPostAPI)
 
 router.register('like', views.LikeAPI)
+router.register('notifications', views.NotificationsAPI)
 urlpatterns = [
     path('', include(router.urls)),
     path('create_recommendations', views.create_recommendations_api)
