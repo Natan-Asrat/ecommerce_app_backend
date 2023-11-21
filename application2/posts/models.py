@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
+from django.utils import timezone
 CURRENCY_CHOICES = [
     ('Br', 'Birr')
 ]
@@ -36,13 +37,14 @@ class Post(models.Model):
     likes = models.IntegerField(default=0, blank = True)
     engagement = models.DecimalField(decimal_places=2, max_digits=10)
     nextIconAction = models.CharField(max_length=1, choices=NEXT_ICON_ACTION_CHOICES)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateTimeField(auto_now_add=True)
     def __str__(self) -> str:
         return self.title
     class Meta:
         permissions = [
             ("edit_and_add_posts_of_others", "Can edit and add posts of others"),
         ]
+        ordering = ['-date']
 class Category(models.Model):
     id = models.UUIDField(primary_key = True, default=uuid.uuid4)
     parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True)
@@ -78,15 +80,19 @@ class Notification(models.Model):
 class Favourite(models.Model):
     user_id = models.ForeignKey(to = "User", on_delete=models.CASCADE, db_index=True)
     post_id = models.ForeignKey(to="Post", on_delete=models.CASCADE)
-
+    date = models.DateTimeField(auto_now_add=True)
     def __str__(self) -> str:
         return "Username: " + self.user_id.username + ", Post title: " + self.post_id.title
-
+    class Meta:
+        ordering = ['-date']
 class Like(models.Model):
     user_id = models.ForeignKey(to = "User", on_delete=models.CASCADE, related_name='likes_user', db_index=True)
     post_id = models.ForeignKey(to="Post", on_delete=models.CASCADE, related_name='likes_post', db_index=True)
+    date = models.DateTimeField(auto_now_add=True)
     def __str__(self) -> str:
         return "Username: " + self.user_id.username + ", Post title: " + self.post_id.title
+    class Meta:
+        ordering = ['-date']
 INTERACTION_ACTORS_OPTIONS = [
     ('Us', 'User'),
     ('Po', 'Post'),
@@ -131,9 +137,11 @@ class Follower(models.Model):
     user_follower = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='following')
     user_followed = models.ForeignKey(to = User, on_delete=models.CASCADE, related_name='followers')
     strength = models.IntegerField(default = 1)
+    date = models.DateTimeField(auto_now_add=True)
     def __str__(self) -> str:
         return "Follower: " + str(self.user_follower.username) + ", Followed: " + str(self.user_followed.username)
-    
+    class Meta:
+        ordering = ['-date']
 class Recommended(models.Model):
     date = models.DateField(auto_now_add=True)
     userId = models.ForeignKey(to=User, on_delete=models.CASCADE)
@@ -145,6 +153,9 @@ class Seen(models.Model):
     user = models.ForeignKey(to = User, on_delete=models.CASCADE)
     post = models.ForeignKey(to = Post, on_delete=models.CASCADE)
     count = models.IntegerField(default = 0)
+    date = models.DateTimeField(auto_now_add=True)
     def __str__(self) -> str:
         return 'User: ' + str(self.user) + ", Post: " + str(self.post) + ", Count: " + str(self.count)
+    class Meta:
+        ordering = ['-date']
     

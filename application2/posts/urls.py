@@ -10,6 +10,9 @@ router.register('new', views.NewPostAPI)
 router.register('edit', views.EditPostAPI)
 router.register('favourites', views.FavouritesAPI)
 router.register('like', views.LikeAPI)
+router.register('liked', views.LikedAPI)
+
+router.register('my_posts', views.MyPostsAPI)
 router.register('notifications', views.NotificationsAPI)
 urlpatterns = [
     path('', include(router.urls)),

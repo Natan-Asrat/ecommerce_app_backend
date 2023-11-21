@@ -41,7 +41,10 @@ class UserSerializer(serializers.ModelSerializer):
     brandName = serializers.SerializerMethodField()
     profilePicture = serializers.SerializerMethodField()
     def get_profilePicture(self, obj):
-        return obj.profilePicture.url
+        image = obj.profilePicture
+        if image:
+            return image.url
+        return None
     def get_brandName(self, obj):
         return f"{obj.first_name} {obj.last_name}"
     class Meta:
@@ -428,6 +431,24 @@ class WideCardSerializer(serializers.ModelSerializer):
             if parent is not None:
                 attr.append(str(parent))
         return attr
+
+class FavouriteSerializer(serializers.Serializer):
+    favourites = serializers.SerializerMethodField()
+    def get_favourites(self, obj):
+        return WideCardSerializer(obj.post_id).data
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return data['favourites']
+
+class LikedListSerializer(serializers.Serializer):
+    liked = serializers.SerializerMethodField()
+    def get_liked(self, obj):
+        return WideCardSerializer(obj.post_id).data
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        return data['liked']
+    
+  
 
 def get_originalPrice_string(obj):
     return str(obj.currency) + ' ' + str(obj.price)

@@ -185,6 +185,20 @@ def group_by_days(notifications):
 
 class FavouritesAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
-    serializer_class = serializers.WideCardSerializer
+    serializer_class = serializers.FavouriteSerializer
+    pagination_class = paginators.Pages
     def get_queryset(self):
-        return models.Post.objects.all().select_related('categoryId', 'categoryId__parent')
+        return models.Favourite.objects.filter(user_id = self.request.user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
+
+class LikedAPI(ListAPIView, GenericViewSet):
+    queryset = models.Post.objects.all()
+    serializer_class = serializers.LikedListSerializer
+    pagination_class = paginators.Pages
+    def get_queryset(self):
+        return models.Like.objects.filter(user_id = self.request.user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
+class MyPostsAPI(ListAPIView, GenericViewSet):
+    queryset = models.Post.objects.all()
+    serializer_class = serializers.WideCardSerializer
+    pagination_class = paginators.Pages
+    def get_queryset(self):
+        return models.Post.objects.filter(sellerId = self.request.user).select_related('sellerId', 'categoryId', 'categoryId__parent')
