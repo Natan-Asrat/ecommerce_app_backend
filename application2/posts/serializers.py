@@ -53,6 +53,8 @@ class PostSerializer(serializers.ModelSerializer):
     hasLiked = serializers.BooleanField(read_only = True)
     hasSaved = serializers.BooleanField(read_only = True)
     categories = serializers.SerializerMethodField()
+    originalPrice = serializers.SerializerMethodField()
+    discountedPrice = serializers.SerializerMethodField()
     sellerId = UserSerializer()
     image = serializers.SerializerMethodField(read_only = True)
     class Meta:
@@ -61,11 +63,9 @@ class PostSerializer(serializers.ModelSerializer):
             'postId', 
             'title', 
             'description',
-            'link', 
-            'price',
-            'currency', 
+            'link',  
+            'originalPrice',
             'discountedPrice',
-            'discountCurrency', 
             'categoryId',
             'categories', 
             'sellerId',
@@ -77,6 +77,10 @@ class PostSerializer(serializers.ModelSerializer):
             'hasSaved',
             'image'
             ]
+    def get_originalPrice(self, obj):
+        return get_originalPrice_string(obj)
+    def get_discountedPrice(self, obj):
+        return get_discountedPrice_string(obj)
     def get_image(self, obj):
         image = Image.objects.filter(post = obj).order_by('order').first()
         if image:
@@ -92,6 +96,11 @@ class PostSerializer(serializers.ModelSerializer):
             depth+=1
         ancestors = list(reversed(ancestors))
         return ancestors
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.discountedPrice is None:
+            representation.pop('discountedPrice')
+        return representation
 class ImageSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     def get_image_url(self, obj):
@@ -104,8 +113,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
     hasLiked = serializers.BooleanField(read_only = True)
     hasSaved = serializers.BooleanField(read_only = True)
     categories = serializers.SerializerMethodField()
-    sellerId = UserSerializer()
+    sellerId = UserSerializer(read_only = True)
     images = serializers.SerializerMethodField(read_only = True)
+    originalPrice = serializers.SerializerMethodField()
+    discountedPrice = serializers.SerializerMethodField()
     class Meta:
         model = Post
         fields = [
@@ -113,10 +124,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'title', 
             'description',
             'link', 
-            'price',
-            'currency', 
+            'originalPrice',
             'discountedPrice',
-            'discountCurrency', 
             'categoryId',
             'categories', 
             'sellerId',
@@ -128,6 +137,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'hasSaved',
             'images'
             ]
+    def get_originalPrice(self, obj):
+        return get_originalPrice_string(obj)
+    def get_discountedPrice(self, obj):
+        return get_discountedPrice_string(obj)
     def get_images(self, obj):
         images = Image.objects.filter(post = obj).order_by('order')
         # serializer = ImageSerializer(data = images, many = True)
@@ -147,7 +160,11 @@ class PostDetailSerializer(serializers.ModelSerializer):
             depth+=1
         ancestors = list(reversed(ancestors))
         return ancestors
-    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.discountedPrice is None:
+            representation.pop('discountedPrice')
+        return representation
     # def create(self, validated_data):
     #     category_names = validated_data.pop('categoryId')
         # last_category = None
@@ -383,28 +400,40 @@ class NotificationSerializer(serializers.ModelSerializer):
         if representation['link'] is None:
             representation.pop('link')
         return representation
+   
 
-class NotificationDaySerializer(serializers.ModelSerializer):
-    daysBefore = serializers.IntegerField()
-    notificationsThatDay = NotificationSerializer(many=True)
-
+class WideCardSerializer(serializers.ModelSerializer):
+    sellerId = UserSerializer()
+    image = serializers.SerializerMethodField(read_only = True)
+    attributes = serializers.SerializerMethodField(read_only = True)
     class Meta:
-        model = Notification
-        fields = ('daysBefore', 'notificationsThatDay')
+        model = Post
+        fields = ['postId', 'title', 'sellerId', 
+            'nextIconAction', 'link', 'image', 'attributes']
+    def get_image(self, obj):
+        image = Image.objects.filter(post = obj).order_by('order').first()
+        if image:
+            return image.image.url
+        return None
+    def get_attributes(self, obj):
+        attr = []
+        if obj.discountedPrice is not None:
+            attr.append(get_discountedPrice_string(obj))
+            attr.append(strike(get_originalPrice_string(obj)))
+        else:
+            attr.append(get_originalPrice_string(obj))
+        if obj.categoryId is not None:
+            attr.append(str(obj.categoryId))
+            parent = obj.categoryId.parent
+            if parent is not None:
+                attr.append(str(parent))
+        return attr
 
-    def to_representation(self, instance):
-        # Get the current date and time in the user's timezone
-        now = timezone.now()
-        # Group the notifications by the number of days before the notification was created
-        # grouped_notifications = groupby(instance, lambda x: (now - x.date).days)
-        print(instance)
-        # # Create a list of dictionaries for each day
-        # days = []
-        # for days_before, notifications in grouped_notifications:
-        #     day = {
-        #         "daysBefore": str(days_before),
-        #         "notificationsThatDay": NotificationSerializer(list(notifications), many=True).data
-        #     }
-        #     days.append(day)
+def get_originalPrice_string(obj):
+    return str(obj.currency) + ' ' + str(obj.price)
+def get_discountedPrice_string(obj):
+    return str(obj.discountCurrency) + ' ' + str(obj.discountedPrice)
 
-        return instance
+def strike(text):
+    text = " " + text + " "
+    return ''.join([u'\u0336{}'.format(c) for c in text])

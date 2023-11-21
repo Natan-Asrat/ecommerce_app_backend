@@ -8,7 +8,7 @@ router.register('posts', views.PostsAPI)
 router.register('posts_recommended', views.GetRecommendation)
 router.register('new', views.NewPostAPI)
 router.register('edit', views.EditPostAPI)
-
+router.register('favourites', views.FavouritesAPI)
 router.register('like', views.LikeAPI)
 router.register('notifications', views.NotificationsAPI)
 urlpatterns = [

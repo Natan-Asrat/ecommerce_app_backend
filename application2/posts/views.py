@@ -11,13 +11,14 @@ from rest_framework.response import Response
 from . import paginators
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Prefetch
 # Create your views here.
 class CategoriesAPI(ModelViewSet):
     queryset = models.Category.objects.all()[:30]
     serializer_class = serializers.CategorySerializer
 
 
-class PostsAPI(ModelViewSet):
+class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
     pagination_class = paginators.Pages
@@ -157,7 +158,7 @@ class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
                 'seen'
             )
     pagination_class = paginators.Pages
-    serializer_class = serializers.NotificationDaySerializer
+    serializer_class = serializers.NotificationSerializer
     def list(self, request, *args, **kwargs):
         notifications = self.filter_queryset(self.get_queryset())
         page = self.paginate_queryset(notifications)
@@ -181,3 +182,9 @@ def group_by_days(notifications):
         daysBefore = (date.today() - notification['date']).days
         groups[daysBefore].append(notification)
     return groups
+
+class FavouritesAPI(ListAPIView, GenericViewSet):
+    queryset = models.Post.objects.all()
+    serializer_class = serializers.WideCardSerializer
+    def get_queryset(self):
+        return models.Post.objects.all().select_related('categoryId', 'categoryId__parent')
