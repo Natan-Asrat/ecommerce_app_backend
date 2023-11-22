@@ -5,6 +5,7 @@ from collections import OrderedDict
 from datetime import datetime, timedelta
 from django.utils import timezone
 from itertools import groupby
+import pytz
 app_name = __package__.split('.')[-1]
 
 class EmptySerializer(serializers.Serializer):
@@ -37,9 +38,13 @@ class CategoryListSerializer(serializers.Serializer):
 #     class Meta:
 #         model = Like
 #         fields = "__all__"
+timezone = pytz.timezone('UTC')
+SECONDS_BEFORE_OFFLINE = 5 * 60
 class UserSerializer(serializers.ModelSerializer):
     brandName = serializers.SerializerMethodField()
     profilePicture = serializers.SerializerMethodField()
+    online = serializers.SerializerMethodField()
+    last_seen = serializers.SerializerMethodField()
     def get_profilePicture(self, obj):
         image = obj.profilePicture
         if image:
@@ -47,9 +52,21 @@ class UserSerializer(serializers.ModelSerializer):
         return None
     def get_brandName(self, obj):
         return f"{obj.first_name} {obj.last_name}"
+    def get_last_seen(self, obj):
+        last_seen = obj.last_seen.astimezone(timezone)
+        now = datetime.now().astimezone(timezone)
+        hours = int((now - last_seen).total_seconds() // 3600)
+        return hours
+    def get_online(self, obj):
+        last_seen = obj.last_seen.astimezone(timezone)
+        now = datetime.now().astimezone(timezone)
+        seconds = int((now - last_seen).total_seconds())
+        if seconds < SECONDS_BEFORE_OFFLINE:
+            return True
+        return False
     class Meta:
         model = User
-        fields = ['id', 'profilePicture', 'brandName']
+        fields = ['id', 'profilePicture', 'brandName', 'last_seen', 'online']
 
 class PostSerializer(serializers.ModelSerializer):
     postId = serializers.UUIDField(read_only = True)
@@ -370,8 +387,9 @@ class NotificationSerializer(serializers.ModelSerializer):
     def get_phoneNumber(self, obj):
         if obj['profileId'] is not None:
             user = User.objects.get(id = obj['profileId'])
-            if user.phone is not None:
-                return user.phone
+            num = user.phoneNumber
+            if num is not None:
+                return num
         return None
     def get_link(self, obj):
         if obj['action'] == 'L':
@@ -447,7 +465,49 @@ class LikedListSerializer(serializers.Serializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         return data['liked']
-    
+
+class ProfileSerializer(serializers.ModelSerializer):
+    brandName = serializers.SerializerMethodField()
+    profilePicture = serializers.SerializerMethodField()
+    online = serializers.SerializerMethodField()
+    last_seen = serializers.SerializerMethodField()
+    adCount = serializers.SerializerMethodField()
+    followerCount = serializers.SerializerMethodField()
+    followingCount = serializers.SerializerMethodField()
+    hasWebsite = serializers.SerializerMethodField()
+    def get_hasWebsite(self, obj):
+        link = obj.website
+        if link is not None and link != "":
+            return True
+        return False
+    def get_adCount(self, obj):
+        return obj.seller.count()
+    def get_followerCount(self, obj):
+        return obj.followers.count()
+    def get_followingCount(self, obj):
+        return obj.following.count()
+    def get_profilePicture(self, obj):
+        image = obj.profilePicture
+        if image:
+            return image.url
+        return None
+    def get_brandName(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+    def get_last_seen(self, obj):
+        last_seen = obj.last_seen.astimezone(timezone)
+        now = datetime.now().astimezone(timezone)
+        hours = int((now - last_seen).total_seconds() // 3600)
+        return hours
+    def get_online(self, obj):
+        last_seen = obj.last_seen.astimezone(timezone)
+        now = datetime.now().astimezone(timezone)
+        seconds = int((now - last_seen).total_seconds())
+        if seconds < SECONDS_BEFORE_OFFLINE:
+            return True
+        return False
+    class Meta:
+        model = User
+        fields = ['id', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
   
 
 def get_originalPrice_string(obj):

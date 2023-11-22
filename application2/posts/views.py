@@ -3,6 +3,8 @@ from collections import defaultdict
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, DestroyAPIView
 from . import serializers, queries, models
+
+from datetime import datetime, timedelta
 from django.db.models import Exists, OuterRef, Q, F, Subquery, Count, Prefetch
 from datetime import date
 from django.db import connection
@@ -202,3 +204,18 @@ class MyPostsAPI(ListAPIView, GenericViewSet):
     pagination_class = paginators.Pages
     def get_queryset(self):
         return models.Post.objects.filter(sellerId = self.request.user).select_related('sellerId', 'categoryId', 'categoryId__parent')
+class MyProfileAPI(ListAPIView, GenericViewSet):
+    queryset = models.User.objects.none()
+    serializer_class = serializers.ProfileSerializer
+    def get_queryset(self):
+        return self.request.user
+    def list(self, request, *args, **kwargs):
+        q = self.get_queryset()
+        serializer = self.get_serializer(q, many = False)
+        return Response(serializer.data)
+
+def update_last_seen(request):
+    user = request.user
+    user.last_seen = datetime.now().astimezone(serializers.timezone)
+    user.save()
+    return HttpResponse('Updated last seen of user: ' + str(user))

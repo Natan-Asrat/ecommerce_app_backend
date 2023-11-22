@@ -10,9 +10,11 @@ CURRENCY_LENGTH = 5
 
 class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    phone = models.CharField(max_length=255)
+    phoneNumber = models.CharField(max_length=25)
     profilePicture = CloudinaryField('image', null=True)
-    REQUIRED_FIELDS = ['phone']
+    last_seen = models.DateTimeField(default=timezone.now)
+    website = models.TextField(default = "", blank=True)
+    REQUIRED_FIELDS = ['phoneNumber']
 
 
 NEXT_ICON_ACTION_CHOICES = [
@@ -33,7 +35,7 @@ class Post(models.Model):
     discountedPrice = models.PositiveIntegerField(blank=True, null=True)
     discountCurrency = models.CharField(max_length=CURRENCY_LENGTH, choices=CURRENCY_CHOICES, null=True, blank = True)
     categoryId = models.ForeignKey(to="Category", on_delete=models.SET_NULL, null=True, blank = True)
-    sellerId = models.ForeignKey(to="User", on_delete=models.PROTECT)
+    sellerId = models.ForeignKey(to="User", on_delete=models.PROTECT, related_name = 'seller')
     likes = models.IntegerField(default=0, blank = True)
     engagement = models.DecimalField(decimal_places=2, max_digits=10)
     nextIconAction = models.CharField(max_length=1, choices=NEXT_ICON_ACTION_CHOICES)
