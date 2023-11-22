@@ -7,7 +7,14 @@ from django.utils import timezone
 from itertools import groupby
 from rest_framework.reverse import reverse
 import pytz
+from . import queries
 app_name = __package__.split('.')[-1]
+
+
+timezone = pytz.timezone('UTC')
+SECONDS_BEFORE_OFFLINE = 5 * 60
+MAX_CATEGORY_LEVELS = 5
+USERNAME_TO_LINK_JSON_BOOLEAN = True
 
 class EmptySerializer(serializers.Serializer):
     pass
@@ -57,12 +64,7 @@ class CategoryListSerializer(serializers.Serializer):
             validated_data.append({'name': name, 'parent': parent})
             parent = category
         return validated_data
-# class LikeSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Like
-#         fields = "__all__"
-timezone = pytz.timezone('UTC')
-SECONDS_BEFORE_OFFLINE = 5 * 60
+
 class UserSerializer(serializers.ModelSerializer):
     brandName = serializers.SerializerMethodField()
     profilePicture = serializers.SerializerMethodField()
@@ -90,7 +92,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'profilePicture', 'brandName', 'last_seen', 'online']
-
+SHOW_SIMILAR_POSTS_JSON_BOOLEAN = True
 class PostSerializer(serializers.ModelSerializer):
     postId = serializers.UUIDField(read_only = True)
     hasLiked = serializers.BooleanField(read_only = True)
@@ -144,6 +146,7 @@ class PostSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         if instance.discountedPrice is None:
             representation.pop('discountedPrice')
+        
         return representation
 class ImageSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
@@ -186,11 +189,8 @@ class PostDetailSerializer(serializers.ModelSerializer):
     def get_discountedPrice(self, obj):
         return get_discountedPrice_string(obj)
     def get_images(self, obj):
-        images = Image.objects.filter(post = obj).order_by('order')
-        # serializer = ImageSerializer(data = images, many = True)
-        # serializer.is_valid(raise_exception=True)
-        # return serializer.data
-        print(images)
+        images = obj.postImage.all().values('image').order_by('order')
+        images = list(images)
         if images:
             return [image.image.url for image in images]
         return []
@@ -208,33 +208,13 @@ class PostDetailSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         if instance.discountedPrice is None:
             representation.pop('discountedPrice')
-        return representation
-    # def create(self, validated_data):
-    #     category_names = validated_data.pop('categoryId')
-        # last_category = None
-        # for name in category_names:
-        #     category, _ = Category.objects.get_or_create(name = name, parent = last_category)
-        #     last_category = category
-        # validated_data['categoryId'] = last_category
-    #     # post = Post.objects.create(**validated_data)
-    #     instance = self.Meta.model(**validated_data)
-    #     instance.save()
-    #     return instance
+        representation['showSimilarPosts'] = SHOW_SIMILAR_POSTS_JSON_BOOLEAN
 
-    # def create(self, validated_data):
-    #     category_names = validated_data.pop('categoryId')
-        # last_category = None
-        # for name in category_names:
-        #     category, _ = Category.objects.get_or_create(name = name, parent = last_category)
-        #     last_category = category
-        # validated_data['categoryId'] = last_category
-    #     # post = Post.objects.create(**validated_data)
-    #     instance = self.Meta.model(**validated_data)
-    #     instance.save()
-    #     return instance
-MAX_CATEGORY_LEVELS = 5
+        return representation
+
 class NewPostSerializer(serializers.ModelSerializer):
     categories = serializers.ListField(child = serializers.CharField(), required = False)
+    sellerId = UserSerializer(read_only = True)
     postId = serializers.UUIDField(read_only = True)
     class Meta:
         model = Post
@@ -258,9 +238,10 @@ class NewPostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
         user = request.user if request else None
-        if user and (user.id != validated_data["sellerId"].id) and not user.has_perm(f'{app_name}.edit_and_add_posts_of_others'):
-            raise serializers.ValidationError("This is not your account, so you cant post with it")
+        if user is None:
+            raise serializers.ValidationError("You need to login before posting a post")
         else:
+            validated_data['sellerId'] = user
             category_names = validated_data.pop('categories')
             if not isinstance(category_names, list):
                 category_names = [category_names]
@@ -281,26 +262,31 @@ class EditPostSerializer(serializers.ModelSerializer):
     categories = serializers.ListField(child = serializers.CharField(), required = False)    
     postId = serializers.UUIDField(read_only = True)
     chosenCategories = serializers.SerializerMethodField(read_only = True)
+    nextCategories = serializers.SerializerMethodField(read_only = True)
+    images = serializers.SerializerMethodField(read_only = True)
+    currencies = serializers.SerializerMethodField(read_only = True)
     class Meta:
         model = Post
         fields = [
             'postId',
             'title', 
             'description',
-            'link', 
             'price',
             'currency', 
+            'currencies',
             'discountedPrice',
             'discountCurrency', 
-            'categoryId',
-            'categories', 
-            'sellerId',
-            'likes',
-            'engagement', 
+            'categories',
             'nextIconAction', 
             'hasDiscount', 
-            'chosenCategories'
+            'chosenCategories',
+            'nextCategories',
+            'images'
             ]
+        
+    def get_currencies(self, obj):
+        choices = Post._meta.get_field('currency').choices
+        return [choice[0] for choice in choices]
     def get_chosenCategories(self, obj):
         category = obj.categoryId
         ancestors = []
@@ -312,10 +298,26 @@ class EditPostSerializer(serializers.ModelSerializer):
             depth+=1
         ancestors = list(reversed(ancestors))
         return ancestors
+    def get_images(self, obj):
+        images = obj.postImage.all().values('image').order_by('order')
+        images = list(images)
+        print(images)
+        if images:
+            return [image.image.url for image in images]
+        return []
+    def get_nextCategories(self, obj):
+        request = self.context.get('request')
+        user = request.user if request else None
+        category = obj.categoryId
+        if user:
+            data = queries.children_categories(user, category)
+            serializer = CategorySerializer(data, many = True)
+            return serializer.data
+        return []
     def update(self, instance, validated_data):
         request = self.context.get('request')
         user = request.user if request else None
-        if user and (user.id != instance.sellerId.id) and not user.has_perm(f'{app_name}.edit_and_add_posts_of_others'):
+        if user is None or (user.id != instance.sellerId.id):
             raise serializers.ValidationError("This is not your post, so you cant edit it")
         else:
             category_names = validated_data.pop('categories')
@@ -333,6 +335,12 @@ class EditPostSerializer(serializers.ModelSerializer):
                 setattr(instance, attr, value)
             instance.save()
             return instance
+    def to_representation(self, instance):
+        request = self.context.get('request')
+        user = request.user if request else None
+        if user and user.id != instance.sellerId.id:
+            raise serializers.ValidationError("This is not your post, so you can't edit it")
+        return super().to_representation(instance)
 class RecommendedSerializer(serializers.Serializer):
     postId = serializers.UUIDField()
     tag = serializers.CharField(max_length = 10)
@@ -393,11 +401,6 @@ class LikePostSerializer(serializers.ModelSerializer):
             post_id = obj.post_id
         return Like.objects.filter(post_id = post_id, user_id = user.id).exists()
     
-    # def create(self, validated_data):
-    #     request = self.context['request']
-    #     user = request.user
-    #     validated_data['user_id'] = user.id
-    #     return super().create(validated_data)
 class NotificationSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     profileId = serializers.UUIDField()
@@ -501,7 +504,7 @@ class LikedListSerializer(serializers.Serializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         return data['liked']
-
+    
 class ProfileSerializer(serializers.ModelSerializer):
     brandName = serializers.SerializerMethodField()
     profilePicture = serializers.SerializerMethodField()
@@ -541,6 +544,10 @@ class ProfileSerializer(serializers.ModelSerializer):
         if seconds < SECONDS_BEFORE_OFFLINE:
             return True
         return False
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["usernameToLink"] = USERNAME_TO_LINK_JSON_BOOLEAN
+        return representation
     class Meta:
         model = User
         fields = ['id', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']

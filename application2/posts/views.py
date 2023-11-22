@@ -16,9 +16,7 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from django.db.models import Prefetch
 # Create your views here.
-class CategoriesAPI(ModelViewSet):
-    queryset = models.Category.objects.all()[:30]
-    serializer_class = serializers.CategorySerializer
+from django.contrib.auth.models import User, Permission
 
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
@@ -30,26 +28,29 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         if self.action == 'retrieve':
             self.serializer_class = serializers.PostDetailSerializer
         return queries.get_all_posts(self.request)
-class NewPostAPI(CreateAPIView, UpdateAPIView, GenericViewSet):
-    queryset = models.Post.objects.all()[:1]    
-    serializer_class = serializers.NewPostSerializer 
-class EditPostAPI(ModelViewSet):
+class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
+    queryset = models.Post.objects.none()  
+    serializer_class = serializers.NewPostSerializer
+    def list(self, request, *args, **kwargs): 
+        user = request.user if request else None
+        categories = []
+        currencies = []
+        if user:
+            data = queries.children_categories(user, None)
+            serializer = serializers.CategorySerializer(data, many = True)
+            categories = serializer.data
+        choices = models.Post._meta.get_field('currency').choices
+        currencies = [choice[0] for choice in choices]
+        info = {
+            "nextCategories": categories,
+            "currencies": currencies,
+            "id": user.id
+
+        }
+        return Response(info)
+class EditPostAPI(RetrieveAPIView, UpdateAPIView, DestroyAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EditPostSerializer 
-    
-# class PostsRecommended(ListAPIView, GenericViewSet):
-#     queryset = models.Post.objects.none()
-#     serializer_class = serializers.EmptySerializer
-#     def list(self, request, *args, **kwargs):
-#         self.serializer_class = serializers.SendRecommendedPosts
-#         reset_recommendations(self.request.user)
-#         populate_recommendations(self.request.user)
-#         # posts = queries.recommended_from_table(request.user)
-#         # serializer = self.get_serializer(posts, many=True)
-#         # self.serializer_class.data = posts
-#         return Response("Poppulated recommendations, go to /posts_r")
-#         # return Response(serializer.data)
-#         # return super().list(self, request, *args, **kwargs)
     
 def create_recommendations_api(request):
     create_recommendations(request)
@@ -71,7 +72,7 @@ class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     serializer_class = serializers.CategoryForTraversalSerializer
     def get_queryset(self):
         if self.action == 'list':
-            return queries.root_categories(self.request.user)
+            return queries.children_categories(self.request.user, parent=None)
         elif self.action == 'retrieve':
             return queries.children_categories(self.request.user, self.kwargs['pk'])
         return super().get_queryset()
@@ -223,6 +224,19 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.User.objects.all()
     serializer_class = serializers.ProfileSerializer
     pagination_class = paginators.Pages
+
+class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
+    queryset = models.Post.objects.none()
+    serializer_class = serializers.WideCardSerializer
+    pagination_class = paginators.Pages
+    def get_queryset(self):
+        if  self.action == 'retrieve':
+            q =queries.get_similar_posts(self.request.user, self.kwargs['pk'])
+            print(q)
+            return q
+        return super().get_queryset()
+    def retrieve(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 def update_last_seen(request):
     user = request.user
     user.last_seen = datetime.now().astimezone(serializers.timezone)

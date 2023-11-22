@@ -16,9 +16,9 @@ router.register('profiles', views.ProfileAPI)
 router.register('my_profile', views.MyProfileAPI)
 router.register('my_posts', views.MyPostsAPI)
 router.register('notifications', views.NotificationsAPI)
+router.register('similar', views.SimilarPostsAPI)
 urlpatterns = [
     path('', include(router.urls)),
     path('create_recommendations', views.create_recommendations_api),
     path('update_last_seen', views.update_last_seen)
-
 ]

@@ -452,16 +452,6 @@ def subquery_for_categories(user):
             ).values('category_id').annotate(
                 interaction_sum=Coalesce(Sum('strength_sum'), 0)
             ).values('interaction_sum')
-def root_categories(user):
-    return models.Category.objects.filter(parent = None).annotate(
-                tree = Count('children__id', distinct=True) +
-                               Count('children__children__id', distinct=True) +
-                               Count('children__children__children__id', distinct=True) +
-                               Count('children__children__children__children__id', distinct=True),
-                interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
-                interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
-            ).order_by('-interaction_with_user', '-interaction_for_category', '-tree')
-
 def children_categories(user, parent):
     return models.Category.objects.filter(parent = parent).annotate(
                 tree = Count('children__id', distinct=True) +
@@ -471,3 +461,49 @@ def children_categories(user, parent):
                 interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
                 interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
             ).order_by('-interaction_with_user', '-interaction_for_category', '-tree')
+
+def get_similar_posts(user, postId):
+    post = models.Post.objects.get(postId=postId)
+    category = post.categoryId
+    posts = models.Post.objects.filter(
+                Q(
+                    categoryId=category
+                    ) 
+                |Q(
+                    categoryId__parent=category
+                    ) 
+                | Q(
+                    categoryId__parent__parent=category
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent=category
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent__parent=category
+                    ) 
+            ).exclude(
+                Q(
+                    sellerId=user.id
+                  ) 
+                  |
+                Q(
+                    postId = postId
+                )
+                
+            ).select_related('categoryId', 'sellerId').annotate(
+                post_id = F('postId'),
+                tag=Value('category', output_field=CharField()),
+                hasLiked=Exists(models.Like.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                hasSaved=Exists(models.Favourite.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                rank = 
+                    reduce_category_influence(user)
+                    / 
+                    reduce_seen_posts_influence(user)
+                ).order_by(
+                '-engagement'
+            )
+    return posts
