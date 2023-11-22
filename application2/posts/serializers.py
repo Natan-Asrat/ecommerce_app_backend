@@ -5,17 +5,40 @@ from collections import OrderedDict
 from datetime import datetime, timedelta
 from django.utils import timezone
 from itertools import groupby
+from rest_framework.reverse import reverse
 import pytz
 app_name = __package__.split('.')[-1]
 
 class EmptySerializer(serializers.Serializer):
     pass
+class CategoryForTraversalSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only = True)
+    children = serializers.SerializerMethodField()
+    parent = serializers.SerializerMethodField()
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'children', 'parent']
+    def get_children(self, obj):
+        request = self.context.get('request')
+        url = reverse('categories-detail', kwargs={'pk': obj.id}, request=request)
+        return url
+    def get_parent(self, obj):
+        request = self.context.get('request')
+        parent = obj.parent
+        if parent is not None:
+            if parent.parent is not None:
+                url = reverse('categories-detail', kwargs={'pk': parent.parent.id}, request=request)
+                return url
+            else:
+                url = reverse('categories-list', request=request)
+                return url
+        return None
 class CategorySerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only = True)
     class Meta:
         model = Category
         fields = ['id', 'name']
-
+    
 class CategoryListSerializer(serializers.Serializer):
     categories = serializers.ListField
     def to_representation(self, instance):
@@ -111,7 +134,8 @@ class PostSerializer(serializers.ModelSerializer):
         ancestors = []
         depth = 0
         while category and depth < MAX_CATEGORY_LEVELS:
-            ancestors.append(category.name)
+            c = CategorySerializer(category, many = False).data
+            ancestors.append(c)
             category = category.parent
             depth+=1
         ancestors = list(reversed(ancestors))
@@ -256,7 +280,7 @@ class NewPostSerializer(serializers.ModelSerializer):
 class EditPostSerializer(serializers.ModelSerializer):
     categories = serializers.ListField(child = serializers.CharField(), required = False)    
     postId = serializers.UUIDField(read_only = True)
-
+    chosenCategories = serializers.SerializerMethodField(read_only = True)
     class Meta:
         model = Post
         fields = [
@@ -274,8 +298,20 @@ class EditPostSerializer(serializers.ModelSerializer):
             'likes',
             'engagement', 
             'nextIconAction', 
-            'hasDiscount'
+            'hasDiscount', 
+            'chosenCategories'
             ]
+    def get_chosenCategories(self, obj):
+        category = obj.categoryId
+        ancestors = []
+        depth = 0
+        while category and depth < MAX_CATEGORY_LEVELS:
+            c = CategorySerializer(category, many = False).data
+            ancestors.append(c)
+            category = category.parent
+            depth+=1
+        ancestors = list(reversed(ancestors))
+        return ancestors
     def update(self, instance, validated_data):
         request = self.context.get('request')
         user = request.user if request else None

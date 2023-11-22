@@ -2,6 +2,7 @@ from django.db import models
 import uuid
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
+from django.db.models import Count
 from django.utils import timezone
 CURRENCY_CHOICES = [
     ('Br', 'Birr')
@@ -49,10 +50,11 @@ class Post(models.Model):
         ordering = ['-date']
 class Category(models.Model):
     id = models.UUIDField(primary_key = True, default=uuid.uuid4)
-    parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True)
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null = True, blank=True, related_name='children')
     name = models.CharField(max_length=255)
     def __str__(self) -> str:
         return self.name
+    
 
 NOTIFICATION_ACTIONS = [
     ('L', 'link'),
@@ -122,7 +124,7 @@ class InteractionUserToUser(models.Model):
         return "User: " + str(self.user_performer.username) + ", User2: " + str(self.user_performed_on.username)
 class InteractionUserToCategory(models.Model):
     user_id = models.ForeignKey(to=User, on_delete=models.CASCADE, related_name='interaction_with_category')
-    category_id = models.ForeignKey(to = Category, on_delete=models.CASCADE)
+    category_id = models.ForeignKey(to = Category, on_delete=models.CASCADE, related_name='interaction')
     strength_sum = models.IntegerField(default = 1)
     def __str__(self) -> str:
         return "User: " + str(self.user_id.username) + ", Category: " + self.category_id.name

@@ -5,7 +5,8 @@ from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIVie
 from . import serializers, queries, models
 
 from datetime import datetime, timedelta
-from django.db.models import Exists, OuterRef, Q, F, Subquery, Count, Prefetch
+from django.db.models import Exists, OuterRef, Q, F, Subquery, Count, Prefetch, Sum
+from django.db.models.functions import Coalesce
 from datetime import date
 from django.db import connection
 from django.http import HttpResponse
@@ -19,7 +20,6 @@ class CategoriesAPI(ModelViewSet):
     queryset = models.Category.objects.all()[:30]
     serializer_class = serializers.CategorySerializer
 
-
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
@@ -30,10 +30,6 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         if self.action == 'retrieve':
             self.serializer_class = serializers.PostDetailSerializer
         return queries.get_all_posts(self.request)
-    # def get_serializer(self, *args, **kwargs):
-    #     if self.action == 'create':
-    #         return serializers.NewPostSerializer
-    #     return serializers.PostSerializer
 class NewPostAPI(CreateAPIView, UpdateAPIView, GenericViewSet):
     queryset = models.Post.objects.all()[:1]    
     serializer_class = serializers.NewPostSerializer 
@@ -70,7 +66,17 @@ class GetRecommendation(ListAPIView, GenericViewSet):
         self.serializer_class = serializers.SendRecommendedPosts
         posts = queries.recommended_from_table(self.request.user)
         return posts
-
+class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
+    queryset = models.Category.objects.none()
+    serializer_class = serializers.CategoryForTraversalSerializer
+    def get_queryset(self):
+        if self.action == 'list':
+            return queries.root_categories(self.request.user)
+        elif self.action == 'retrieve':
+            return queries.children_categories(self.request.user, self.kwargs['pk'])
+        return super().get_queryset()
+    def retrieve(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 def reset_recommendations(user):
     models.Recommended.objects.filter(userId=user.id).delete()
 
@@ -213,7 +219,10 @@ class MyProfileAPI(ListAPIView, GenericViewSet):
         q = self.get_queryset()
         serializer = self.get_serializer(q, many = False)
         return Response(serializer.data)
-
+class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
+    queryset = models.User.objects.all()
+    serializer_class = serializers.ProfileSerializer
+    pagination_class = paginators.Pages
 def update_last_seen(request):
     user = request.user
     user.last_seen = datetime.now().astimezone(serializers.timezone)

@@ -444,3 +444,30 @@ def recommended_from_table(user):
                 '-rank'
             )
     return posts
+
+def subquery_for_categories(user):
+    return models.InteractionUserToCategory.objects.filter(
+                user_id=user,
+                category_id=OuterRef('id')
+            ).values('category_id').annotate(
+                interaction_sum=Coalesce(Sum('strength_sum'), 0)
+            ).values('interaction_sum')
+def root_categories(user):
+    return models.Category.objects.filter(parent = None).annotate(
+                tree = Count('children__id', distinct=True) +
+                               Count('children__children__id', distinct=True) +
+                               Count('children__children__children__id', distinct=True) +
+                               Count('children__children__children__children__id', distinct=True),
+                interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
+                interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
+            ).order_by('-interaction_with_user', '-interaction_for_category', '-tree')
+
+def children_categories(user, parent):
+    return models.Category.objects.filter(parent = parent).annotate(
+                tree = Count('children__id', distinct=True) +
+                               Count('children__children__id', distinct=True) +
+                               Count('children__children__children__id', distinct=True) +
+                               Count('children__children__children__children__id', distinct=True),
+                interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
+                interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
+            ).order_by('-interaction_with_user', '-interaction_for_category', '-tree')
