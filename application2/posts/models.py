@@ -38,7 +38,7 @@ class Post(models.Model):
     categoryId = models.ForeignKey(to="Category", on_delete=models.SET_NULL, null=True, blank = True)
     sellerId = models.ForeignKey(to="User", on_delete=models.PROTECT, related_name = 'seller')
     likes = models.IntegerField(default=0, blank = True)
-    engagement = models.DecimalField(decimal_places=2, max_digits=10)
+    engagement = models.DecimalField(decimal_places=2, max_digits=10, default=0, blank = True)
     nextIconAction = models.CharField(max_length=1, choices=NEXT_ICON_ACTION_CHOICES)
     date = models.DateTimeField(auto_now_add=True)
     def __str__(self) -> str:

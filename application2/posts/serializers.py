@@ -192,7 +192,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
         images = obj.postImage.all().values('image').order_by('order')
         images = list(images)
         if images:
-            return [image.image.url for image in images]
+            return [image['image'].url for image in images]
         return []
     def get_categories(self, obj):
         category = obj.categoryId
@@ -216,6 +216,7 @@ class NewPostSerializer(serializers.ModelSerializer):
     categories = serializers.ListField(child = serializers.CharField(), required = False)
     sellerId = UserSerializer(read_only = True)
     postId = serializers.UUIDField(read_only = True)
+    imageBitmaps = serializers.ListField(child = serializers.ImageField(), required = False)
     class Meta:
         model = Post
         fields = [
@@ -229,11 +230,10 @@ class NewPostSerializer(serializers.ModelSerializer):
             'discountCurrency', 
             'categoryId',
             'categories', 
-            'sellerId',
-            'likes',
-            'engagement', 
+            'sellerId', 
             'nextIconAction', 
-            'hasDiscount'
+            'hasDiscount',
+            'imageBitmaps'
             ]
     def create(self, validated_data):
         request = self.context.get('request')
@@ -243,6 +243,9 @@ class NewPostSerializer(serializers.ModelSerializer):
         else:
             validated_data['sellerId'] = user
             category_names = validated_data.pop('categories')
+            imageBitmaps = validated_data.pop('imageBitmaps')
+            if not isinstance(imageBitmaps, list):
+                imageBitmaps = [imageBitmaps]
             if not isinstance(category_names, list):
                 category_names = [category_names]
             if len(category_names)>MAX_CATEGORY_LEVELS:
@@ -256,6 +259,9 @@ class NewPostSerializer(serializers.ModelSerializer):
             validated_data['categoryId'] = last_category
             instance = self.Meta.model(**validated_data)
             instance.save()
+            for i in range(len(imageBitmaps)):
+                image = imageBitmaps[i]
+                obj = Image.objects.create(post = instance, image = image, order = i+1)
             return instance
 
 class EditPostSerializer(serializers.ModelSerializer):
@@ -265,6 +271,8 @@ class EditPostSerializer(serializers.ModelSerializer):
     nextCategories = serializers.SerializerMethodField(read_only = True)
     images = serializers.SerializerMethodField(read_only = True)
     currencies = serializers.SerializerMethodField(read_only = True)
+    imageBitmaps = serializers.ListField(child = serializers.ImageField(), required = False)
+
     class Meta:
         model = Post
         fields = [
@@ -281,7 +289,8 @@ class EditPostSerializer(serializers.ModelSerializer):
             'hasDiscount', 
             'chosenCategories',
             'nextCategories',
-            'images'
+            'images',
+            'imageBitmaps'
             ]
         
     def get_currencies(self, obj):
@@ -301,9 +310,8 @@ class EditPostSerializer(serializers.ModelSerializer):
     def get_images(self, obj):
         images = obj.postImage.all().values('image').order_by('order')
         images = list(images)
-        print(images)
         if images:
-            return [image.image.url for image in images]
+            return [image['image'].url for image in images]
         return []
     def get_nextCategories(self, obj):
         request = self.context.get('request')
@@ -321,6 +329,9 @@ class EditPostSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("This is not your post, so you cant edit it")
         else:
             category_names = validated_data.pop('categories')
+            imageBitmaps = validated_data.pop('imageBitmaps')
+            if not isinstance(imageBitmaps, list):
+                imageBitmaps = [imageBitmaps]
             if not isinstance(category_names, list):
                 category_names = [category_names]
             if len(category_names)>MAX_CATEGORY_LEVELS:
@@ -334,6 +345,10 @@ class EditPostSerializer(serializers.ModelSerializer):
             for attr, value in validated_data.items():
                 setattr(instance, attr, value)
             instance.save()
+            instance.postImage.all().delete()
+            for i in range(len(imageBitmaps)):
+                image = imageBitmaps[i]
+                obj = Image.objects.create(post = instance, image = image, order = i+1)
             return instance
     def to_representation(self, instance):
         request = self.context.get('request')

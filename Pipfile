@@ -11,6 +11,8 @@ djangorestframework = "*"
 django-debug-toolbar = "*"
 psycopg2 = "*"
 cloudinary = "*"
+django-dotenv = "*"
+firebase-admin = "*"
 
 [dev-packages]
 

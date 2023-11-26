@@ -17,12 +17,13 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Prefetch
 # Create your views here.
 from django.contrib.auth.models import User, Permission
+from . import authentication
 
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
     pagination_class = paginators.Pages
-    
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         self.serializer_class = serializers.PostSerializer
         if self.action == 'retrieve':
@@ -31,6 +32,7 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
 class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
     queryset = models.Post.objects.none()  
     serializer_class = serializers.NewPostSerializer
+    authentication_classes = [authentication.FirebaseAuthentication]
     def list(self, request, *args, **kwargs): 
         user = request.user if request else None
         categories = []
@@ -51,6 +53,7 @@ class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
 class EditPostAPI(RetrieveAPIView, UpdateAPIView, DestroyAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EditPostSerializer 
+    authentication_classes = [authentication.FirebaseAuthentication]
     
 def create_recommendations_api(request):
     create_recommendations(request)
@@ -63,6 +66,7 @@ class GetRecommendation(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()[:1]
     serializer_class = serializers.EmptySerializer
     pagination_class = paginators.RecommendedPages
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         self.serializer_class = serializers.SendRecommendedPosts
         posts = queries.recommended_from_table(self.request.user)
@@ -70,6 +74,7 @@ class GetRecommendation(ListAPIView, GenericViewSet):
 class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         if self.action == 'list':
             return queries.children_categories(self.request.user, parent=None)
@@ -100,6 +105,7 @@ class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
     serializer_class = serializers.LikePostSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = 'post_id'
+    authentication_classes = [authentication.FirebaseAuthentication]
     def perform_create(self, serializer):
         post = models.Post.objects.get(postId =self.kwargs.get('post_id') )
         serializer.save(user_id= self.request.user, post_id = post)
@@ -151,6 +157,7 @@ class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         'profileId', 
         'seen'
     )
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         return models.Notification.objects.filter(
                 notifyUser = self.request.user.id
@@ -196,6 +203,7 @@ class FavouritesAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.FavouriteSerializer
     pagination_class = paginators.Pages
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         return models.Favourite.objects.filter(user_id = self.request.user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
 
@@ -203,17 +211,20 @@ class LikedAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.LikedListSerializer
     pagination_class = paginators.Pages
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         return models.Like.objects.filter(user_id = self.request.user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
 class MyPostsAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.WideCardSerializer
     pagination_class = paginators.Pages
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         return models.Post.objects.filter(sellerId = self.request.user).select_related('sellerId', 'categoryId', 'categoryId__parent')
 class MyProfileAPI(ListAPIView, GenericViewSet):
     queryset = models.User.objects.none()
     serializer_class = serializers.ProfileSerializer
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         return self.request.user
     def list(self, request, *args, **kwargs):
@@ -224,11 +235,13 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.User.objects.all()
     serializer_class = serializers.ProfileSerializer
     pagination_class = paginators.Pages
+    authentication_classes = [authentication.FirebaseAuthentication]
 
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.none()
     serializer_class = serializers.WideCardSerializer
     pagination_class = paginators.Pages
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         if  self.action == 'retrieve':
             q =queries.get_similar_posts(self.request.user, self.kwargs['pk'])
