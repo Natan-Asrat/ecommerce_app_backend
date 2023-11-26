@@ -1,7 +1,8 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from . import views
-
+from django.conf.urls.static import static
+from django.conf import settings
 router = DefaultRouter()
 router.register('categories', views.CategoriesAPI)
 router.register('posts', views.PostsAPI)
@@ -22,3 +23,5 @@ urlpatterns = [
     path('create_recommendations', views.create_recommendations_api),
     path('update_last_seen', views.update_last_seen)
 ]
+urlpatterns += static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
+urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
