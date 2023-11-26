@@ -27,8 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['.vercel.app']
 import os
-import dotenv
-dotenv.read_dotenv()
+# import dotenv
+# dotenv.read_dotenv()
 
 FIREBASE_ACCOUNT_TYPE = os.environ.get('FIREBASE_ACCOUNT_TYPE')
 FIREBASE_PROJECT_ID = os.environ.get('FIREBASE_PROJECT_ID')
