@@ -9,10 +9,10 @@ neomodel = "*"
 django-neomodel = "*"
 djangorestframework = "*"
 django-debug-toolbar = "*"
-psycopg2 = "*"
 cloudinary = "*"
 django-dotenv = "*"
 firebase-admin = "*"
+psycopg2-binary = "*"
 
 [dev-packages]
 
