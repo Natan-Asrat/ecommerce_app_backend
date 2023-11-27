@@ -6,9 +6,16 @@
         "config": {
           "maxLambdaSize": "1024mb",
           "runtime": "python3.9"
-        },
-        "commands": ["echo hi"]
-    }
+        }
+    },
+    {
+        "src": "deploy.sh",
+        "use": "@vercel/static-build",
+        "config": {
+          "distDir": "application2"
+        }
+      }
+      
       
     ],
     "routes": [
