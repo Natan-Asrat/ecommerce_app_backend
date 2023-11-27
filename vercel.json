@@ -10,7 +10,8 @@
       },
       {
         "src": "deploy.sh",
-        "use": "@vercel/static-build"
+        "use": "@vercel/static-build",
+        "config": { "zeroConfig": true }
       }
     ],
     "routes": [
