@@ -125,6 +125,16 @@ DATABASES = {
         'PORT': DATABASE_PORT
     }
 }
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'application2',
+#         'USER': 'postgres',
+#         'PASSWORD': 'nats',
+#         'HOST': 'localhost',
+#         'PORT': '5433'
+#     }
+# }
 # CONN_MAX_AGE = None
 AUTH_USER_MODEL = 'posts.User'
 # from neomodel import config
