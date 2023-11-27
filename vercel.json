@@ -12,7 +12,7 @@
         "src": "deploy.sh",
         "use": "@vercel/static-build",
         "config": {
-          "distDir": "staticfiles"
+          "distDir": "build"
         }
       }
     ],
