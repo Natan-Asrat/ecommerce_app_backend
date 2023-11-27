@@ -13,6 +13,7 @@ cloudinary = "*"
 django-dotenv = "*"
 firebase-admin = "*"
 psycopg2-binary = "*"
+whitenoise = "*"
 
 [dev-packages]
 
