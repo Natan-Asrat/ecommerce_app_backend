@@ -262,5 +262,6 @@ def migrate(request):
         call_command('makemigrations', '--noinput')
         call_command('migrate', '--noinput')
         return HttpResponse('Done')
-    except Exception:
-        return HttpResponse('Error')
+    except Exception as e:
+
+        return HttpResponse(e)
