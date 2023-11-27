@@ -22,7 +22,7 @@
       {
         "src": "/deploy",
         "dest": "deploy.sh",
-        "methods": ["GET"]
+        "methods": ["POST"]
       }
     ]
   }
