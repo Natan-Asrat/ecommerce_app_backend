@@ -168,5 +168,5 @@ cloudinary.config(
   api_secret = "CozE8QQIhyXS0I8WroOXIgnPVVc" 
 )
 
-STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build')
+STATICFILES_DIR = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles_build', 'static')
