@@ -10,16 +10,13 @@
       },
       {
         "src": "deploy.sh",
-        "use": "@vercel/external",
-        "config": {
-          "command": "sh deploy.sh"
-        }
+        "use": "@vercel/python"
       }
     ],
     "routes": [
         
       {
-        "src": "/(?!deploy$).*",
+        "src": "/(.*)",
         "dest": "application2/wsgi.py"
       }
       

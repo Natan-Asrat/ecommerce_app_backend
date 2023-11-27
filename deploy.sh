@@ -1,1 +1,2 @@
 echo 'works'
+print('works')
