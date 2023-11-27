@@ -53,7 +53,8 @@ INSTALLED_APPS = [
     'django_neomodel',
     'rest_framework',
     'posts.apps.PostsConfig',
-    'debug_toolbar'
+    'debug_toolbar',
+    'whitenoise.runserver_nostatic'
 ]
 INTERNAL_IPS = [
     '127.0.0.1',
