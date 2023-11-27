@@ -10,14 +10,15 @@
       }
     ],
     "routes": [
+        {
+            "src": "/deploy",
+            "dest": "deploy.sh",
+            "methods": ["GET"]
+          },
       {
         "src": "/(.*)",
         "dest": "application2/wsgi.py"
-      },
-      {
-        "src": "/deploy",
-        "dest": "deploy.sh",
-        "methods": ["GET"]
       }
+      
     ]
   }
