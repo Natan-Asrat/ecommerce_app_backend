@@ -128,6 +128,7 @@ DATABASES = {
         'HOST': DATABASE_HOST,
         'PORT': DATABASE_PORT
     }
+    
 }
 # CONN_MAX_AGE = None
 AUTH_USER_MODEL = 'posts.User'
