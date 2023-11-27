@@ -1,2 +1,2 @@
-echo 'works'
-mkdir works
+python manage.py makemigrations
+python manage.py migrate
