@@ -17,5 +17,7 @@
       }
       
     ],
-    "scripts": "sh deploy.sh"
+    "scripts": {
+        "build": "sh deploy.sh"
+      }
   }
