@@ -102,14 +102,31 @@ WSGI_APPLICATION = 'application2.wsgi.application'
 #     }
 # }
 
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': 'application2',
+#         'USER': 'postgres',
+#         'PASSWORD': 'nats',
+#         'HOST': 'localhost',
+#         'PORT': '5433'
+#     }
+# }
+DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE')
+DATABASE_NAME = os.environ.get('POSTGRES_DATABASE')
+DATABASE_USER = os.environ.get('POSTGRES_USER')
+DATABASE_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+DATABASE_HOST = os.environ.get('POSTGRES_HOST')
+DATABASE_PORT = os.environ.get('DATABASE_PORT')
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'application2',
-        'USER': 'postgres',
-        'PASSWORD': 'nats',
-        'HOST': 'localhost',
-        'PORT': '5433'
+        'NAME': DATABASE_NAME,
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASSWORD,
+        'HOST': DATABASE_HOST,
+        'PORT': DATABASE_PORT
     }
 }
 # CONN_MAX_AGE = None
