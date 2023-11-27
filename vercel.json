@@ -7,11 +7,6 @@
           "maxLambdaSize": "1024mb",
           "runtime": "python3.9"
         }
-      },
-      {
-        "src": "deploy.sh",
-        "use": "@vercel/static-build",
-        "config": { "zeroConfig": true }
       }
     ],
     "routes": [
@@ -22,7 +17,7 @@
       {
         "src": "/deploy",
         "dest": "deploy.sh",
-        "methods": ["POST"]
+        "methods": ["GET"]
       }
     ]
   }
