@@ -102,14 +102,22 @@ WSGI_APPLICATION = 'application2.wsgi.application'
 #     }
 # }
 
+DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE')
+DATABASE_NAME = os.environ.get('DATABASE_NAME')
+DATABASE_USER = os.environ.get('DATABASE_USER')
+DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
+DATABASE_HOST = os.environ.get('DATABASE_HOST')
+DATABASE_PORT = os.environ.get('DATABASE_PORT')
+
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'application2',
-        'USER': 'postgres',
-        'PASSWORD': 'nats',
-        'HOST': 'localhost',
-        'PORT': '5433'
+        'ENGINE': DATABASE_ENGINE,
+        'NAME': DATABASE_NAME,
+        'USER': DATABASE_USER,
+        'PASSWORD': DATABASE_PASSWORD,
+        'HOST': DATABASE_HOST,
+        'PORT': DATABASE_PORT
     }
 }
 # CONN_MAX_AGE = None
@@ -156,9 +164,6 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-# DEBUG_TOOLBAR_PANELS = [
-#     'debug_toolbar.panels.profiling.ProfilingPanel'
-# ]
 
 import cloudinary
           
