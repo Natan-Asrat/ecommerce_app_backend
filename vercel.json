@@ -10,9 +10,9 @@
       },
       {
         "src": "deploy.sh",
-        "use": "@vercel/static-build",
+        "use": "@vercel/build",
         "config": {
-          "distDir": "build"
+          "command": "sh deploy.sh"
         }
       }
     ],
