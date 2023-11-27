@@ -102,13 +102,18 @@ WSGI_APPLICATION = 'application2.wsgi.application'
 #     }
 # }
 
+# DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE')
+# DATABASE_NAME = os.environ.get('DATABASE_NAME')
+# DATABASE_USER = os.environ.get('DATABASE_USER')
+# DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
+# DATABASE_HOST = os.environ.get('DATABASE_HOST')
+# DATABASE_PORT = os.environ.get('DATABASE_PORT')
 DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE')
-DATABASE_NAME = os.environ.get('DATABASE_NAME')
-DATABASE_USER = os.environ.get('DATABASE_USER')
-DATABASE_PASSWORD = os.environ.get('DATABASE_PASSWORD')
-DATABASE_HOST = os.environ.get('DATABASE_HOST')
+DATABASE_NAME = os.environ.get('POSTGRES_DATABASE')
+DATABASE_USER = os.environ.get('POSTGRES_USER')
+DATABASE_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+DATABASE_HOST = os.environ.get('POSTGRES_HOST')
 DATABASE_PORT = os.environ.get('DATABASE_PORT')
-
 
 DATABASES = {
     'default': {
