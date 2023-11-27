@@ -7,7 +7,9 @@
           "maxLambdaSize": "1024mb",
           "runtime": "python3.9"
         },
-        "commands": ["mkdir hi", "echo hi"]
+        "commands": {
+            "build": "echo hi"
+        }
     }
       
     ],
