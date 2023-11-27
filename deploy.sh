@@ -1,2 +1,1 @@
 echo 'works'
-print('works')

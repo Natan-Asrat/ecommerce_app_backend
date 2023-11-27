@@ -7,10 +7,6 @@
           "maxLambdaSize": "1024mb",
           "runtime": "python3.9"
         }
-      },
-      {
-        "src": "deploy.sh",
-        "use": "@vercel/python"
       }
     ],
     "routes": [
@@ -20,5 +16,6 @@
         "dest": "application2/wsgi.py"
       }
       
-    ]
+    ],
+    "scripts": "sh deploy.sh"
   }
