@@ -10,7 +10,7 @@
       },
       {
         "src": "deploy.sh",
-        "use": "@vercel/build",
+        "use": "@vercel/external",
         "config": {
           "command": "sh deploy.sh"
         }
