@@ -12,14 +12,17 @@
         "src": "deploy.sh",
         "use": "@vercel/static-build",
         "config": {
-          "distDir": "application2"
+          "distDir": "staticfiles"
         }
       }
       
       
     ],
     "routes": [
-        
+        {
+            "src": "/static/(.*)",
+            "dest": "/static/$1"
+          },
       {
         "src": "/(.*)",
         "dest": "application2/wsgi.py"
