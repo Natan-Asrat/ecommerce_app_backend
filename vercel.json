@@ -16,7 +16,7 @@
             "methods": ["GET"]
           },
       {
-        "src": "/(.*)",
+        "src": "/(?!deploy$).*",
         "dest": "application2/wsgi.py"
       }
       
