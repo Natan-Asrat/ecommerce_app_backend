@@ -1,15 +1,27 @@
 {
     "builds": [
-        {
+      {
         "src": "application2/wsgi.py",
         "use": "@vercel/python",
-        "config": { "maxLambdaSize": "1024mb", "runtime": "python3.9" }
-    }
+        "config": {
+          "maxLambdaSize": "1024mb",
+          "runtime": "python3.9"
+        }
+      },
+      {
+        "src": "deploy.sh",
+        "use": "@vercel/static-build"
+      }
     ],
     "routes": [
-        {
-            "src": "/(.*)",
-            "dest": "application2/wsgi.py"
-        }
+      {
+        "src": "/(.*)",
+        "dest": "application2/wsgi.py"
+      },
+      {
+        "src": "/deploy",
+        "dest": "deploy.sh",
+        "methods": ["GET"]
+      }
     ]
-}
+  }
