@@ -197,5 +197,5 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 
 AUTHENTICATION_BACKENDS = [  # Default authentication backend
-    'posts.backends.FirebaseAuthentication'  # Custom Firebase authentication backend
+    'posts.authentication.FirebaseAuthentication'  # Custom Firebase authentication backend
 ]
