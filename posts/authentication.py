@@ -52,7 +52,7 @@ class FirebaseAuthentication(BaseAuthentication):
             print("decoded token: " + str(decoded_token))
             uid = decoded_token["uid"]
         except Exception as e:
-            print("cant decode: " + e)
+            print("cant decode: " + str(e))
             return None
         print("uid: " + uid)
         user = User.objects.get_or_create(username=uid)
