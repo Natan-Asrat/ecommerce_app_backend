@@ -43,13 +43,17 @@ class FirebaseAuthentication(BaseAuthentication):
 
         token = request.headers.get('Authorization')
         if not token:
+            print("no token")
             return None
+        
 
         try:
             decoded_token = auth.verify_id_token(token)
+            print("decoded token: " + str(decoded_token))
             uid = decoded_token["uid"]
         except:
+            print("cant decode")
             return None
-            
+        print("uid: " + uid)
         user = User.objects.get_or_create(username=uid)
         return user
