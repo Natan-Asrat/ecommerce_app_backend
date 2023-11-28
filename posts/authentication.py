@@ -21,6 +21,7 @@ default_app = firebase_admin.initialize_app(cred)
 class FirebaseAuthentication(BaseAuthentication):
     def authenticate(self, request):
         auth_header = request.META.get("HTTP_AUTHORIZATION")
+        print(auth_header)
         if not auth_header:
                 raise exceptions.NoAuthToken("No auth token provided")
         id_token = auth_header.split(" ").pop()
@@ -35,6 +36,5 @@ class FirebaseAuthentication(BaseAuthentication):
                 uid = decoded_token.get("uid")
         except Exception:
                 raise exceptions.FirebaseError()
-        print(uid)
         user, created = User.objects.get_or_create(username=uid)
         return (user, None)
