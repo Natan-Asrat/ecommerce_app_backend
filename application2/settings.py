@@ -24,7 +24,7 @@ SECRET_KEY = 'django-insecure-b3ul3!0ob3a!)@5r7dqy65#lh_mea)ovbqm5g94oi0g+8tt#rf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 import os
-DEBUG = os.environ.get('DEBUG')
+DEBUG = os.environ.get('DEBUG') == 'true' if os.environ.get('DEBUG') else False
 
 ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '.onrender.com']
 # import dotenv
