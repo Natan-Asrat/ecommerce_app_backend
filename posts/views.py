@@ -270,9 +270,17 @@ def migrate(request):
 def loaddata(request, link):
     if settings.DEBUG:
         try:
-            call_command('makemigrations', '--noinput')
-            call_command('migrate', '--noinput')
             call_command('loaddata', link)
+            return HttpResponse('Done')
+        except Exception as e:
+            return HttpResponse(e)
+    else:
+        return HttpResponse('Debug is false')
+    
+def flush(request):
+    if settings.DEBUG:
+        try:
+            call_command('flush', '--noinput')
             return HttpResponse('Done')
         except Exception as e:
             return HttpResponse(e)
