@@ -196,6 +196,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # }
 
 
-AUTHENTICATION_BACKENDS = [  # Default authentication backend
-    'posts.authentication.FirebaseAuthentication'  # Custom Firebase authentication backend
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',  # Default authentication backend
+    'posts.backends.FirebaseAuthentication',  # Custom Firebase authentication backend
 ]
