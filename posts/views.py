@@ -256,12 +256,25 @@ def update_last_seen(request):
     user.last_seen = datetime.now().astimezone(serializers.timezone)
     user.save()
     return HttpResponse('Updated last seen of user: ' + str(user))
-
+from django.conf import settings
 def migrate(request):
-    try:
-        call_command('makemigrations', '--noinput')
-        call_command('migrate', '--noinput')
-        return HttpResponse('Done')
-    except Exception as e:
-
-        return HttpResponse(e)
+    if settings.DEBUG:
+        try:
+            call_command('makemigrations', '--noinput')
+            call_command('migrate', '--noinput')
+            return HttpResponse('Done')
+        except Exception as e:
+            return HttpResponse(e)
+    else:
+        return HttpResponse('Debug is false')
+def loaddata(request, link):
+    if settings.DEBUG:
+        try:
+            call_command('makemigrations', '--noinput')
+            call_command('migrate', '--noinput')
+            call_command('loaddata', link,  '--noinput')
+            return HttpResponse('Done')
+        except Exception as e:
+            return HttpResponse(e)
+    else:
+        return HttpResponse('Debug is false')

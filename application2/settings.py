@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b3ul3!0ob3a!)@5r7dqy65#lh_mea)ovbqm5g94oi0g+8tt#rf'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+import os
+DEBUG = os.environ.get('DEBUG')
 
 ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '.onrender.com']
-import os
 # import dotenv
 # dotenv.read_dotenv()
 
