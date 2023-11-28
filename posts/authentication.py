@@ -35,5 +35,6 @@ class FirebaseAuthentication(BaseAuthentication):
                 uid = decoded_token.get("uid")
         except Exception:
                 raise exceptions.FirebaseError()
+        print(uid)
         user, created = User.objects.get_or_create(username=uid)
         return (user, None)
