@@ -24,7 +24,6 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
     pagination_class = paginators.Pages
-    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         self.serializer_class = serializers.PostSerializer
         if self.action == 'retrieve':
