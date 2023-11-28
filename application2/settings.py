@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-b3ul3!0ob3a!)@5r7dqy65#lh_mea)ovbqm5g94oi0g+8tt#rf
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh']
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '.onrender.com']
 import os
 # import dotenv
 # dotenv.read_dotenv()
@@ -101,34 +101,36 @@ WSGI_APPLICATION = 'application2.wsgi.application'
 #     }
 # }
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': 'application2',
-#         'USER': 'postgres',
-#         'PASSWORD': 'nats',
-#         'HOST': 'localhost',
-#         'PORT': '5433'
-#     }
-# }
-DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE')
-DATABASE_NAME = os.environ.get('POSTGRES_DATABASE')
-DATABASE_USER = os.environ.get('POSTGRES_USER')
-DATABASE_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
-DATABASE_HOST = os.environ.get('POSTGRES_HOST')
-DATABASE_PORT = os.environ.get('DATABASE_PORT')
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': DATABASE_NAME,
-        'USER': DATABASE_USER,
-        'PASSWORD': DATABASE_PASSWORD,
-        'HOST': DATABASE_HOST,
-        'PORT': DATABASE_PORT
+        'NAME': 'application2',
+        'USER': 'postgres',
+        'PASSWORD': 'nats',
+        'HOST': 'localhost',
+        'PORT': '5433'
     }
-    
 }
+# DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE')
+# DATABASE_NAME = os.environ.get('POSTGRES_DATABASE')
+# DATABASE_USER = os.environ.get('POSTGRES_USER')
+# DATABASE_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
+# DATABASE_HOST = os.environ.get('POSTGRES_HOST')
+# DATABASE_PORT = os.environ.get('DATABASE_PORT')
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#         'NAME': DATABASE_NAME,
+#         'USER': DATABASE_USER,
+#         'PASSWORD': DATABASE_PASSWORD,
+#         'HOST': DATABASE_HOST,
+#         'PORT': DATABASE_PORT
+#     }
+    
+# }
+import dj_database_url
+DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_LINK'))
 # CONN_MAX_AGE = None
 AUTH_USER_MODEL = 'posts.User'
 # from neomodel import config
