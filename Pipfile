@@ -5,8 +5,6 @@ name = "pypi"
 
 [packages]
 django = "==4.2.7"
-neomodel = "*"
-django-neomodel = "*"
 djangorestframework = "*"
 django-debug-toolbar = "*"
 cloudinary = "*"
