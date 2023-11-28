@@ -272,7 +272,7 @@ def loaddata(request, link):
         try:
             call_command('makemigrations', '--noinput')
             call_command('migrate', '--noinput')
-            call_command('loaddata', link,  '--noinput')
+            call_command('loaddata', link)
             return HttpResponse('Done')
         except Exception as e:
             return HttpResponse(e)
