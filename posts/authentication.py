@@ -1,6 +1,6 @@
 from rest_framework.authentication import BaseAuthentication
 from . import exceptions
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 import firebase_admin
 from firebase_admin import credentials, auth
 from django.conf import settings
@@ -55,5 +55,6 @@ class FirebaseAuthentication(BaseAuthentication):
             print("cant decode: " + str(e))
             return None
         print("uid: " + uid)
+        User = get_user_model()
         user = User.objects.get_or_create(username=uid)
         return user
