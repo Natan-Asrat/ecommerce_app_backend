@@ -20,9 +20,6 @@ router.register('notifications', views.NotificationsAPI)
 router.register('similar', views.SimilarPostsAPI)
 urlpatterns = [
     path('', include(router.urls)),
-    path('create_recommendations', views.create_recommendations_api),
-    path('update_last_seen', views.update_last_seen),
-    path('migrate', views.migrate),
-    path('load/<str:link>', views.loaddata),
-    path('flush', views.flush)
+    path('refresh', views.create_recommendations_api),
+    path('update_last_seen', views.update_last_seen)
 ]

@@ -162,4 +162,14 @@ class Seen(models.Model):
         return 'User: ' + str(self.user) + ", Post: " + str(self.post) + ", Count: " + str(self.count)
     class Meta:
         ordering = ['-date']
+
+class Ads(models.Model):
+    postId = models.ForeignKey(to = Post, on_delete=models.CASCADE)
+    categoryId = models.ForeignKey(to = Category, on_delete=models.CASCADE)
+    strength = models.IntegerField(default = 1)
+    def __str__(self) -> str:
+        return str(self.postId)
+    
+    class Meta:
+        ordering = ['-strength']
     

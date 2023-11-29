@@ -459,13 +459,11 @@ class NotificationSerializer(serializers.ModelSerializer):
                 return image.image.url
         elif obj['image_from'] == 'U':
             image = User.objects.get(id=obj['profileId']).profilePicture
-            print(image)
             if image:
                 return image.url
         return None
     def to_representation(self, instance):
         representation = super().to_representation(instance)
-        print(instance)
         if representation['postId'] is None:
             representation.pop('postId')
         if representation['profileId'] is None:

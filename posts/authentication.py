@@ -18,43 +18,17 @@ cred = credentials.Certificate({
         "client_x509_cert_url" : settings.FIREBASE_CLIENT_X509_CERT_URL
 })
 default_app = firebase_admin.initialize_app(cred)
-# class FirebaseAuthentication(BaseAuthentication):
-#     def authenticate(self, request):
-#         auth_header = request.META.get("HTTP_AUTHORIZATION")
-#         print(auth_header)
-#         if not auth_header:
-#                 raise exceptions.NoAuthToken("No auth token provided")
-#         id_token = auth_header.split(" ").pop()
-#         decoded_token = None
-#         try:
-#                 decoded_token = auth.verify_id_token(id_token)
-#         except Exception:
-#                 raise exceptions.InvalidAuthToken("Invalid auth token")
-#         if not id_token or not decoded_token:
-#                 return None
-#         try:
-#                 uid = decoded_token.get("uid")
-#         except Exception:
-#                 raise exceptions.FirebaseError()
-#         user, created = User.objects.get_or_create(username=uid)
-#         return (user, None)
 class FirebaseAuthentication(BaseAuthentication):
     def authenticate(self, request):
 
         token = request.headers.get('Authorization')
         if not token:
-            print("no token")
             return None
-        
-
         try:
             decoded_token = auth.verify_id_token(token)
-            print("decoded token: " + str(decoded_token))
             uid = decoded_token["uid"]
         except Exception as e:
-            print("cant decode: " + str(e))
             return None
-        print("uid: " + uid)
         User = get_user_model()
         user = User.objects.get_or_create(username=uid)
         return user

@@ -100,6 +100,58 @@ def get_all_posts(request):
         ))).all()
     return posts
 
+
+def get_ad_by_category(user):
+    most_interacted_categories = categories_for_UCCF(user)
+    personalized_ads = ads_for_categories(most_interacted_categories)
+    posts = models.Post.objects.filter(
+                postId__in=Subquery(personalized_ads.values('postId')) 
+            ).exclude(
+                sellerId=user.id
+            ).select_related('categoryId', 'sellerId').annotate(
+                tag=Value('ads', output_field=CharField()),
+                hasLiked=Exists(models.Like.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                hasSaved=Exists(models.Favourite.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                rank = 
+                    reduce_category_influence(user)
+                    / 
+                    reduce_seen_posts_influence(user)
+            ).order_by(
+                '-rank'
+            )
+    return posts
+
+
+def get_similar_ads(user, postId):
+    post = models.Post.objects.filter(postId=postId).values('categoryId')
+    similar_ads = ads_similar(post)
+    posts = models.Post.objects.filter(
+                postId__in=Subquery(similar_ads.values('postId')) 
+            ).exclude(
+                sellerId=user.id
+            ).select_related('categoryId', 'sellerId').annotate(
+                tag=Value('ads', output_field=CharField()),
+                hasLiked=Exists(models.Like.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                hasSaved=Exists(models.Favourite.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                rank = 
+                    reduce_category_influence(user)
+                    / 
+                    reduce_seen_posts_influence(user)
+            ).order_by(
+                '-rank'
+            )
+    return posts
+    
+
+
 def get_post_ids_with_item_item_collaborative_filtering(user):
     most_interacted_posts = posts_for_IICF(user)
     most_interacted_users = users_for_IICF(user, most_interacted_posts)
@@ -184,7 +236,7 @@ def get_post_ids_with_user_category_collaborative_filtering(user):
                 'tag',
                 'rank'
             ).order_by(
-                '-engagement'
+                '-rank'
             )[:UCCF_RECOMMENDATION_LIMIT]
     return posts
 
@@ -319,7 +371,38 @@ def get_recommendations(user):
     return queryset
 
 
-
+def ads_for_categories(categories):
+    ads = models.Ads.objects.filter(
+                Q(
+                    categoryId__in=Subquery(categories.values('category_id'))
+                    ) 
+                |Q(
+                    categoryId__parent__in=Subquery(categories.values('category_id'))
+                    ) 
+                | Q(
+                    categoryId__parent__parent__in=Subquery(categories.values('category_id'))
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent__in=Subquery(categories.values('category_id'))
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent__parent__in=Subquery(categories.values('category_id'))
+                    ) 
+            ).values(
+                'postId'
+            )
+    return ads
+def ads_similar(post):
+    ads = models.Ads.objects.filter(
+                Q(categoryId__in=Subquery(post.values('categoryId'))) 
+                |Q(categoryId__in=Subquery(post.values('categoryId__parent'))) 
+                |Q(categoryId__in=Subquery(post.values('categoryId__parent__parent'))) 
+                |Q(categoryId__in=Subquery(post.values('categoryId__parent__parent__parent'))) 
+                |Q(categoryId__in=Subquery(post.values('categoryId__parent__parent__parent__parent')))
+            ).values(
+                'postId'
+            )
+    return ads
 def posts_for_IICF(user):
     most_interacted_posts = models.InteractionUserToPost.objects.filter(
             user_id=user.id
@@ -507,3 +590,4 @@ def get_similar_posts(user, postId):
                 '-engagement'
             )
     return posts
+

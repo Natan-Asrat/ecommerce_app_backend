@@ -19,12 +19,12 @@ from django.db.models import Prefetch
 from django.contrib.auth.models import User, Permission
 from . import authentication
 from django.core.management import call_command
+from rest_framework.exceptions import NotFound
 
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
-    pagination_class = paginators.Pages
-    authentication_classes = [authentication.FirebaseAuthentication]
+    pagination_class = paginators.RecommendedPages
     def get_queryset(self):
         self.serializer_class = serializers.PostSerializer
         if self.action == 'retrieve':
@@ -33,7 +33,6 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
 class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
     queryset = models.Post.objects.none()  
     serializer_class = serializers.NewPostSerializer
-    authentication_classes = [authentication.FirebaseAuthentication]
     def list(self, request, *args, **kwargs): 
         user = request.user if request else None
         categories = []
@@ -54,7 +53,6 @@ class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
 class EditPostAPI(RetrieveAPIView, UpdateAPIView, DestroyAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EditPostSerializer 
-    authentication_classes = [authentication.FirebaseAuthentication]
     
 def create_recommendations_api(request):
     create_recommendations(request)
@@ -67,7 +65,6 @@ class GetRecommendation(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()[:1]
     serializer_class = serializers.EmptySerializer
     pagination_class = paginators.RecommendedPages
-    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         self.serializer_class = serializers.SendRecommendedPosts
         posts = queries.recommended_from_table(self.request.user)
@@ -75,7 +72,6 @@ class GetRecommendation(ListAPIView, GenericViewSet):
 class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer
-    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         if self.action == 'list':
             return queries.children_categories(self.request.user, parent=None)
@@ -106,7 +102,6 @@ class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
     serializer_class = serializers.LikePostSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = 'post_id'
-    authentication_classes = [authentication.FirebaseAuthentication]
     def perform_create(self, serializer):
         post = models.Post.objects.get(postId =self.kwargs.get('post_id') )
         serializer.save(user_id= self.request.user, post_id = post)
@@ -237,16 +232,15 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     serializer_class = serializers.ProfileSerializer
     pagination_class = paginators.Pages
     authentication_classes = [authentication.FirebaseAuthentication]
-
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.none()
     serializer_class = serializers.WideCardSerializer
-    pagination_class = paginators.Pages
-    authentication_classes = [authentication.FirebaseAuthentication]
+    pagination_class = paginators.SimilarPages
     def get_queryset(self):
         if  self.action == 'retrieve':
-            q =queries.get_similar_posts(self.request.user, self.kwargs['pk'])
-            print(q)
+            self.pk = self.kwargs['pk']
+            paginators.similar_pk = self.pk
+            q =queries.get_similar_posts(self.request.user, self.pk)
             return q
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
@@ -256,33 +250,3 @@ def update_last_seen(request):
     user.last_seen = datetime.now().astimezone(serializers.timezone)
     user.save()
     return HttpResponse('Updated last seen of user: ' + str(user))
-from django.conf import settings
-def migrate(request):
-    if settings.DEBUG:
-        try:
-            call_command('makemigrations', '--noinput')
-            call_command('migrate', '--noinput')
-            return HttpResponse('Done')
-        except Exception as e:
-            return HttpResponse(e)
-    else:
-        return HttpResponse('Debug is false')
-def loaddata(request, link):
-    if settings.DEBUG:
-        try:
-            call_command('loaddata', link)
-            return HttpResponse('Done')
-        except Exception as e:
-            return HttpResponse(e)
-    else:
-        return HttpResponse('Debug is false')
-    
-def flush(request):
-    if settings.DEBUG:
-        try:
-            call_command('flush', '--noinput')
-            return HttpResponse('Done')
-        except Exception as e:
-            return HttpResponse(e)
-    else:
-        return HttpResponse('Debug is false')
