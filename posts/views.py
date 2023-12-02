@@ -96,7 +96,6 @@ class GetRecommendation(ListAPIView, GenericViewSet):
 class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer
-    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         if self.action == 'list':
             return queries.children_categories(self.request.user, parent=None)
