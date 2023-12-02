@@ -20,20 +20,15 @@ cred = credentials.Certificate({
 default_app = firebase_admin.initialize_app(cred)
 class FirebaseAuthentication(BaseAuthentication):
     def authenticate(self, request):
+
         token = request.headers.get('Authorization')
-        print("token: " + str(token))
         if not token:
             return None
         try:
             decoded_token = auth.verify_id_token(token)
             uid = decoded_token["uid"]
-            print("uid: " + str(uid))
         except Exception as e:
             return None
         User = get_user_model()
-        user, created = User.objects.get_or_create(username=uid)
-        if created:
-            print("created user with id: " + user.get_username())
-        else:
-            print("user id: " + user.get_username())
+        user = User.objects.get_or_create(username=uid)
         return user
