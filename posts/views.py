@@ -21,6 +21,7 @@ from . import authentication
 from django.core.management import call_command
 from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter
+from rest_framework.authentication import TokenAuthentication
 
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
@@ -97,7 +98,7 @@ class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer
     pagination_class = paginators.Pages
-    authentication_classes = [authentication.FirebaseAuthentication]
+    authentication_classes = [authentication.FirebaseAuthentication, TokenAuthentication]
     def get_queryset(self):
         if self.action == 'list':
             return queries.children_categories(self.request.user, parent=None)

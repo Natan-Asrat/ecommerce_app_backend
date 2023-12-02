@@ -217,9 +217,3 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 #         'posts.authentication.FirebaseAuthentication',
 #     ]
 # }
-
-
-AUTHENTICATION_BACKENDS = [ 
-    'django.contrib.auth.backends.ModelBackend', 
-    'posts.authentication.FirebaseAuthentication', 
-]
