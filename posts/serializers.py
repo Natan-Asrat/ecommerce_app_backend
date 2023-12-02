@@ -91,7 +91,7 @@ class UserSerializer(serializers.ModelSerializer):
         return False
     class Meta:
         model = User
-        fields = ['id', 'profilePicture', 'brandName', 'last_seen', 'online']
+        fields = ['id', 'profilePicture', 'brandName', 'last_seen', 'online', 'username', 'phoneNumber']
 SHOW_SIMILAR_POSTS_JSON_BOOLEAN = True
 class PostSerializer(serializers.ModelSerializer):
     postId = serializers.UUIDField(read_only = True)
