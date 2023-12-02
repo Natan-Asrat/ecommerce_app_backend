@@ -3,7 +3,7 @@ from collections import defaultdict
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, DestroyAPIView
 from . import serializers, queries, models
-
+from . import authentication
 from datetime import datetime, timedelta
 from django.db.models import Exists, OuterRef, Q, F, Subquery, Count, Prefetch, Sum
 from django.db.models.functions import Coalesce
@@ -96,6 +96,7 @@ class GetRecommendation(ListAPIView, GenericViewSet):
 class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer
+    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         if self.action == 'list':
             return queries.children_categories(self.request.user, parent=None)
