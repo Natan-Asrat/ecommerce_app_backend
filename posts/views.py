@@ -20,15 +20,36 @@ from django.contrib.auth.models import User, Permission
 from . import authentication
 from django.core.management import call_command
 from rest_framework.exceptions import NotFound
+from rest_framework.filters import SearchFilter
 
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
+    filter_backends = [SearchFilter]
+    search_fields = [
+        'title', 
+        'description', 
+        'price', 
+        'discountedPrice', 
+        'sellerId__first_name', 
+        'sellerId__last_name', 
+        'categoryId__name', 
+        'categoryId__parent__parent__name',
+        'categoryId__parent__parent__parent__name',
+        'categoryId__parent__parent__parent__parent__name',
+        'categoryId__parent__parent__parent__parent__parent__name',
+        'link',
+        'date'
+        ]
     pagination_class = paginators.RecommendedPages
     def get_queryset(self):
-        self.serializer_class = serializers.PostSerializer
         if self.action == 'retrieve':
             self.serializer_class = serializers.PostDetailSerializer
+        else:  
+            self.serializer_class = serializers.PostSerializer
+            category = self.request.query_params.get('category')
+            if category is not None:
+                return queries.get_all_posts(self.request).filter(categoryId = category)
         return queries.get_all_posts(self.request)
 class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
     queryset = models.Post.objects.none()  
@@ -61,14 +82,17 @@ def create_recommendations(request):
     reset_recommendations(request.user)
     populate_recommendations(request.user)
 
+# use category with recommendation in the sliding horizontal category choices and not in search filter choices
 class GetRecommendation(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()[:1]
     serializer_class = serializers.EmptySerializer
     pagination_class = paginators.RecommendedPages
     def get_queryset(self):
         self.serializer_class = serializers.SendRecommendedPosts
-        posts = queries.recommended_from_table(self.request.user)
-        return posts
+        category = self.request.query_params.get('category')
+        if category is not None:
+            return queries.get_recommended_in_category(self.request.user, category)
+        return queries.recommended_from_table(self.request.user)
 class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer

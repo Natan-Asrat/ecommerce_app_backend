@@ -127,7 +127,8 @@ class PostSerializer(serializers.ModelSerializer):
     def get_discountedPrice(self, obj):
         return get_discountedPrice_string(obj)
     def get_image(self, obj):
-        image = Image.objects.filter(post = obj).order_by('order').first()
+        # image = Image.objects.filter(post = obj).order_by('order').first()
+        image = obj.postImage.first()
         if image:
             return image.image.url
         return None
@@ -367,6 +368,7 @@ class GetR(serializers.Serializer):
 class SendRecommendedPosts(PostSerializer):
     tag = serializers.CharField(max_length = 10)
     rank = serializers.DecimalField(decimal_places=2, max_digits=10)
+    image = serializers.SerializerMethodField(read_only = True)
     class Meta(PostSerializer.Meta):
         fields = ['postId', 
             'title', 
@@ -386,8 +388,15 @@ class SendRecommendedPosts(PostSerializer):
             'hasLiked', 
             'hasSaved',
             'tag', 
-            'rank'
+            'rank',
+            'image'
             ]
+    def get_image(self, obj):
+        # image = Image.objects.filter(post = obj).order_by('order').first()
+        image = obj.postImage.first()
+        if image:
+            return image.image.url
+        return None
         
         
 class LikePostSerializer(serializers.ModelSerializer):

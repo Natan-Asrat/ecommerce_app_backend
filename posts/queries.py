@@ -1,28 +1,28 @@
 from . import models
-from django.db.models import Exists, OuterRef, FloatField, ExpressionWrapper, DecimalField, Q, F,Max,Avg, Subquery, Count, Sum, Prefetch, CharField, Value, IntegerField
+from django.db.models import Case, When, Exists, OuterRef, FloatField, ExpressionWrapper, DecimalField, Q, F,Max,Avg, Subquery, Count, Sum, Prefetch, CharField, Value, IntegerField
 from django.db.models.functions import Coalesce, Ln
 from datetime import date, timedelta
 from itertools import chain
+from django.conf import settings
+NEW_POST_RECOMMENDATION_LIMIT = settings.NEW_POST_RECOMMENDATION_LIMIT
+FOLLOWING_BASED_RECOMMENDATION_LIMIT = settings.FOLLOWING_BASED_RECOMMENDATION_LIMIT
+CATEGORY_BASED_RECOMMENDATION_LIMIT = settings.CATEGORY_BASED_RECOMMENDATION_LIMIT
+IICF_RECOMMENDATION_LIMIT = settings.IICF_RECOMMENDATION_LIMIT
+UUCF_RECOMMENDATION_LIMIT = settings.UUCF_RECOMMENDATION_LIMIT
+UCCF_RECOMMENDATION_LIMIT = settings.UCCF_RECOMMENDATION_LIMIT
+RECOMMENDATION_LIMIT = settings.RECOMMENDATION_LIMIT
+POSTS_INITIAL_IICF = settings.POSTS_INITIAL_IICF
+USERS_INITIAL_IICF = settings.USERS_INITIAL_IICF
 
-NEW_POST_RECOMMENDATION_LIMIT = 30
-FOLLOWING_BASED_RECOMMENDATION_LIMIT = 35
-CATEGORY_BASED_RECOMMENDATION_LIMIT = 5
-IICF_RECOMMENDATION_LIMIT = 45
-UUCF_RECOMMENDATION_LIMIT = 20
-UCCF_RECOMMENDATION_LIMIT = 15
-RECOMMENDATION_LIMIT = 25
-POSTS_INITIAL_IICF = 5
-USERS_INITIAL_IICF = 20
+USERS_INITIAL_UUCF = settings.USERS_INITIAL_UUCF
 
-USERS_INITIAL_UUCF = 20
+CATEGORIES_INITIAL_UCCF = settings.CATEGORIES_INITIAL_UCCF
+SELLERS_INITIAL_UCCF = settings.SELLERS_INITIAL_UCCF
 
-CATEGORIES_INITIAL_UCCF = 5
-SELLERS_INITIAL_UCCF = 20
+FOLLOWING_INITIAL_FOLLOWING = settings.FOLLOWING_INITIAL_FOLLOWING
 
-FOLLOWING_INITIAL_FOLLOWING = 50
-
-CATEGORY_REDUCER_CONSTANT = 100
-USER_REDUCER_CONSTANT = 10
+CATEGORY_REDUCER_CONSTANT = settings.CATEGORY_REDUCER_CONSTANT
+USER_REDUCER_CONSTANT = settings.USER_REDUCER_CONSTANT
 def reduce_seen_posts_influence(user):
     return Coalesce(
                 Ln(
@@ -77,7 +77,6 @@ def reduce_user_influence(user):
         Value(USER_REDUCER_CONSTANT, output_field=FloatField()) ,
         1.0, output_field=FloatField()
         )
-
 def reduce_follower_influence():
     return Coalesce(
                 Value(1.0, output_field=FloatField()) + 
@@ -85,6 +84,7 @@ def reduce_follower_influence():
                 Value(models.HOW_MUCH_FOLLOWER_STRENGTH_SHOULD_REDUCE_INFLUENCE_ON_NEW_POSTS, output_field=FloatField()) ,
                 1.0, output_field=FloatField()
             )
+
 def get_all_posts(request):
     posts = models.Post.objects.select_related(
         'categoryId', 
@@ -93,13 +93,12 @@ def get_all_posts(request):
         'categoryId__parent__parent', 
         'categoryId__parent__parent__parent', 
         'categoryId__parent__parent__parent__parent'
-        ).annotate(hasLiked= Exists(models.Like.objects.filter(
+        ).prefetch_related('postImage').annotate(hasLiked= Exists(models.Like.objects.filter(
             user_id = request.user, post_id = OuterRef('postId')
         )), hasSaved= Exists(models.Favourite.objects.filter(
             user_id = request.user, post_id = OuterRef('postId')
         ))).all()
     return posts
-
 
 def get_ad_by_category(user):
     most_interacted_categories = categories_for_UCCF(user)
@@ -124,8 +123,46 @@ def get_ad_by_category(user):
                 '-rank'
             )
     return posts
-
-
+def get_ad_for_category(user, category):
+    personalized_ads = models.Ads.objects.filter(
+                Q(
+                    categoryId=category
+                    ) 
+                |Q(
+                    categoryId__parent=category
+                    ) 
+                | Q(
+                    categoryId__parent__parent=category
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent=category
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent__parent=category
+                    ) 
+            ).values(
+                'postId'
+            )
+    posts = models.Post.objects.filter(
+                postId__in=Subquery(personalized_ads.values('postId')) 
+            ).exclude(
+                sellerId=user.id
+            ).select_related('categoryId', 'sellerId').annotate(
+                tag=Value('ads', output_field=CharField()),
+                hasLiked=Exists(models.Like.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                hasSaved=Exists(models.Favourite.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                rank = 
+                    reduce_category_influence(user)
+                    / 
+                    reduce_seen_posts_influence(user)
+            ).order_by(
+                '-rank'
+            )
+    return posts
 def get_similar_ads(user, postId):
     post = models.Post.objects.filter(postId=postId).values('categoryId')
     similar_ads = ads_similar(post)
@@ -149,8 +186,6 @@ def get_similar_ads(user, postId):
                 '-rank'
             )
     return posts
-    
-
 
 def get_post_ids_with_item_item_collaborative_filtering(user):
     most_interacted_posts = posts_for_IICF(user)
@@ -209,7 +244,6 @@ def get_post_ids_with_user_user_collaborative_filtering(user):
                 'rank'
             )
     return posts
-
 def get_post_ids_with_user_category_collaborative_filtering(user):
     most_interacted_categories = categories_for_UCCF(user)
     most_interacted_users = sellers_for_UCCF(user, most_interacted_categories)
@@ -239,7 +273,6 @@ def get_post_ids_with_user_category_collaborative_filtering(user):
                 '-rank'
             )[:UCCF_RECOMMENDATION_LIMIT]
     return posts
-
 def get_post_ids_by_following(user):
     most_interacted_following = following_for_FollowingBased(user)
     posts = models.Post.objects.filter(
@@ -257,7 +290,7 @@ def get_post_ids_by_following(user):
                 )),
                 rank = models.InteractionUserToUser.objects.filter(
                         user_performer=user.id,
-                        user_performed_on__in = OuterRef('sellerId')
+                        user_performed_on = OuterRef('sellerId')
                     ).values('strength_sum')[:1] 
                     / reduce_seen_posts_influence(user)
             ).values(
@@ -265,10 +298,9 @@ def get_post_ids_by_following(user):
                 'tag',
                 'rank'
             ).order_by(
-                '-engagement'
+                '-rank'
             )[:FOLLOWING_BASED_RECOMMENDATION_LIMIT]
     return posts
-
 def get_post_ids_by_category_personalized(user):
     most_interacted_categories = categories_for_UCCF(user)
     posts = models.Post.objects.filter(
@@ -307,7 +339,7 @@ def get_post_ids_by_category_personalized(user):
                 'tag',
                 'rank'
             ).order_by(
-                '-engagement'
+                '-rank'
             )[:CATEGORY_BASED_RECOMMENDATION_LIMIT]
     return posts
 def get_new_post_ids_personalized(user):
@@ -370,7 +402,6 @@ def get_recommendations(user):
     queryset = combined_queryset(user)
     return queryset
 
-
 def ads_for_categories(categories):
     ads = models.Ads.objects.filter(
                 Q(
@@ -412,7 +443,6 @@ def posts_for_IICF(user):
                 '-strength_sum'
             )[:POSTS_INITIAL_IICF]
     return most_interacted_posts
-
 def users_for_IICF(user, most_interacted_posts):
     most_interacted_users = models.InteractionUserToPost.objects.filter(
                 post_id__in=Subquery(most_interacted_posts.values('post_id'))
@@ -514,7 +544,8 @@ def recommended_from_table(user):
         'categoryId__parent', 
         'categoryId__parent__parent', 
         'categoryId__parent__parent__parent', 
-        'categoryId__parent__parent__parent__parent').annotate(
+        'categoryId__parent__parent__parent__parent'
+        ).prefetch_related('postImage').annotate(
                 tag=recommended.filter(postId=OuterRef('postId')).values('recommender')[:1],
                 hasLiked=Exists(models.Like.objects.filter(
                     user_id = user, post_id = OuterRef('postId')
@@ -587,7 +618,51 @@ def get_similar_posts(user, postId):
                     / 
                     reduce_seen_posts_influence(user)
                 ).order_by(
-                '-engagement'
+                '-rank'
             )
     return posts
 
+def get_recommended_in_category(user, category):
+    posts = models.Post.objects.filter(
+                Q(
+                    categoryId=category
+                    ) 
+                |Q(
+                    categoryId__parent=category
+                    ) 
+                | Q(
+                    categoryId__parent__parent=category
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent=category
+                    ) 
+                |Q(
+                    categoryId__parent__parent__parent__parent=category
+                    ) 
+            ).exclude(
+                sellerId=user.id
+            ).select_related(
+                'categoryId', 'sellerId'
+            ).prefetch_related('postImage').annotate(
+                post_id = F('postId'),
+                tag=Value('category', output_field=CharField()),
+                hasLiked=Exists(models.Like.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                hasSaved=Exists(models.Favourite.objects.filter(
+                    user_id = user, post_id = OuterRef('postId')
+                )),
+                rank = reduce_category_influence(user) *
+                Case(
+                        When(categoryId=category, then= 5),
+                        When(categoryId__parent=category, then= 4),
+                        When(categoryId__parent__parent=category, then= 3),
+                        When(categoryId__parent__parent__parent=category, then= 2),
+                        default= 1
+                    )
+                    / 
+                    reduce_seen_posts_influence(user)
+                ).order_by(
+                '-rank'
+            )
+    return posts

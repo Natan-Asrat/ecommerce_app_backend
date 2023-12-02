@@ -25,6 +25,29 @@ SECRET_KEY = 'django-insecure-b3ul3!0ob3a!)@5r7dqy65#lh_mea)ovbqm5g94oi0g+8tt#rf
 # SECURITY WARNING: don't run with debug turned on in production!
 import os
 DEBUG = os.environ.get('DEBUG') == 'true' if os.environ.get('DEBUG') else False
+ADS_INITIAL_POSITION = int(os.environ.get('ADS_INITIAL_POSITION', 2)) 
+INTERVAL_BETWEEN_ADS = int(os.environ.get('INTERVAL_BETWEEN_ADS', 3))
+
+NEW_POST_RECOMMENDATION_LIMIT = int(os.environ.get('NEW_POST_RECOMMENDATION_LIMIT', 30))
+FOLLOWING_BASED_RECOMMENDATION_LIMIT = int(os.environ.get('FOLLOWING_BASED_RECOMMENDATION_LIMIT', 35))
+CATEGORY_BASED_RECOMMENDATION_LIMIT = int(os.environ.get('CATEGORY_BASED_RECOMMENDATION_LIMIT', 5))
+IICF_RECOMMENDATION_LIMIT = int(os.environ.get('IICF_RECOMMENDATION_LIMIT', 45))
+UUCF_RECOMMENDATION_LIMIT = int(os.environ.get('UUCF_RECOMMENDATION_LIMIT', 20))
+UCCF_RECOMMENDATION_LIMIT = int(os.environ.get('UCCF_RECOMMENDATION_LIMIT', 15))
+RECOMMENDATION_LIMIT = int(os.environ.get('RECOMMENDATION_LIMIT', 25))
+POSTS_INITIAL_IICF = int(os.environ.get('POSTS_INITIAL_IICF', 5))
+USERS_INITIAL_IICF = int(os.environ.get('USERS_INITIAL_IICF', 20))
+
+USERS_INITIAL_UUCF = int(os.environ.get('USERS_INITIAL_UUCF', 20))
+
+CATEGORIES_INITIAL_UCCF = int(os.environ.get('CATEGORIES_INITIAL_UCCF', 5))
+SELLERS_INITIAL_UCCF = int(os.environ.get('SELLERS_INITIAL_UCCF', 20))
+
+FOLLOWING_INITIAL_FOLLOWING = int(os.environ.get('FOLLOWING_INITIAL_FOLLOWING', 50))
+
+CATEGORY_REDUCER_CONSTANT = int(os.environ.get('CATEGORY_REDUCER_CONSTANT', 100))
+USER_REDUCER_CONSTANT = int(os.environ.get('USER_REDUCER_CONSTANT', 10))
+
 
 ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '.onrender.com']
 # import dotenv

@@ -2,10 +2,14 @@ from rest_framework.pagination import PageNumberPagination
 from django.core.paginator import InvalidPage
 from rest_framework.exceptions import NotFound
 from . import views, queries
+from django.conf import settings
 import threading
 from urllib.parse import parse_qs, urlparse, urlunparse, urlencode
 
 PAGE_SIZE = 10
+
+ads_initial_postition = settings.ADS_INITIAL_POSITION
+interval_between_ads = settings.INTERVAL_BETWEEN_ADS
 class Pages(PageNumberPagination):
     page_size = PAGE_SIZE
 
@@ -89,10 +93,10 @@ class RecommendedPages(PageNumberPagination):
         # Generate ad positions: 2, 5, 9, 15, 18, 22, ...
         if additional > 0:
             #if recommendation has less values than page size
-            ad_positions = [i for i in range(2, additional*3 + 1, 3)]
+            ad_positions = [i for i in range(ads_initial_postition, additional*interval_between_ads + 1, interval_between_ads)]
         else: 
             #if recommendation is full
-            ad_positions = [i for i in range(2, PAGE_SIZE + 1, 3)]
+            ad_positions = [i for i in range(ads_initial_postition, PAGE_SIZE + 1, interval_between_ads)]
         ad_index = 0
         number_of_ads = len(paged_ads)
         for position in ad_positions:
@@ -110,9 +114,12 @@ class RecommendedPages(PageNumberPagination):
             limit = count
             offset = (page_number - 1) * count
             e = limit + offset
-            ads = queries.get_ad_by_category(request.user)[offset:e]
-            return ads
-        
+            
+            category = request.query_params.get('category')
+            if category is not None:
+                return queries.get_ad_for_category(request.user, category)
+            else:
+                return queries.get_ad_by_category(request.user)[offset:e]        
         return None
     
 similar_pk = None

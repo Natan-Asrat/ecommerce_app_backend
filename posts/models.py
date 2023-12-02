@@ -156,7 +156,7 @@ class Recommended(models.Model):
 class Seen(models.Model):
     user = models.ForeignKey(to = User, on_delete=models.CASCADE)
     post = models.ForeignKey(to = Post, on_delete=models.CASCADE)
-    count = models.IntegerField(default = 0)
+    count = models.PositiveIntegerField(default = 1)
     date = models.DateTimeField(auto_now_add=True)
     def __str__(self) -> str:
         return 'User: ' + str(self.user) + ", Post: " + str(self.post) + ", Count: " + str(self.count)
