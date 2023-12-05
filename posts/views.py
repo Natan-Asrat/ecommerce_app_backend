@@ -252,7 +252,7 @@ class MyProfileAPI(ListAPIView, GenericViewSet):
         return Response(serializer.data)
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['user'] = self.request.user
+        context['user'] = [self.request.user]
         return context
 class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.User.objects.all()
@@ -260,7 +260,7 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     pagination_class = paginators.Pages
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['user'] = self.request.user
+        context['user'] = [self.request.user]
         return context
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.none()
