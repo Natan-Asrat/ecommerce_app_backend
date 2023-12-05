@@ -536,6 +536,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     followerCount = serializers.SerializerMethodField()
     followingCount = serializers.SerializerMethodField()
     hasWebsite = serializers.SerializerMethodField()
+    follows = serializers.SerializerMethodField()
     def get_hasWebsite(self, obj):
         link = obj.website
         if link is not None and link != "":
@@ -543,6 +544,17 @@ class ProfileSerializer(serializers.ModelSerializer):
         return False
     def get_adCount(self, obj):
         return obj.seller.count()
+    def get_follows(self, obj):
+        user_follows_profile = Follower.objects.filter(self.request.user, obj).exists()
+        profile_follows_user = Follower.objects.filter(obj, self.request.user).exists()
+        if user_follows_profile and profile_follows_user:
+            return 2
+        elif user_follows_profile:
+            return -1
+        elif profile_follows_user:
+            return 1
+        else:
+            return 0
     def get_followerCount(self, obj):
         return obj.followers.count()
     def get_followingCount(self, obj):
