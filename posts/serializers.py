@@ -584,7 +584,7 @@ class ProfileSerializer(serializers.ModelSerializer):
         return representation
     class Meta:
         model = User
-        fields = ['id', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
+        fields = ['id', 'follows', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
   
 
 def get_originalPrice_string(obj):
