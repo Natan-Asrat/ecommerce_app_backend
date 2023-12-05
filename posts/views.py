@@ -250,10 +250,18 @@ class MyProfileAPI(ListAPIView, GenericViewSet):
         q = self.get_queryset()
         serializer = self.get_serializer(q, many = False)
         return Response(serializer.data)
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.User.objects.all()
     serializer_class = serializers.ProfileSerializer
     pagination_class = paginators.Pages
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['user'] = self.request.user
+        return context
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.none()
     serializer_class = serializers.WideCardSerializer
