@@ -547,7 +547,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     def get_follows(self, obj):
         user = self.context.get('user')
         user_follows_profile = Follower.objects.filter(user_follower=user,user_followed=obj).exists()
-        profile_follows_user = Follower.objects.filter(user_follower=obj, user_follower=user).exists()
+        profile_follows_user = Follower.objects.filter(user_follower=obj, user_followed=user).exists()
         if user_follows_profile and profile_follows_user:
             return 2
         elif user_follows_profile:
