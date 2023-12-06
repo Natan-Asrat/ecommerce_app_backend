@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "cad574300fe4b23ff52176299ced10ee2394f45b83e32496e74dc674eb6b9638"
+            "sha256": "1f8c58c66659baa0886be8ce6620a17ec61ed00b5d7ce46c6f7053ddb7fcda85"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -204,10 +204,10 @@
         },
         "cloudinary": {
             "hashes": [
-                "sha256:88571d8ed3366797bdbaec87e452471f7e09c1f767f83390efca326dd1cbcc8f"
+                "sha256:5f6441a4dd839951032508d88068bd705eee9d58802c321cddc84e0a67ea202b"
             ],
             "index": "pypi",
-            "version": "==1.36.0"
+            "version": "==1.37.0"
         },
         "cryptography": {
             "hashes": [
@@ -272,14 +272,23 @@
             "markers": "python_version >= '3.6'",
             "version": "==3.14.0"
         },
+        "drf-nested-routers": {
+            "hashes": [
+                "sha256:01aa556b8c08608bb74fb34f6ca065a5183f2cda4dc0478192cc17a2581d71b0",
+                "sha256:996b77f3f4dfaf64569e7b8f04e3919945f90f95366838ca5b8bed9dd709d6c5"
+            ],
+            "index": "pypi",
+            "markers": "python_version >= '3.5'",
+            "version": "==0.93.4"
+        },
         "firebase-admin": {
             "hashes": [
-                "sha256:e3b334d18bbea039f2f3e8a792ad6870d2a7cc79a13ed10659dedd63f5b475e4",
-                "sha256:e3c42351fb6194d7279a6fd9209a947005fb4ee7e9037d19762e6cb3da4a82e1"
+                "sha256:f040625b8cd3a15f99f84a797fe288ad5993c4034c355b7df3c37a99d39400e6",
+                "sha256:fcada47664f38b6da67fd924108b98029370554c9f762895d3f83e912cac5ab9"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==6.2.0"
+            "version": "==6.3.0"
         },
         "google-api-core": {
             "extras": [
@@ -302,11 +311,11 @@
         },
         "google-auth": {
             "hashes": [
-                "sha256:2ec7b2a506989d7dbfdbe81cb8d0ead8876caaed14f86d29d34483cbe99c57af",
-                "sha256:9b82d5c8d3479a5391ea0a46d81cca698d328459da31d4a459d4e901a5d927e0"
+                "sha256:d5d66b8f4f6e3273740d7bb73ddefa6c2d1ff691704bd407d51c6b5800e7c97b",
+                "sha256:dfd7b44935d498e106c08883b2dac0ad36d8aa10402a6412e9a1c9d74b4773f1"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==2.24.0"
+            "version": "==2.25.1"
         },
         "google-auth-httplib2": {
             "hashes": [

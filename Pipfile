@@ -12,6 +12,7 @@ django-dotenv = "*"
 firebase-admin = "*"
 psycopg2-binary = "*"
 whitenoise = "*"
+drf-nested-routers = "*"
 
 [dev-packages]
 

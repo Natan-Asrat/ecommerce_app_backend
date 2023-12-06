@@ -280,3 +280,11 @@ def update_last_seen(request):
     user.last_seen = datetime.now().astimezone(serializers.timezone)
     user.save()
     return HttpResponse('Updated last seen of user: ' + str(user))
+
+
+class ProfilePostsAPI(ListAPIView, GenericViewSet):
+    queryset = models.Post.objects.all()
+    serializer_class = serializers.WideCardSerializer
+    pagination_class = paginators.Pages
+    def get_queryset(self):
+        return models.Post.objects.filter(sellerId = self.kwargs['seller_pk']).select_related('sellerId', 'categoryId', 'categoryId__parent')
