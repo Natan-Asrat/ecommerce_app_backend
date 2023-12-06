@@ -130,7 +130,7 @@ class PostSerializer(serializers.ModelSerializer):
         # image = Image.objects.filter(post = obj).order_by('order').first()
         image = obj.postImage.first()
         if image:
-            return image.image.url
+            return image.image.secure_url
         return None
     def get_categories(self, obj):
         category = obj.categoryId
