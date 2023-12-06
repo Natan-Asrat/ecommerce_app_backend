@@ -207,7 +207,8 @@ import cloudinary
 cloudinary.config( 
   cloud_name = "dgyblgiuq", 
   api_key = "326714553129399", 
-  api_secret = "CozE8QQIhyXS0I8WroOXIgnPVVc" 
+  api_secret = "CozE8QQIhyXS0I8WroOXIgnPVVc" ,
+  secure = True
 )
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
