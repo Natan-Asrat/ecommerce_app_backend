@@ -376,6 +376,7 @@ class SendRecommendedPosts(PostSerializer):
             'link', 
             'price',
             'currency', 
+            'originalPrice',
             'discountedPrice',
             'discountCurrency', 
             'categoryId',
