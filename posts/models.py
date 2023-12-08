@@ -35,7 +35,7 @@ class Post(models.Model):
     hasDiscount = models.BooleanField(default=False)
     discountedPrice = models.PositiveIntegerField(blank=True, null=True)
     discountCurrency = models.CharField(max_length=CURRENCY_LENGTH, choices=CURRENCY_CHOICES, null=True, blank = True)
-    categoryId = models.ForeignKey(to="Category", on_delete=models.SET_NULL, null=True, blank = True)
+    categoryId = models.ForeignKey(related_name='posts_in_category', to="Category", on_delete=models.SET_NULL, null=True, blank = True)
     sellerId = models.ForeignKey(to="User", on_delete=models.PROTECT, related_name = 'seller')
     likes = models.IntegerField(default=0, blank = True)
     engagement = models.DecimalField(decimal_places=2, max_digits=10, default=0, blank = True)
