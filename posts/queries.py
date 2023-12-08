@@ -575,7 +575,7 @@ def children_categories(user, parent):
                 posts = Count('posts_in_category'),
                 interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
                 interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
-            ).order_by('-interaction_with_user', '-interaction_for_category', '-posts', '-tree')
+            ).order_by('-interaction_with_user', '-posts', '-interaction_for_category', '-tree')
 
 def get_similar_posts(user, postId):
     post = models.Post.objects.get(postId=postId)
