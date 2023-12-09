@@ -302,7 +302,7 @@ class EditPostSerializer(serializers.ModelSerializer):
         ancestors = []
         depth = 0
         while category and depth < MAX_CATEGORY_LEVELS:
-            c = CategoryForTraversalSerializer(category, many = False).data
+            c = CategorySerializer(category, many = False).data
             ancestors.append(c)
             category = category.parent
             depth+=1
@@ -320,7 +320,7 @@ class EditPostSerializer(serializers.ModelSerializer):
         category = obj.categoryId
         if user:
             data = queries.children_categories(user, category)
-            serializer = CategoryForTraversalSerializer(data, many = True)
+            serializer = CategorySerializer(data, many = True)
             return serializer.data
         return []
     def update(self, instance, validated_data):
