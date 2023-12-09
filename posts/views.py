@@ -106,6 +106,17 @@ class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+class CategoryAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
+    queryset = models.Category.objects.none()
+    serializer_class = serializers.CategorySerializer
+    def get_queryset(self):
+        if self.action == 'list':
+            return queries.children_categories(self.request.user, parent=None)
+        elif self.action == 'retrieve':
+            return queries.children_categories(self.request.user, self.kwargs['pk'])
+        return super().get_queryset()
+    def retrieve(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
 def reset_recommendations(user):
     models.Recommended.objects.filter(userId=user.id).delete()
 
