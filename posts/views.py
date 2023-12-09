@@ -7,6 +7,7 @@ from . import authentication
 from datetime import datetime, timedelta
 from django.db.models import Exists, OuterRef, Q, F, Subquery, Count, Prefetch, Sum
 from django.db.models.functions import Coalesce
+import django.db.models as dbmodels
 from datetime import date
 from django.db import connection
 from django.http import HttpResponse
@@ -47,7 +48,7 @@ class Search(SearchFilter):
         conditions = []
         for search_term in search_terms:
             queries = [
-                models.Q(**{orm_lookup: search_term})
+                dbmodels.Q(**{orm_lookup: search_term})
                 for orm_lookup in orm_lookups
             ]
             conditions.append(reduce(operator.or_, queries))
