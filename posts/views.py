@@ -23,10 +23,16 @@ from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter
 from rest_framework.authentication import TokenAuthentication
 
+class Search(SearchFilter):
+    def get_search_terms(self, request):
+        params = request.query_params.get(self.search_param, '')
+        params = params.replace('\x00', '')  # strip null characters
+        params = params.replace('%20', ' ')
+        return params.split()
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
-    filter_backends = [SearchFilter]
+    filter_backends = [Search]
     search_fields = [
         'title', 
         'description', 
