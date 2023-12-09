@@ -22,13 +22,44 @@ from django.core.management import call_command
 from rest_framework.exceptions import NotFound
 from rest_framework.filters import SearchFilter
 from rest_framework.authentication import TokenAuthentication
-
+import operator
+from rest_framework.compat import coreapi, coreschema, distinct
+from functools import reduce
 class Search(SearchFilter):
     def get_search_terms(self, request):
         params = request.query_params.get(self.search_param, '')
         params = params.replace('\x00', '')  # strip null characters
         params = params.replace('%20', ' ')
         return params.split()
+    def filter_queryset(self, request, queryset, view):
+        search_fields = self.get_search_fields(view, request)
+        search_terms = self.get_search_terms(request)
+
+        if not search_fields or not search_terms:
+            return queryset
+
+        orm_lookups = [
+            self.construct_search(str(search_field))
+            for search_field in search_fields
+        ]
+
+        base = queryset
+        conditions = []
+        for search_term in search_terms:
+            queries = [
+                models.Q(**{orm_lookup: search_term})
+                for orm_lookup in orm_lookups
+            ]
+            conditions.append(reduce(operator.or_, queries))
+        queryset = queryset.filter(reduce(operator.or_, conditions))
+
+        if self.must_call_distinct(queryset, search_fields):
+            # Filtering against a many-to-many field requires us to
+            # call queryset.distinct() in order to avoid duplicate items
+            # in the resulting queryset.
+            # We try to avoid this if possible, for performance reasons.
+            queryset = distinct(queryset, base)
+        return queryset
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
