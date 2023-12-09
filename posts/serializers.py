@@ -245,15 +245,11 @@ class NewPostSerializer(serializers.ModelSerializer):
         else:
             validated_data['sellerId'] = user
             category_names = validated_data.pop('categories')
-            # imageBitmaps = validated_data.pop('imageBitmaps')
-            # if not isinstance(imageBitmaps, list):
-            #     imageBitmaps = [imageBitmaps]
             if not isinstance(category_names, list):
                 category_names = [category_names]
             if len(category_names)>MAX_CATEGORY_LEVELS:
                 category_names = category_names[:MAX_CATEGORY_LEVELS]
             last_category = None
-            # category_names = category_names[:-1]
             for name in category_names:
                 category, _ = Category.objects.get_or_create(name = name, parent = last_category)
                 last_category = category
@@ -261,13 +257,9 @@ class NewPostSerializer(serializers.ModelSerializer):
             validated_data['categoryId'] = last_category
             instance = self.Meta.model(**validated_data)
             instance.save()
-            # for i in range(len(imageBitmaps)):
-            #     image = imageBitmaps[i]
-            #     obj = Image.objects.create(post = instance, image = image, order = i+1)
             print(f"Number of images: {len(images)}")
             for i, image in enumerate(images):
                 order_number = i + 1
-                # Rename the image file with the order number
                 image.name = f"image_{order_number}.jpg"
                 obj = Image.objects.create(post=instance, image=image, order=order_number)
             return instance
@@ -507,7 +499,7 @@ class WideCardSerializer(serializers.ModelSerializer):
         return None
     def get_attributes(self, obj):
         attr = []
-        if obj.discountedPrice is not None:
+        if obj.hasDiscount is True:
             attr.append(get_discountedPrice_string(obj))
             attr.append(strike(get_originalPrice_string(obj)))
         else:
