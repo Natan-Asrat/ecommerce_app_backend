@@ -234,7 +234,7 @@ class NewPostSerializer(serializers.ModelSerializer):
             'sellerId', 
             'nextIconAction', 
             'hasDiscount',
-            'imageBitmaps'
+            # 'imageBitmaps'
             ]
     def create(self, validated_data):
         request = self.context.get('request')
