@@ -217,7 +217,7 @@ class NewPostSerializer(serializers.ModelSerializer):
     categories = serializers.ListField(child = serializers.CharField(), required = False)
     sellerId = UserSerializer(read_only = True)
     postId = serializers.UUIDField(read_only = True)
-    imageBitmaps = serializers.ListField(child = serializers.ImageField(), required = False)
+    # imageBitmaps = serializers.ListField(child = serializers.ImageField(), required = False)
     class Meta:
         model = Post
         fields = [
@@ -239,14 +239,15 @@ class NewPostSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         request = self.context.get('request')
         user = request.user if request else None
+        images = request.FILES.getlist('imageBitmaps')
         if user is None:
             raise serializers.ValidationError("You need to login before posting a post")
         else:
             validated_data['sellerId'] = user
             category_names = validated_data.pop('categories')
-            imageBitmaps = validated_data.pop('imageBitmaps')
-            if not isinstance(imageBitmaps, list):
-                imageBitmaps = [imageBitmaps]
+            # imageBitmaps = validated_data.pop('imageBitmaps')
+            # if not isinstance(imageBitmaps, list):
+            #     imageBitmaps = [imageBitmaps]
             if not isinstance(category_names, list):
                 category_names = [category_names]
             if len(category_names)>MAX_CATEGORY_LEVELS:
@@ -260,9 +261,14 @@ class NewPostSerializer(serializers.ModelSerializer):
             validated_data['categoryId'] = last_category
             instance = self.Meta.model(**validated_data)
             instance.save()
-            for i in range(len(imageBitmaps)):
-                image = imageBitmaps[i]
-                obj = Image.objects.create(post = instance, image = image, order = i+1)
+            # for i in range(len(imageBitmaps)):
+            #     image = imageBitmaps[i]
+            #     obj = Image.objects.create(post = instance, image = image, order = i+1)
+            for i, image in enumerate(images):
+                order_number = i + 1
+                # Rename the image file with the order number
+                image.name = f"image_{order_number}.jpg"
+                obj = Image.objects.create(post=instance, image=image, order=order_number)
             return instance
 
 class EditPostSerializer(serializers.ModelSerializer):
