@@ -13,6 +13,7 @@ firebase-admin = "*"
 psycopg2-binary = "*"
 whitenoise = "*"
 drf-nested-routers = "*"
+pillow = "*"
 
 [dev-packages]
 
