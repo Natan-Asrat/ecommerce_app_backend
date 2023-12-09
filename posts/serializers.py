@@ -264,6 +264,7 @@ class NewPostSerializer(serializers.ModelSerializer):
             # for i in range(len(imageBitmaps)):
             #     image = imageBitmaps[i]
             #     obj = Image.objects.create(post = instance, image = image, order = i+1)
+            print(f"Number of images: {len(images)}")
             for i, image in enumerate(images):
                 order_number = i + 1
                 # Rename the image file with the order number
