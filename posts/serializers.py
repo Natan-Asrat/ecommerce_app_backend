@@ -733,7 +733,7 @@ class CreateAdSerializer(serializers.Serializer):
             payMethod = payMethodObj,
             payVerified = False,
             title = "Boost Ads",
-            reason = adCount + " ads in " + subcategoriesTotal + " subcategories",
+            reason = str(adCount) + " ads in " + str(subcategoriesTotal) + " subcategories",
             trueForDepositFalseForWithdraw = True
         )
 
