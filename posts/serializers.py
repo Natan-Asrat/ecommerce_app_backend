@@ -749,10 +749,14 @@ class TransactionSerializer(serializers.ModelSerializer):
     issuedFor = UserSerializer()
     issuedBy = UserSerializer()
     payMethod = PaymentMethodsSerializer()
+    trueForSuffixFalseForPrefixCurrency = serializers.SerializerMethodField()
+
     def get_verificationScreenshot(self, obj):
         image = obj.verificationScreenshot
         if image:
             return image.url 
+    def get_trueForSuffixFalseForPrefixCurrency(self, obj):
+        return False
     class Meta:
         model = Transaction
         fields = '__all__'
