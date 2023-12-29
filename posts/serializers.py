@@ -10,6 +10,7 @@ from rest_framework.reverse import reverse
 import pytz
 from . import queries
 import math
+from . import authentication
 app_name = __package__.split('.')[-1]
 
 
@@ -698,8 +699,15 @@ class CreateAdSerializer(serializers.Serializer):
     categories = AdSerializer(many=True)
     def create(self, validated_data):
         request = self.contextRequest
+        is_issued_by_admin = self.contextRequest.headers.get('by_admin', False)
+        is_issued_by_admin = bool(is_issued_by_admin)
+
+        if is_issued_by_admin is True:
+            issuedByObj = authentication.getUserFromAuthHeader(self.contextRequest)
+        else:
+            issuedByObj = request.user
+
         payMethodObj = PayMethod.objects.get(id=validated_data['payMethod'])
-        issuedByObj = request.user
         issuedForObj = User.objects.get(id=validated_data['issuedFor'])
         categoriesSelected = validated_data['categories']
         virtual = validated_data['useVirtualCurrency']

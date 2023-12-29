@@ -21,14 +21,29 @@ default_app = firebase_admin.initialize_app(cred)
 class FirebaseAuthentication(BaseAuthentication):
     def authenticate(self, request):
 
-        token = request.headers.get('Authorization')
-        if not token:
-            return None
-        try:
-            decoded_token = auth.verify_id_token(token)
-            uid = decoded_token["uid"]
-        except Exception as e:
-            return None
-        User = get_user_model()
-        user = User.objects.get_or_create(username=uid)
+        user = getUserFromAuthHeader(request)
+        is_issued_by_admin = request.headers.get('by_admin', False)
+        is_issued_by_admin = bool(is_issued_by_admin)
+        if user is not None and user[0].is_superuser and is_issued_by_admin:
+            User = get_user_model()
+            use_account = request.headers.get('use_number')
+            user = User.objects.get_or_create(phoneNumber=use_account)
+            
         return user
+def getUserFromAuthHeader(request):
+    token = request.headers.get('Authorization')
+    if not token:
+        return None
+    try:
+        print("token: ", token)
+        decoded_token = auth.verify_id_token(token)
+        print("decoded_token: ", decoded_token)
+
+        uid = decoded_token["uid"]
+        print("uid: ", uid)
+
+    except Exception as e:
+        return None
+    User = get_user_model()
+    user = User.objects.get_or_create(username=uid)
+    return user

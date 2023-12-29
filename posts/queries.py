@@ -27,14 +27,26 @@ USER_REDUCER_CONSTANT = settings.USER_REDUCER_CONSTANT
 def reduce_seen_posts_influence(user):
     return Coalesce(
                 # Ln(
-                    models.Seen.objects.filter(
-                        user = user.id,
-                        post = OuterRef('postId')
-                    ).values('count')[:1] 
-                    *
-                    Value(4, output_field=IntegerField())
-                    + 
-                    Value(2, output_field=IntegerField())
+                    
+                    Value(10, output_field=IntegerField())
+                    **
+                    Coalesce(
+                        Coalesce(
+                            models.Seen.objects.filter(
+                            user = user.id,
+                            post = OuterRef('postId')
+                        ).values('count')[:1]
+                            , 0, output_field=FloatField()
+                        ) 
+                        /
+                        Value(10, output_field=FloatField())
+                        ,0,output_field=DecimalField()
+                    )
+                   
+                    
+                     
+                    # + 
+                    # Value(2, output_field=IntegerField())
                     # , 
                     # output_field=FloatField()
                     # )
@@ -586,6 +598,17 @@ def subquery_for_categories(user):
             ).values('interaction_sum')
 def children_categories(user, parent):
     return models.Category.objects.filter(parent = parent).annotate(
+                tree = Count('children__id', distinct=True) +
+                               Count('children__children__id', distinct=True) +
+                               Count('children__children__children__id', distinct=True) +
+                               Count('children__children__children__children__id', distinct=True),
+                posts = Count('posts_in_category'),
+                interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
+                interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
+            ).order_by('-interaction_with_user', '-posts', '-interaction_for_category', '-tree')
+
+def recommended_categories(user):
+    return models.Category.objects.all().annotate(
                 tree = Count('children__id', distinct=True) +
                                Count('children__children__id', distinct=True) +
                                Count('children__children__children__id', distinct=True) +
