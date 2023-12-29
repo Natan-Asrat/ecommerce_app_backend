@@ -347,25 +347,25 @@ class GetMyTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     def get_queryset(self):
-        return models.Transaction.objects.filter(issuedFor = self.request.user).order_by('-created_at')
+        return models.Transaction.objects.filter(issuedFor = self.request.user).select_related('issuedBy','issuedFor').order_by('-created_at')
 
 class GetMyPendingTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     def get_queryset(self):
-        return models.Transaction.objects.filter(issuedFor = self.request.user, payVerified = False, rejected = False).order_by('-created_at')
+        return models.Transaction.objects.filter(issuedFor = self.request.user, payVerified = False, rejected = False).select_related('issuedBy','issuedFor').order_by('-created_at')
     
 class GetMyVerifiedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     def get_queryset(self):
-        return models.Transaction.objects.filter(issuedFor = self.request.user, payVerified = True, rejected = False).order_by('-created_at')
+        return models.Transaction.objects.filter(issuedFor = self.request.user, payVerified = True, rejected = False).select_related('issuedBy','issuedFor').order_by('-created_at')
 
 class GetMyRejectedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     def get_queryset(self):
-        return models.Transaction.objects.filter(issuedFor = self.request.user, rejected = True).order_by('-created_at')
+        return models.Transaction.objects.filter(issuedFor = self.request.user, rejected = True).select_related('issuedBy','issuedFor').order_by('-created_at')
 
 
 class AdminRecentTransactions(ListAPIView, GenericViewSet):
@@ -388,7 +388,7 @@ class AdminRecentTransactions(ListAPIView, GenericViewSet):
         user = self.request.user
         if user.is_superuser is False:
             return models.Transaction.objects.none()
-        return models.Transaction.objects.all().order_by('-created_at')
+        return models.Transaction.objects.all().select_related('issuedBy','issuedFor').order_by('-created_at')
     
 
 class AdminPendingTransactions(ListAPIView, GenericViewSet):
@@ -411,7 +411,7 @@ class AdminPendingTransactions(ListAPIView, GenericViewSet):
         user = self.request.user
         if user.is_superuser is False:
             return models.Transaction.objects.none()
-        return models.Transaction.objects.filter(payVerified = False, rejected = False).order_by('-amount', '-created_at')
+        return models.Transaction.objects.filter(payVerified = False, rejected = False).select_related('issuedBy','issuedFor').order_by('-amount', '-created_at')
     
 class AdminVerifiedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
@@ -433,7 +433,7 @@ class AdminVerifiedTransactions(ListAPIView, GenericViewSet):
         user = self.request.user
         if user.is_superuser is False:
             return models.Transaction.objects.none()
-        return models.Transaction.objects.filter(payVerified = True, rejected = False).order_by('-amount', '-created_at')
+        return models.Transaction.objects.filter(payVerified = True, rejected = False).select_related('issuedBy','issuedFor').order_by('-amount', '-created_at')
 
 class AdminRejectedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
@@ -455,7 +455,7 @@ class AdminRejectedTransactions(ListAPIView, GenericViewSet):
         user = self.request.user
         if user.is_superuser is False:
             return models.Transaction.objects.none()
-        return models.Transaction.objects.filter(rejected = True).order_by('-amount', '-created_at')
+        return models.Transaction.objects.filter(rejected = True).select_related('issuedBy','issuedFor').order_by('-amount', '-created_at')
 
 
 class CreateAdsAPI(CreateAPIView, GenericViewSet):

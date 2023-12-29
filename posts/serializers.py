@@ -753,6 +753,8 @@ class CreateAdSerializer(serializers.Serializer):
 
 class TransactionSerializer(serializers.ModelSerializer):
     verificationScreenshot = serializers.SerializerMethodField()
+    issuedFor = UserSerializer()
+    issuedBy = UserSerializer()
     def get_verificationScreenshot(self, obj):
         image = obj.verificationScreenshot
         if image:
