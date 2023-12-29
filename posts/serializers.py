@@ -717,10 +717,10 @@ class CreateAdSerializer(serializers.Serializer):
         for category in categoriesSelected:
             totalAmount += category['amount']
             adCount += 1
-            if category.hasChildren is False:
+            if category['hasChildren'] is False:
                 subcategoriesTotal += 1
             else:
-                subcategoriesTotal += category.subcategoriesCount + 1
+                subcategoriesTotal += category['subcategoriesCount'] + 1
         if virtual is True:
             totalAmount /= COIN_TO_MONEY_MULTIPLIER
         totalAmount = math.ceil(totalAmount)
