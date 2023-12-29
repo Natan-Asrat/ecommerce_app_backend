@@ -343,6 +343,121 @@ def update_last_seen(request):
     user.save()
     return HttpResponse('Updated last seen of user: ' + str(user))
 
+class GetMyTransactions(ListAPIView, GenericViewSet):
+    queryset = models.Transaction.objects.none()
+    serializer_class = serializers.TransactionSerializer
+    def get_queryset(self):
+        return models.Transaction.objects.filter(issuedFor = self.request.user).order_by('-created_at')
+
+class GetMyPendingTransactions(ListAPIView, GenericViewSet):
+    queryset = models.Transaction.objects.none()
+    serializer_class = serializers.TransactionSerializer
+    def get_queryset(self):
+        return models.Transaction.objects.filter(issuedFor = self.request.user, payVerified = False, rejected = False).order_by('-created_at')
+    
+class GetMyVerifiedTransactions(ListAPIView, GenericViewSet):
+    queryset = models.Transaction.objects.none()
+    serializer_class = serializers.TransactionSerializer
+    def get_queryset(self):
+        return models.Transaction.objects.filter(issuedFor = self.request.user, payVerified = True, rejected = False).order_by('-created_at')
+
+class GetMyRejectedTransactions(ListAPIView, GenericViewSet):
+    queryset = models.Transaction.objects.none()
+    serializer_class = serializers.TransactionSerializer
+    def get_queryset(self):
+        return models.Transaction.objects.filter(issuedFor = self.request.user, rejected = True).order_by('-created_at')
+
+
+class AdminRecentTransactions(ListAPIView, GenericViewSet):
+    queryset = models.Transaction.objects.none()
+    serializer_class = serializers.TransactionSerializer
+    filter_backends = [Search]
+    search_fields = [
+        'title', 
+        'issuedFor__first_name', 
+        'issuedFor__last_name', 
+        'amount', 
+        'currency',
+        'payMethod__name',
+        'transactionConfirmationCode',
+        'created_at',
+        'issuedBy__first_name',
+        'issuedBy__last_name'
+        ]
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser is False:
+            return models.Transaction.objects.none()
+        return models.Transaction.objects.all().order_by('-created_at')
+    
+
+class AdminPendingTransactions(ListAPIView, GenericViewSet):
+    queryset = models.Transaction.objects.none()
+    serializer_class = serializers.TransactionSerializer
+    filter_backends = [Search]
+    search_fields = [
+        'title', 
+        'issuedFor__first_name', 
+        'issuedFor__last_name', 
+        'amount', 
+        'currency',
+        'payMethod__name',
+        'transactionConfirmationCode',
+        'created_at',
+        'issuedBy__first_name',
+        'issuedBy__last_name'
+        ]
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser is False:
+            return models.Transaction.objects.none()
+        return models.Transaction.objects.filter(payVerified = False, rejected = False).order_by('-amount', '-created_at')
+    
+class AdminVerifiedTransactions(ListAPIView, GenericViewSet):
+    queryset = models.Transaction.objects.none()
+    serializer_class = serializers.TransactionSerializer
+    filter_backends = [Search]
+    search_fields = [
+        'title', 
+        'issuedFor__first_name', 
+        'issuedFor__last_name', 
+        'amount', 
+        'currency',
+        'payMethod__name',
+        'transactionConfirmationCode',
+        'created_at',
+        'issuedBy__first_name',
+        'issuedBy__last_name'
+        ]
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser is False:
+            return models.Transaction.objects.none()
+        return models.Transaction.objects.filter(payVerified = True, rejected = False).order_by('-amount', '-created_at')
+
+class AdminRejectedTransactions(ListAPIView, GenericViewSet):
+    queryset = models.Transaction.objects.none()
+    serializer_class = serializers.TransactionSerializer
+    filter_backends = [Search]
+    search_fields = [
+        'title', 
+        'issuedFor__first_name', 
+        'issuedFor__last_name', 
+        'amount', 
+        'currency',
+        'payMethod__name',
+        'transactionConfirmationCode',
+        'created_at',
+        'issuedBy__first_name',
+        'issuedBy__last_name'
+        ]
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_superuser is False:
+            return models.Transaction.objects.none()
+        return models.Transaction.objects.filter(rejected = True).order_by('-amount', '-created_at')
+
+
 class CreateAdsAPI(CreateAPIView, GenericViewSet):
     queryset = models.Ads.objects.none()
     serializer_class = serializers.CreateAdSerializer
@@ -373,6 +488,10 @@ class CreateAdsAPI(CreateAPIView, GenericViewSet):
 class GetBids(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.AdCategoriesSerializer
+    filter_backends = [Search]
+    search_fields = [
+        'name'
+        ]
     def get_queryset(self):
         if self.action == 'list':
             return queries.children_ad_categories(self.request.user, parent=None)

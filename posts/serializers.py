@@ -155,7 +155,9 @@ class PostSerializer(serializers.ModelSerializer):
 class ImageSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     def get_image_url(self, obj):
-        return obj.image.url
+        image = obj.image
+        if image:
+            return image.url
     class Meta:
         model = Image
         fields = ['image_url']
@@ -686,6 +688,9 @@ class PaymentMethodsSerializer(serializers.ModelSerializer):
             'hasAccountNumber'
         ]
     def get_payImage(self, obj):
+        image = obj.image
+        if image:
+            return image.url
         return obj.image.url
 class CreateAdSerializer(serializers.Serializer):
     contextRequest = None
@@ -725,7 +730,7 @@ class CreateAdSerializer(serializers.Serializer):
             currency = validated_data['currency'],
             payMethod = payMethodObj,
             payVerified = False,
-            title = "Create Ads",
+            title = "Boost Ads",
             trueForDepositFalseForWithdraw = True
         )
 
@@ -746,6 +751,15 @@ class CreateAdSerializer(serializers.Serializer):
             
         return createdAds
 
+class TransactionSerializer(serializers.ModelSerializer):
+    verificationScreenshot = serializers.SerializerMethodField()
+    def get_verificationScreenshot(self, obj):
+        image = obj.verificationScreenshot
+        if image:
+            return image.url 
+    class Meta:
+        model = Transaction
+        fields = '__all__'
 
 def get_originalPrice_string(obj):
     return str(obj.currency) + ' ' + str(obj.price)

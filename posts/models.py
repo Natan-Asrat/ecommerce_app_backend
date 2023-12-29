@@ -16,6 +16,8 @@ class User(AbstractUser):
     last_seen = models.DateTimeField(default=timezone.now)
     website = models.TextField(default = "", blank=True)
     REQUIRED_FIELDS = ['phoneNumber']
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
 
 NEXT_ICON_ACTION_CHOICES = [
@@ -106,6 +108,8 @@ class Image(models.Model):
     post = models.ForeignKey(to="Post", on_delete=models.CASCADE, related_name='postImage', db_index=True)
     image = CloudinaryField('image')
     order = models.PositiveIntegerField(default=1)
+    created_at = models.DateTimeField(auto_now_add=True)
+
     def __str__(self) -> str:
         return "Image of Post: " + str(self.post)
     class Meta:
@@ -168,6 +172,7 @@ class Ads(models.Model):
     categoryId = models.ForeignKey(to = Category, on_delete=models.CASCADE)
     strength = models.IntegerField(default = 1)
     payVerified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
     transaction = models.ForeignKey(to="Transaction", on_delete = models.DO_NOTHING, null = True, blank = True, related_name='ads')
     def __str__(self) -> str:
         return "Post: " + str(self.postId) + ", Category: " + str(self.categoryId) + ", Amount: " + str(self.strength)
@@ -182,7 +187,8 @@ class PayMethod(models.Model):
     hasQRCode = models.BooleanField(default=False)
     hasLink = models.BooleanField(default=False)
     hasAccountNumber = models.BooleanField(default=True)
-    
+    accountNumber = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
 PAY_TYPE = [
     ('Q', 'QR CODE'),
     ('A', 'Account Number'),
@@ -200,7 +206,9 @@ class Transaction(models.Model):
     title = models.CharField(max_length=100)
     trueForDepositFalseForWithdraw = models.BooleanField(default=True)
     rejected = models.BooleanField(default=False, blank=True, null=True)
-    verificationScreenshot = CloudinaryField('image', null=True)
+    verificationScreenshot = CloudinaryField('image', null=True, blank = True)
+    transactionConfirmationCode = models.CharField(max_length=100, null=True, blank =True)
+    created_at = models.DateTimeField(auto_now_add=True)
     def __str__(self):
         return "For: " + str(self.issuedFor) + ", Amount: " + str(self.amount)
 from django.db.models.signals import post_save
