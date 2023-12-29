@@ -679,14 +679,7 @@ class PaymentMethodsSerializer(serializers.ModelSerializer):
     payImage = serializers.SerializerMethodField()
     class Meta:
         model = PayMethod
-        fields = [
-            'id',
-            'isVirtualCurrency',
-            'payImage',
-            'hasQRCode',
-            'hasLink',
-            'hasAccountNumber'
-        ]
+        fields = '__all__'
     def get_payImage(self, obj):
         image = obj.image
         if image:
