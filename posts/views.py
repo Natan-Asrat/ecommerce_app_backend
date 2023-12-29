@@ -330,6 +330,48 @@ def update_last_seen(request):
     user.save()
     return HttpResponse('Updated last seen of user: ' + str(user))
 
+class CreateAdsAPI(CreateAPIView, GenericViewSet):
+    queryset = models.Ads.objects.none()
+    serializer_class = serializers.CreateAdSerializer
+    
+    def create(self, request):
+        serializer = self.serializer_class(data=request.data)
+        serializer.setRequest(request)
+        serializer.is_valid(raise_exception=True)
+        created_ads = serializer.save()  # This will call the serializer's create method
+        pending = False
+        for ad in created_ads:
+            if ad.payVerified is False:
+                pending = True
+        if pending is True:
+            message = 'Ads are pending'
+        else:
+            message = 'Ads were created successfully'
+        response_data = {
+            'detail': message,
+            'Number of Ads Created': len(created_ads)
+        }
+
+        return Response(response_data, status=status.HTTP_201_CREATED)
+    def get_serializer_context(self):
+        c = super().get_serializer_context()
+        c['request'] = self.request
+        return c
+class GetBids(ListAPIView, RetrieveAPIView, GenericViewSet):
+    queryset = models.Category.objects.none()
+    serializer_class = serializers.AdCategoriesSerializer
+    def get_queryset(self):
+        if self.action == 'list':
+            return queries.children_ad_categories(self.request.user, parent=None)
+        elif self.action == 'retrieve':
+            return queries.children_ad_categories(self.request.user, self.kwargs['pk'])
+        return super().get_queryset()
+    def retrieve(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+    
+class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
+    queryset = models.PayMethod.objects.all()
+    serializer_class = serializers.PaymentMethodsSerializer 
 
 class ProfilePostsAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()

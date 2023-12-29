@@ -1,4 +1,5 @@
 from rest_framework import serializers
+from rest_framework.fields import empty
 from .models import *
 from django.db.models import Count
 from collections import OrderedDict
@@ -8,6 +9,7 @@ from itertools import groupby
 from rest_framework.reverse import reverse
 import pytz
 from . import queries
+import math
 app_name = __package__.split('.')[-1]
 
 
@@ -587,6 +589,155 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'follows', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
   
+COIN_TO_MONEY_MULTIPLIER = 20
+class AdSerializer(serializers.Serializer):
+    categoryId = serializers.UUIDField()
+    amount = serializers.IntegerField()
+
+PRICE_PER_CATEGORY = 2
+MINIMUM_TO_STANDARD_MULTIPLIER = 3
+INCREMENT_MULTIPLE = 1
+PREMIUM_MULTIPLIER = 1.5
+COUNT_ADS_THRESHOLD_BEFORE_AVERAGING_FOR_STANDARD = 5
+class AdCategoriesSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only = True)
+    subcategoriesCount = serializers.IntegerField()
+    countAds = serializers.IntegerField()
+    hasChildren = serializers.BooleanField()
+    minimumPrice = serializers.SerializerMethodField()
+    standardPrice = serializers.SerializerMethodField()
+    highestBid = serializers.SerializerMethodField()
+    secondHighestBid = serializers.SerializerMethodField()
+    thirdHighestBid = serializers.SerializerMethodField()
+    premiumBidMultiplier = serializers.SerializerMethodField()
+    trueForSuffixFalseForPrefixCurrency = serializers.SerializerMethodField()
+    currency = serializers.SerializerMethodField()
+    incrementPrice = serializers.SerializerMethodField()
+    class Meta:
+        model = Category
+        fields = [
+            'id', 
+            'name', 
+            'countAds',
+            'subcategoriesCount', 
+            'hasChildren',
+            'minimumPrice',
+            'standardPrice',
+            'highestBid',
+            'secondHighestBid',
+            'thirdHighestBid',
+            'premiumBidMultiplier',
+            'trueForSuffixFalseForPrefixCurrency',
+            'currency',
+            'incrementPrice'
+            ]
+    
+    def get_minimumPrice(self, obj):
+        return self.get_minimum_coins(obj) * COIN_TO_MONEY_MULTIPLIER
+    def get_minimum_coins(self, obj):
+        count = obj.subcategoriesCount + 1
+        return PRICE_PER_CATEGORY * count
+    def get_standardPrice(self, obj):
+        median = obj.averagePrice
+        count = obj.countAds
+        minimum = self.get_minimum_coins(obj) * MINIMUM_TO_STANDARD_MULTIPLIER
+        if median < minimum or count < COUNT_ADS_THRESHOLD_BEFORE_AVERAGING_FOR_STANDARD:
+            return minimum * COIN_TO_MONEY_MULTIPLIER
+        return median * COIN_TO_MONEY_MULTIPLIER
+    def get_highestBid(self, obj):
+        highest = obj.highestBid
+        minimum = self.get_minimum_coins(obj)
+        if highest < minimum:
+            return  minimum * COIN_TO_MONEY_MULTIPLIER
+        return highest * COIN_TO_MONEY_MULTIPLIER
+    def get_secondHighestBid(self, obj):
+        secondHighest = obj.secondHighestBid
+        minimum = self.get_minimum_coins(obj)
+        if secondHighest < minimum:
+            return  minimum * COIN_TO_MONEY_MULTIPLIER
+        return secondHighest * COIN_TO_MONEY_MULTIPLIER
+    def get_thirdHighestBid(self, obj):
+        thirdHighest = obj.thirdHighestBid
+        minimum = self.get_minimum_coins(obj)
+        if thirdHighest < minimum:
+            return  minimum * COIN_TO_MONEY_MULTIPLIER
+        return thirdHighest * COIN_TO_MONEY_MULTIPLIER
+    def get_premiumBidMultiplier(self, obj):
+        return PREMIUM_MULTIPLIER
+    def get_trueForSuffixFalseForPrefixCurrency(self, obj):
+        return False
+    def get_currency(self, obj):
+        return CURRENCY_CHOICES[0][0]
+    def get_incrementPrice(self, obj):
+        minimum = self.get_minimum_coins(obj)
+        return minimum * INCREMENT_MULTIPLE * COIN_TO_MONEY_MULTIPLIER
+    
+class PaymentMethodsSerializer(serializers.ModelSerializer):
+    payImage = serializers.SerializerMethodField()
+    class Meta:
+        model = PayMethod
+        fields = [
+            'id',
+            'isVirtualCurrency',
+            'payImage',
+            'hasQRCode',
+            'hasLink',
+            'hasAccountNumber'
+        ]
+    def get_payImage(self, obj):
+        return obj.image.url
+class CreateAdSerializer(serializers.Serializer):
+    contextRequest = None
+    def setRequest(self, request):
+        self.contextRequest = request
+    payMethod = serializers.UUIDField()
+    issuedFor = serializers.UUIDField()
+    currency = serializers.CharField(max_length=CURRENCY_LENGTH)
+    useVirtualCurrency = serializers.BooleanField()
+    postIds = serializers.ListField(child=serializers.UUIDField())
+    categories = AdSerializer(many=True)
+    def create(self, validated_data):
+        request = self.contextRequest
+        payMethodObj = PayMethod.objects.get(id=validated_data['payMethod'])
+        issuedByObj = request.user
+        issuedForObj = User.objects.get(id=validated_data['issuedFor'])
+        categoriesSelected = validated_data['categories']
+        virtual = validated_data['useVirtualCurrency']
+        totalAmount = 0
+        for category in categoriesSelected:
+            totalAmount += category['amount']
+        if virtual is True:
+            totalAmount /= COIN_TO_MONEY_MULTIPLIER
+        totalAmount = math.ceil(totalAmount)
+
+        transaction = Transaction.objects.create(
+            issuedBy = issuedByObj, 
+            issuedFor = issuedForObj, 
+            amount = totalAmount,
+            currency = validated_data['currency'],
+            payMethod = payMethodObj,
+            payVerified = False,
+            title = "Create Ads",
+            trueForDepositFalseForWithdraw = True
+        )
+
+        posts = validated_data['postIds']
+        createdAds = []
+        for post in posts:
+            postObj = Post.objects.get(postId=post)
+            for category in categoriesSelected:
+                categoryObj = Category.objects.get(id = category['categoryId'])
+                adCreated = Ads.objects.create(
+                    postId = postObj,
+                    categoryId = categoryObj,
+                    strength = category['amount'],
+                    payVerified = False,
+                    transaction = transaction
+                )
+                createdAds.append(adCreated)
+            
+        return createdAds
+
 
 def get_originalPrice_string(obj):
     return str(obj.currency) + ' ' + str(obj.price)

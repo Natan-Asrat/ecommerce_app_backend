@@ -167,9 +167,42 @@ class Ads(models.Model):
     postId = models.ForeignKey(to = Post, on_delete=models.CASCADE)
     categoryId = models.ForeignKey(to = Category, on_delete=models.CASCADE)
     strength = models.IntegerField(default = 1)
+    payVerified = models.BooleanField(default=False)
+    transaction = models.ForeignKey(to="Transaction", on_delete = models.DO_NOTHING, null = True, blank = True, related_name='ads')
     def __str__(self) -> str:
-        return str(self.postId)
+        return "Post: " + str(self.postId) + ", Category: " + str(self.categoryId) + ", Amount: " + str(self.strength)
     
     class Meta:
         ordering = ['-strength']
+
+class PayMethod(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    image = CloudinaryField('image')
+    isVirtualCurrency = models.BooleanField(default=False)
+    hasQRCode = models.BooleanField(default=False)
+    hasLink = models.BooleanField(default=False)
+    hasAccountNumber = models.BooleanField(default=True)
     
+PAY_TYPE = [
+    ('Q', 'QR CODE'),
+    ('A', 'Account Number'),
+    ('L', 'Link'),
+    ('C', 'Coin')
+]
+class Transaction(models.Model):
+    issuedBy = models.ForeignKey(to="User", on_delete=models.DO_NOTHING, related_name = 'byUser')
+    issuedFor = models.ForeignKey(to="User", on_delete=models.DO_NOTHING, related_name = 'forUser')
+    amount = models.IntegerField()
+    currency = models.CharField(max_length=CURRENCY_LENGTH, choices=CURRENCY_CHOICES, null=True, blank = True)
+    usedVirtualCurrency = models.BooleanField(default=False, blank=True, null=True)
+    payMethod = models.ForeignKey(to="PayMethod", on_delete=models.DO_NOTHING)
+    payVerified = models.BooleanField(default=False, blank=True, null=True)
+    title = models.CharField(max_length=100)
+    trueForDepositFalseForWithdraw = models.BooleanField(default=True)
+    rejected = models.BooleanField(default=False, blank=True, null=True)
+    verificationScreenshot = CloudinaryField('image', null=True)
+    def __str__(self):
+        return "For: " + str(self.issuedFor) + ", Amount: " + str(self.amount)
+from django.db.models.signals import post_save
+from .signals import update_pay_verified
+post_save.connect(update_pay_verified, sender=Transaction)

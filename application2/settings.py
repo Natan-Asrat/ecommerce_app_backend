@@ -49,9 +49,11 @@ CATEGORY_REDUCER_CONSTANT = int(os.environ.get('CATEGORY_REDUCER_CONSTANT', 100)
 USER_REDUCER_CONSTANT = int(os.environ.get('USER_REDUCER_CONSTANT', 10))
 
 
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '.onrender.com']
-# import dotenv
-# dotenv.read_dotenv()
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '.onrender.com', 
+                 '127.0.0.1'
+                 ]
+import dotenv
+dotenv.read_dotenv()
 
 FIREBASE_ACCOUNT_TYPE = os.environ.get('FIREBASE_ACCOUNT_TYPE')
 FIREBASE_PROJECT_ID = os.environ.get('FIREBASE_PROJECT_ID')
@@ -152,8 +154,8 @@ DATABASES = {
 #     }
     
 # }
-import dj_database_url
-DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_LINK'))
+# import dj_database_url
+# DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_LINK'))
 # CONN_MAX_AGE = None
 AUTH_USER_MODEL = 'posts.User'
 # from neomodel import config

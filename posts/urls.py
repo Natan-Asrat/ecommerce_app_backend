@@ -21,6 +21,10 @@ router.register('my_profile', views.MyProfileAPI)
 router.register('my_posts', views.MyPostsAPI)
 router.register('notifications', views.NotificationsAPI)
 router.register('similar', views.SimilarPostsAPI)
+router.register('create_ads', views.CreateAdsAPI)
+router.register('get_bids', views.GetBids)
+router.register('get_payment_methods', views.GetPaymentMethods)
+
 
 profile_router = routers.NestedDefaultRouter(router, 'profiles', lookup = 'seller')
 profile_router.register('profile_posts', views.ProfilePostsAPI, basename='profile-posts')

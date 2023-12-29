@@ -1,8 +1,9 @@
 from . import models
-from django.db.models import Case, When, Exists, OuterRef, FloatField, ExpressionWrapper, DecimalField, Q, F,Max,Avg, Subquery, Count, Sum, Prefetch, CharField, Value, IntegerField
-from django.db.models.functions import Coalesce, Ln
+from django.db.models import Case, When, Exists, OuterRef, FloatField, ExpressionWrapper, DecimalField, Q, F,Max, Subquery, Count, Sum, Prefetch, CharField, Value, IntegerField
+from django.db.models.functions import Coalesce, Ln, Cast
 from datetime import date, timedelta
 from itertools import chain
+from django.db.models.aggregates import Avg
 from django.conf import settings
 NEW_POST_RECOMMENDATION_LIMIT = settings.NEW_POST_RECOMMENDATION_LIMIT
 FOLLOWING_BASED_RECOMMENDATION_LIMIT = settings.FOLLOWING_BASED_RECOMMENDATION_LIMIT
@@ -25,15 +26,21 @@ CATEGORY_REDUCER_CONSTANT = settings.CATEGORY_REDUCER_CONSTANT
 USER_REDUCER_CONSTANT = settings.USER_REDUCER_CONSTANT
 def reduce_seen_posts_influence(user):
     return Coalesce(
-                Ln(
+                # Ln(
                     models.Seen.objects.filter(
                         user = user.id,
                         post = OuterRef('postId')
                     ).values('count')[:1] 
+                    *
+                    Value(4, output_field=IntegerField())
                     + 
-                    Value(2, output_field=IntegerField()), 
-                    output_field=FloatField()),
-                1.0, output_field=FloatField())
+                    Value(2, output_field=IntegerField())
+                    # , 
+                    # output_field=FloatField()
+                    # )
+                    ,
+                
+                3, output_field=FloatField())
 def reduce_category_influence(user):
     return Coalesce(
         Value(1.0, output_field=FloatField()) +  
@@ -116,6 +123,7 @@ def get_ad_by_category(user):
                     user_id = user, post_id = OuterRef('postId')
                 )),
                 rank = 
+                    ad_weight() *
                     reduce_category_influence(user)
                     / 
                     reduce_seen_posts_influence(user)
@@ -139,8 +147,9 @@ def get_ad_for_category(user, category):
                     ) 
                 |Q(
                     categoryId__parent__parent__parent__parent=category
-                    ) 
-            ).values(
+                    ) ,
+                    payVerified = True
+            ).order_by('-strength').values(
                 'postId'
             )
     posts = models.Post.objects.filter(
@@ -156,6 +165,7 @@ def get_ad_for_category(user, category):
                     user_id = user, post_id = OuterRef('postId')
                 )),
                 rank = 
+                    ad_weight() *
                     reduce_category_influence(user)
                     / 
                     reduce_seen_posts_influence(user)
@@ -179,6 +189,7 @@ def get_similar_ads(user, postId):
                     user_id = user, post_id = OuterRef('postId')
                 )),
                 rank = 
+                    ad_weight() *
                     reduce_category_influence(user)
                     / 
                     reduce_seen_posts_influence(user)
@@ -401,9 +412,12 @@ def combined_queryset(user):
 def get_recommendations(user):
     queryset = combined_queryset(user)
     return queryset
-
+def ad_weight():
+    return models.Ads.objects.filter(
+                        postId=OuterRef('postId'),
+                    ).values('strength').order_by('-strength')[:1]
 def ads_for_categories(categories):
-    ads = models.Ads.objects.filter(
+    ads = models.Ads.objects.filter( 
                 Q(
                     categoryId__in=Subquery(categories.values('category_id'))
                     ) 
@@ -419,7 +433,9 @@ def ads_for_categories(categories):
                 |Q(
                     categoryId__parent__parent__parent__parent__in=Subquery(categories.values('category_id'))
                     ) 
-            ).values(
+                    ,
+                    payVerified = True
+            ).order_by('-strength').values(
                 'postId'
             )
     return ads
@@ -430,7 +446,9 @@ def ads_similar(post):
                 |Q(categoryId__in=Subquery(post.values('categoryId__parent__parent'))) 
                 |Q(categoryId__in=Subquery(post.values('categoryId__parent__parent__parent'))) 
                 |Q(categoryId__in=Subquery(post.values('categoryId__parent__parent__parent__parent')))
-            ).values(
+                ,
+                payVerified = True
+            ).order_by('-strength').values(
                 'postId'
             )
     return ads
@@ -576,6 +594,81 @@ def children_categories(user, parent):
                 interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
                 interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
             ).order_by('-interaction_with_user', '-posts', '-interaction_for_category', '-tree')
+
+def get_highest_bid():
+    return Coalesce(
+                    Subquery(
+                        models.Ads.objects.filter(
+                            categoryId = OuterRef('id')
+                            ,
+                            payVerified = True
+                        ).order_by('-strength').values('strength')[:1]
+
+                    ), 0, output_field=IntegerField()
+                )
+
+
+def get_second_highest_bid():
+    return Coalesce(
+                    Subquery(
+                        models.Ads.objects.filter(
+                            categoryId = OuterRef('id')
+                            ,
+                            payVerified = True
+                        ).order_by('-strength').values('strength')[1:2]
+                    ), 0, output_field=IntegerField()
+                )
+def get_third_highest_bid():
+    return Coalesce(
+                    Subquery(
+                        models.Ads.objects.filter(
+                            categoryId = OuterRef('id')
+                            ,
+                            payVerified = True
+                        ).order_by('-strength').values('strength')[2:3]
+
+                    ), 0, output_field=IntegerField()
+                )
+def children_ad_categories(user, parent):
+    return models.Category.objects.filter(parent = parent).annotate(
+                subcategoriesCount = Count('children__id', distinct=True) +
+                               Count('children__children__id', distinct=True) +
+                               Count('children__children__children__id', distinct=True) +
+                               Count('children__children__children__children__id', distinct=True),
+                countAds = Coalesce(
+                        Subquery(
+                            models.Ads.objects.filter(
+                                categoryId = OuterRef('id')
+                                ,
+                                payVerified = True
+                            ).values('categoryId').annotate(
+                                count = Count('categoryId')
+                            ).values('count')[:1]
+                        ), 0, output_field=IntegerField()
+                ),
+                hasChildren = Exists(models.Category.objects.filter(
+                    parent = OuterRef('id')
+                )),
+                averagePrice = Coalesce(
+                        Subquery(
+                            models.Ads.objects.filter(
+                                categoryId = OuterRef('id')
+                                ,
+                                payVerified = True
+                    
+                            ).values('categoryId').annotate(
+                                average = Avg('strength')
+                            ).values('average')[:1]
+                        ), 0, output_field=IntegerField()
+                )
+                ,
+                highestBid = get_highest_bid(),
+                secondHighestBid = get_second_highest_bid(),
+                thirdHighestBid = get_third_highest_bid(),
+                posts = Count('posts_in_category'),
+                interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
+                interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
+            ).order_by('-interaction_with_user', '-posts', '-interaction_for_category', '-subcategoriesCount')
 
 def get_similar_posts(user, postId):
     post = models.Post.objects.get(postId=postId)
