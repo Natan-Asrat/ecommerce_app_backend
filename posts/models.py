@@ -199,6 +199,7 @@ class Transaction(models.Model):
     issuedBy = models.ForeignKey(to="User", on_delete=models.DO_NOTHING, related_name = 'byUser')
     issuedFor = models.ForeignKey(to="User", on_delete=models.DO_NOTHING, related_name = 'forUser')
     amount = models.IntegerField()
+    reason = models.CharField(max_length=100, null=True, blank =True)
     currency = models.CharField(max_length=CURRENCY_LENGTH, choices=CURRENCY_CHOICES, null=True, blank = True)
     usedVirtualCurrency = models.BooleanField(default=False, blank=True, null=True)
     payMethod = models.ForeignKey(to="PayMethod", on_delete=models.DO_NOTHING)

@@ -593,9 +593,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['id', 'follows', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
   
 COIN_TO_MONEY_MULTIPLIER = 20
-class AdSerializer(serializers.Serializer):
+class SingleCategoryBidSerializer(serializers.Serializer):
     categoryId = serializers.UUIDField()
     amount = serializers.IntegerField()
+    subcategoriesCount = serializers.IntegerField()
+    hasChildren = serializers.BooleanField()
 
 PRICE_PER_CATEGORY = 2
 MINIMUM_TO_STANDARD_MULTIPLIER = 3
@@ -694,7 +696,7 @@ class CreateAdSerializer(serializers.Serializer):
     currency = serializers.CharField(max_length=CURRENCY_LENGTH)
     useVirtualCurrency = serializers.BooleanField()
     postIds = serializers.ListField(child=serializers.UUIDField())
-    categories = AdSerializer(many=True)
+    categories = SingleCategoryBidSerializer(many=True)
     def create(self, validated_data):
         request = self.contextRequest
         is_issued_by_admin = self.contextRequest.headers.get('by_admin', False)
@@ -710,8 +712,15 @@ class CreateAdSerializer(serializers.Serializer):
         categoriesSelected = validated_data['categories']
         virtual = validated_data['useVirtualCurrency']
         totalAmount = 0
+        subcategoriesTotal = 0
+        adCount = 0
         for category in categoriesSelected:
             totalAmount += category['amount']
+            adCount += 1
+            if category.hasChildren is False:
+                subcategoriesTotal += 1
+            else:
+                subcategoriesTotal += category.subcategoriesCount + 1
         if virtual is True:
             totalAmount /= COIN_TO_MONEY_MULTIPLIER
         totalAmount = math.ceil(totalAmount)
@@ -724,6 +733,7 @@ class CreateAdSerializer(serializers.Serializer):
             payMethod = payMethodObj,
             payVerified = False,
             title = "Boost Ads",
+            reason = adCount + " ads in " + subcategoriesTotal + " subcategories",
             trueForDepositFalseForWithdraw = True
         )
 
