@@ -403,12 +403,33 @@ class SendRecommendedPosts(PostSerializer):
             return image.image.url
         return None
         
+class SavePostSerializer(serializers.ModelSerializer):
+    hasSaved = serializers.SerializerMethodField(read_only = True)
+    post_id = serializers.UUIDField(required = False)
+    user_id = serializers.UUIDField(required = False, read_only = True)
+    class Meta:
+        model = Like
+        fields = ['user_id', 'post_id', 'hasSaved']
+    
+    def create(self, validated_data):
+        save, created = Favourite.objects.get_or_create(**validated_data)
+        
+
+        return save
+    def get_hasSaved(self, obj):
+        user = self.context['request'].user
+        if isinstance(obj, OrderedDict) :
+            post_id = obj['post_id']
+        else:            
+            post_id = obj.post_id
+        return Favourite.objects.filter(post_id = post_id, user_id = user.id).exists()
+ 
         
 class LikePostSerializer(serializers.ModelSerializer):
     likes = serializers.SerializerMethodField(read_only = True)
     hasLiked = serializers.SerializerMethodField(read_only = True)
     post_id = serializers.UUIDField(required = False)
-    user_id = serializers.UUIDField(required = False)
+    user_id = serializers.UUIDField(required = False, read_only = True)
     class Meta:
         model = Like
         fields = ['user_id', 'post_id', 'likes', 'hasLiked']

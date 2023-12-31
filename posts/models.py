@@ -213,5 +213,6 @@ class Transaction(models.Model):
     def __str__(self):
         return "For: " + str(self.issuedFor) + ", Amount: " + str(self.amount)
 from django.db.models.signals import post_save
-from .signals import update_pay_verified
+from .signals import *
 post_save.connect(update_pay_verified, sender=Transaction)
+post_save.connect(update_number_of_likes, sender = Like)

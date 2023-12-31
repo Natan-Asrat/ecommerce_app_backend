@@ -225,7 +225,44 @@ class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
                 }, status = status.HTTP_404_NOT_FOUND
             )
 
+class SaveAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
+    queryset = models.Favourite.objects.all()
+    serializer_class = serializers.SavePostSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = 'post_id'
+    def perform_create(self, serializer):
+        post = models.Post.objects.get(postId =self.kwargs.get('post_id') )
+        serializer.save(user_id= self.request.user, post_id = post)
+    def retrieve(self, request, *args, **kwargs):
+        post_id = self.kwargs['post_id']
+        saves = models.Favourite.objects.filter(
+            post_id = post_id
+        ).values(
+            'post_id',
+            'user_id'
+        ).first()
+        serializer = self.get_serializer(data = saves)
+        try:
+            serializer.is_valid(raise_exception = True)
+        except Exception:
+            return Response({
+                'hasSaved': False
+            })
 
+        return Response(serializer.data)
+    def destroy(self, request, *args, **kwargs):
+        user_id = request.user.id
+        post_id = self.kwargs['post_id']
+        saves = models.Favourite.objects.filter(user_id = user_id, post_id = post_id)
+        if saves.exists():
+            saves.delete()
+            return Response(status =status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(
+                {
+                    'error': 'Post and associated user not found in likes table'
+                }, status = status.HTTP_404_NOT_FOUND
+            )
 
 class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Notification.objects.all(
@@ -287,7 +324,6 @@ class FavouritesAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.FavouriteSerializer
     pagination_class = paginators.Pages
-    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         return models.Favourite.objects.filter(user_id = self.request.user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
 
