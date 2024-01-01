@@ -94,7 +94,7 @@ class UserSerializer(serializers.ModelSerializer):
             return True
         return False
     def get_is_admin(self, obj):
-        return obj.is_admin
+        return obj.is_superuser
     class Meta:
         model = User
         fields = ['id', 'profilePicture', 'is_admin', 'brandName', 'last_seen', 'online', 'username', 'phoneNumber']
