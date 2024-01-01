@@ -552,22 +552,12 @@ class ProfilePostsAPI(ListAPIView, GenericViewSet):
         return models.Post.objects.filter(sellerId = self.kwargs['seller_pk']).select_related('sellerId', 'categoryId', 'categoryId__parent')
     
 def check_if_user_is_new(request, id):
-    issue = False
     user = None
     try:
         user = models.User.objects.get(username=id)
         userIsNew = False
-    except User.DoesNotExist:
+    except Exception:
         userIsNew = True
-    except Exception as e:
-        issue = True
-        print(e)
-    
-    if issue is True:
-        return JsonResponse({
-            'is_new': None,
-            'user': None
-        }, status = 500)
     serializer = serializers.UserSerializer(data = user, many=False)
     serializer.is_valid()
     response = {
