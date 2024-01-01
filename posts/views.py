@@ -122,8 +122,9 @@ def create_recommendations_api(request):
     create_recommendations(request)
     return HttpResponse('Done, check /posts_recommended')
 def create_recommendations(request):
-    reset_recommendations(request.user)
-    populate_recommendations(request.user)
+    user = get_user_from_request(request)
+    reset_recommendations(user)
+    populate_recommendations(user)
 
 # use category with recommendation in the sliding horizontal category choices and not in search filter choices
 class GetRecommendation(ListAPIView, GenericViewSet):
@@ -131,20 +132,24 @@ class GetRecommendation(ListAPIView, GenericViewSet):
     serializer_class = serializers.EmptySerializer
     pagination_class = paginators.RecommendedPages
     def get_queryset(self):
+        user = get_user_from_request(self.request)
+
         self.serializer_class = serializers.SendRecommendedPosts
         category = self.request.query_params.get('category')
         if category is not None:
-            return queries.get_recommended_in_category(self.request.user, category)
-        return queries.recommended_from_table(self.request.user)
+            return queries.get_recommended_in_category(user, category)
+        return queries.recommended_from_table(user)
 class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer
     pagination_class = paginators.Pages
     def get_queryset(self):
+        user = get_user_from_request(self.request)
+
         if self.action == 'list':
-            return queries.children_categories(self.request.user, parent=None)
+            return queries.children_categories(user, parent=None)
         elif self.action == 'retrieve':
-            return queries.children_categories(self.request.user, self.kwargs['pk'])
+            return queries.children_categories(user, self.kwargs['pk'])
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -154,10 +159,11 @@ class CategoriesRecommendedAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     serializer_class = serializers.CategoryForTraversalSerializer
     pagination_class = paginators.Pages
     def get_queryset(self):
+        user = get_user_from_request(self.request)
         if self.action == 'list':
-            return queries.recommended_categories(self.request.user)
+            return queries.recommended_categories(user)
         elif self.action == 'retrieve':
-            return queries.children_categories(self.request.user, self.kwargs['pk'])
+            return queries.children_categories(user, self.kwargs['pk'])
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -165,15 +171,19 @@ class CategoryAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategorySerializer
     def get_queryset(self):
+        user = get_user_from_request(self.request)
         if self.action == 'list':
-            return queries.children_categories(self.request.user, parent=None)
+            return queries.children_categories(user, parent=None)
         elif self.action == 'retrieve':
-            return queries.children_categories(self.request.user, self.kwargs['pk'])
+            return queries.children_categories(user, self.kwargs['pk'])
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 def reset_recommendations(user):
-    models.Recommended.objects.filter(userId=user.id).delete()
+    user_id = None
+    if user is not None:
+        user_id = user.id
+    models.Recommended.objects.filter(userId=user_id).delete()
 
 def populate_recommendations(user):
     recommendations=queries.get_recommendations(user)
@@ -195,8 +205,9 @@ class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
     permission_classes = (IsAuthenticated,)
     lookup_field = 'post_id'
     def perform_create(self, serializer):
+        user = get_user_from_request(self.request)
         post = models.Post.objects.get(postId =self.kwargs.get('post_id') )
-        serializer.save(user_id= self.request.user, post_id = post)
+        serializer.save(user_id= user, post_id = post)
     def retrieve(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
         likes = models.Like.objects.filter(
@@ -216,7 +227,10 @@ class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
 
         return Response(serializer.data)
     def destroy(self, request, *args, **kwargs):
-        user_id = request.user.id
+        user = get_user_from_request(self.request)
+        user_id = None
+        if user is not None:
+            user_id = user.id
         post_id = self.kwargs['post_id']
         likes = models.Like.objects.filter(user_id = user_id, post_id = post_id)
         if likes.exists():
@@ -235,8 +249,9 @@ class SaveAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
     permission_classes = (IsAuthenticated,)
     lookup_field = 'post_id'
     def perform_create(self, serializer):
+        user = get_user_from_request(self.request)
         post = models.Post.objects.get(postId =self.kwargs.get('post_id') )
-        serializer.save(user_id= self.request.user, post_id = post)
+        serializer.save(user_id= user, post_id = post)
     def retrieve(self, request, *args, **kwargs):
         post_id = self.kwargs['post_id']
         saves = models.Favourite.objects.filter(
@@ -255,7 +270,10 @@ class SaveAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
 
         return Response(serializer.data)
     def destroy(self, request, *args, **kwargs):
-        user_id = request.user.id
+        user = get_user_from_request(self.request)
+        user_id = None
+        if user is not None:
+            user_id = user.id
         post_id = self.kwargs['post_id']
         saves = models.Favourite.objects.filter(user_id = user_id, post_id = post_id)
         if saves.exists():
@@ -283,8 +301,9 @@ class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         'seen'
     )
     def get_queryset(self):
+        user = get_user_from_request(self.request)
         return models.Notification.objects.filter(
-                notifyUser = self.request.user.id
+                notifyUser = user.id
             ).values(
                 'action', 
                 'buttonPressed', 
@@ -328,32 +347,35 @@ class FavouritesAPI(ListAPIView, GenericViewSet):
     serializer_class = serializers.FavouriteSerializer
     pagination_class = paginators.Pages
     def get_queryset(self):
-        return models.Favourite.objects.filter(user_id = self.request.user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
+        user = get_user_from_request(self.request)
+        return models.Favourite.objects.filter(user_id = user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
 
 class LikedAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.LikedListSerializer
     pagination_class = paginators.Pages
     def get_queryset(self):
-        return models.Like.objects.filter(user_id = self.request.user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
+        user = get_user_from_request(self.request)
+        return models.Like.objects.filter(user_id = user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
 class MyPostsAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.WideCardSerializer
     pagination_class = paginators.Pages
     def get_queryset(self):
-        return models.Post.objects.filter(sellerId = self.request.user).select_related('sellerId', 'categoryId', 'categoryId__parent')
+        user = get_user_from_request(self.request)
+        return models.Post.objects.filter(sellerId = user).select_related('sellerId', 'categoryId', 'categoryId__parent')
 class MyProfileAPI(ListAPIView, GenericViewSet):
     queryset = models.User.objects.none()
     serializer_class = serializers.ProfileSerializer
     def get_queryset(self):
-        return self.request.user
+        return get_user_from_request(self.request)
     def list(self, request, *args, **kwargs):
         q = self.get_queryset()
         serializer = self.get_serializer(q, many = False)
         return Response(serializer.data)
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['user'] = self.request.user
+        context['user'] = get_user_from_request(self.request)
         return context
 class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.User.objects.all()
@@ -361,7 +383,7 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     pagination_class = paginators.Pages
     def get_serializer_context(self):
         context = super().get_serializer_context()
-        context['user'] = self.request.user
+        context['user'] = get_user_from_request(self.request)
         return context
     
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
@@ -369,16 +391,17 @@ class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
     serializer_class = serializers.WideCardSerializer
     pagination_class = paginators.SimilarPages
     def get_queryset(self):
+        user = get_user_from_request(self.request)
         if  self.action == 'retrieve':
             self.pk = self.kwargs['pk']
             paginators.similar_pk = self.pk
-            q =queries.get_similar_posts(self.request.user, self.pk)
+            q =queries.get_similar_posts(user, self.pk)
             return q
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 def update_last_seen(request):
-    user = request.user
+    user = get_user_from_request(request)
     user.last_seen = datetime.now().astimezone(serializers.timezone)
     user.save()
     return HttpResponse('Updated last seen of user: ' + str(user))
@@ -387,25 +410,29 @@ class GetMyTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     def get_queryset(self):
-        return models.Transaction.objects.filter(issuedFor = self.request.user).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
+        user = get_user_from_request(self.request)
+        return models.Transaction.objects.filter(issuedFor = user).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
 
 class GetMyPendingTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     def get_queryset(self):
-        return models.Transaction.objects.filter(issuedFor = self.request.user, payVerified = False, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
+        user = get_user_from_request(self.request)
+        return models.Transaction.objects.filter(issuedFor = user, payVerified = False, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
     
 class GetMyVerifiedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     def get_queryset(self):
-        return models.Transaction.objects.filter(issuedFor = self.request.user, payVerified = True, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
+        user = get_user_from_request(self.request)
+        return models.Transaction.objects.filter(issuedFor = user, payVerified = True, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
 
 class GetMyRejectedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     def get_queryset(self):
-        return models.Transaction.objects.filter(issuedFor = self.request.user, rejected = True).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
+        user = get_user_from_request(self.request)
+        return models.Transaction.objects.filter(issuedFor = user, rejected = True).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
 
 
 class AdminRecentTransactions(ListAPIView, GenericViewSet):
@@ -425,7 +452,7 @@ class AdminRecentTransactions(ListAPIView, GenericViewSet):
         'issuedBy__last_name'
         ]
     def get_queryset(self):
-        user = self.request.user
+        user = get_user_from_request(self.request)
         if user.is_superuser is False:
             return models.Transaction.objects.none()
         return models.Transaction.objects.all().select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
@@ -470,7 +497,7 @@ class AdminVerifiedTransactions(ListAPIView, GenericViewSet):
         'issuedBy__last_name'
         ]
     def get_queryset(self):
-        user = self.request.user
+        user = get_user_from_request(self.request)
         if user.is_superuser is False:
             return models.Transaction.objects.none()
         return models.Transaction.objects.filter(payVerified = True, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-amount', '-created_at')
@@ -492,7 +519,7 @@ class AdminRejectedTransactions(ListAPIView, GenericViewSet):
         'issuedBy__last_name'
         ]
     def get_queryset(self):
-        user = self.request.user
+        user = get_user_from_request(self.request)
         if user.is_superuser is False:
             return models.Transaction.objects.none()
         return models.Transaction.objects.filter(rejected = True).select_related('issuedBy','issuedFor', 'payMethod').order_by('-amount', '-created_at')
@@ -533,10 +560,11 @@ class GetBids(ListAPIView, RetrieveAPIView, GenericViewSet):
         'name'
         ]
     def get_queryset(self):
+        user = get_user_from_request(self.request)
         if self.action == 'list':
-            return queries.children_ad_categories(self.request.user, parent=None)
+            return queries.children_ad_categories(user, parent=None)
         elif self.action == 'retrieve':
-            return queries.children_ad_categories(self.request.user, self.kwargs['pk'])
+            return queries.children_ad_categories(user, self.kwargs['pk'])
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -582,9 +610,17 @@ def check_if_user_is_new(request, id):
 
 @api_view(['POST'])
 def update_user(request: HttpRequest, pk=None):
-        user = request.user
+        user = get_user_from_request(request)
         profile_picture = request.FILES.get('imageBitmap')
         user.profilePicture = profile_picture
         user.first_name = request.data.get('name')
         user.save()
         return JsonResponse({})
+
+
+def get_user_from_request(request):
+    user = request.user
+    if isinstance(user, tuple):
+        user_obj, _ = user
+        return user_obj
+    return user
