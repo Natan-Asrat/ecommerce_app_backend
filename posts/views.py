@@ -558,11 +558,15 @@ def check_if_user_is_new(request, id):
         userIsNew = False
     except Exception:
         userIsNew = True
+
     if user is not None:
+        imgUrl = None
+        if user.profilePicture is not None:
+            imgUrl = user.profilePicture.url
         response = {
             'is_new': userIsNew,
             'id': user.id,
-            'profilePicture': user.profilePicture,
+            'profilePicture': imgUrl,
             'name': user.first_name
         }
         
