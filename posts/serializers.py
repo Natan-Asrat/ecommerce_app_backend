@@ -73,6 +73,7 @@ class UserSerializer(serializers.ModelSerializer):
     profilePicture = serializers.SerializerMethodField()
     online = serializers.SerializerMethodField()
     last_seen = serializers.SerializerMethodField()
+    is_admin = serializers.SerializerMethodField()
     def get_profilePicture(self, obj):
         image = obj.profilePicture
         if image:
@@ -92,6 +93,8 @@ class UserSerializer(serializers.ModelSerializer):
         if seconds < SECONDS_BEFORE_OFFLINE:
             return True
         return False
+    def get_is_admin(self, obj):
+        return obj.is_admin
     class Meta:
         model = User
         fields = ['id', 'profilePicture', 'brandName', 'last_seen', 'online', 'username', 'phoneNumber']
@@ -724,7 +727,7 @@ class CreateAdSerializer(serializers.Serializer):
         is_issued_by_admin = bool(is_issued_by_admin)
 
         if is_issued_by_admin is True:
-            issuedByObj = authentication.getUserFromAuthHeader(self.contextRequest)
+            issuedByObj, _ = authentication.getUserFromAuthHeader(self.contextRequest)
         else:
             issuedByObj = request.user
 

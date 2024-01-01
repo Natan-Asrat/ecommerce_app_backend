@@ -4,6 +4,8 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, DestroyAPIView
 from . import serializers, queries, models
 from . import authentication
+from django.http import JsonResponse
+from django.http import HttpResponse
 from datetime import datetime, timedelta
 from django.db.models import Exists, OuterRef, Q, F, Subquery, Count, Prefetch, Sum
 from django.db.models.functions import Coalesce
@@ -278,7 +280,6 @@ class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         'profileId', 
         'seen'
     )
-    authentication_classes = [authentication.FirebaseAuthentication]
     def get_queryset(self):
         return models.Notification.objects.filter(
                 notifyUser = self.request.user.id
@@ -547,3 +548,19 @@ class ProfilePostsAPI(ListAPIView, GenericViewSet):
     pagination_class = paginators.Pages
     def get_queryset(self):
         return models.Post.objects.filter(sellerId = self.kwargs['seller_pk']).select_related('sellerId', 'categoryId', 'categoryId__parent')
+    
+def check_if_user_is_new(request):
+    auth = authentication.FirebaseAuthentication()
+    user, created = auth.authenticate(request)
+    if user is None:
+        return JsonResponse({
+            'is_new': True,
+            'user': None
+        }, status = 500)
+    serializer = serializers.UserSerializer(data = user, many=False)
+    serializer.is_valid()
+    response = {
+        'is_new': created,
+        'user': serializer.data
+    }
+    return JsonResponse(response)

@@ -40,5 +40,6 @@ profile_router.register('profile_posts', views.ProfilePostsAPI, basename='profil
 urlpatterns = [
     path('', include(router.urls)),
     path('refresh', views.create_recommendations_api),
-    path('update_last_seen', views.update_last_seen)
+    path('update_last_seen', views.update_last_seen),
+    path('check_is_user_new', views.check_if_user_is_new)
 ] + profile_router.urls
