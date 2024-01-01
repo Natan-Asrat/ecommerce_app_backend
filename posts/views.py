@@ -555,7 +555,7 @@ def check_if_user_is_new(request, id):
     issue = False
     try:
         User = get_user_model()
-        user = User.get(username=id)
+        user = User.objects.get(username=id)
         userIsNew = False
     except User.DoesNotExist:
         userIsNew = True
