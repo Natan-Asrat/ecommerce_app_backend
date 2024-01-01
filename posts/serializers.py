@@ -566,6 +566,8 @@ class ProfileSerializer(serializers.ModelSerializer):
     followingCount = serializers.SerializerMethodField()
     hasWebsite = serializers.SerializerMethodField()
     follows = serializers.SerializerMethodField()
+    is_admin = serializers.SerializerMethodField()
+
     def get_hasWebsite(self, obj):
         link = obj.website
         if link is not None and link != "":
@@ -608,13 +610,16 @@ class ProfileSerializer(serializers.ModelSerializer):
         if seconds < SECONDS_BEFORE_OFFLINE:
             return True
         return False
+    def get_is_admin(self, obj):
+        return obj.is_superuser
     def to_representation(self, instance):
         representation = super().to_representation(instance)
         representation["usernameToLink"] = USERNAME_TO_LINK_JSON_BOOLEAN
         return representation
+    
     class Meta:
         model = User
-        fields = ['id', 'follows', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
+        fields = ['id', 'is_admin', 'follows', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
   
 COIN_TO_MONEY_MULTIPLIER = 20
 class SingleCategoryBidSerializer(serializers.Serializer):
