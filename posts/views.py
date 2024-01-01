@@ -585,6 +585,6 @@ def update_user(request: HttpRequest, pk=None):
         user = request.user
         profile_picture = request.FILES.get('imageBitmap')
         user.profilePicture = profile_picture
-        user.first_name = request.POST.get('name')
+        user.first_name = request.data.get('name')
         user.save()
         return JsonResponse({})

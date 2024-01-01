@@ -42,5 +42,5 @@ urlpatterns = [
     path('refresh', views.create_recommendations_api),
     path('update_last_seen', views.update_last_seen),
     path('check_is_user_new/<str:id>/', views.check_if_user_is_new),
-    path('update_user', views.update_user),
+    path('update_user/', views.update_user),
 ] + profile_router.urls
