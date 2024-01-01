@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.contrib.auth import get_user_model
+
 from collections import defaultdict
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, DestroyAPIView
@@ -549,18 +551,26 @@ class ProfilePostsAPI(ListAPIView, GenericViewSet):
     def get_queryset(self):
         return models.Post.objects.filter(sellerId = self.kwargs['seller_pk']).select_related('sellerId', 'categoryId', 'categoryId__parent')
     
-def check_if_user_is_new(request):
-    auth = authentication.FirebaseAuthentication()
-    user, created = auth.authenticate(request)
-    if user is None:
+def check_if_user_is_new(request, id):
+    issue = False
+    try:
+        User = get_user_model()
+        user = User.get(username=id)
+        userIsNew = False
+    except User.DoesNotExist:
+        userIsNew = True
+    except Exception:
+        issue = True
+    
+    if issue is True:
         return JsonResponse({
-            'is_new': True,
+            'is_new': None,
             'user': None
         }, status = 500)
     serializer = serializers.UserSerializer(data = user, many=False)
     serializer.is_valid()
     response = {
-        'is_new': created,
+        'is_new': userIsNew,
         'user': serializer.data
     }
     return JsonResponse(response)
