@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.contrib.auth import get_user_model
-from rest_framework.decorators import action
+from rest_framework.decorators import api_view
 from collections import defaultdict
 from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, DestroyAPIView
@@ -363,14 +363,7 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         context = super().get_serializer_context()
         context['user'] = self.request.user
         return context
-    @action(detail=True, methods=["POST"])
-    def update(self, request: HttpRequest, pk=None):
-        user = request.user
-        profile_picture = request.FILES.get('imageBitmap')
-        user.profilePicture = profile_picture
-        user.first_name = request.data.get('name')
-        user.save()
-        return Response({})
+    
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.none()
     serializer_class = serializers.WideCardSerializer
@@ -587,3 +580,11 @@ def check_if_user_is_new(request, id):
         }
     return JsonResponse(response)
 
+@api_view(['POST'])
+def update_user(request: HttpRequest, pk=None):
+        user = request.user
+        profile_picture = request.FILES.get('imageBitmap')
+        user.profilePicture = profile_picture
+        user.first_name = request.POST.get('name')
+        user.save()
+        return JsonResponse({})
