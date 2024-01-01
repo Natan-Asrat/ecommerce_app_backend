@@ -114,12 +114,12 @@ class RecommendedPages(PageNumberPagination):
             limit = count
             offset = (page_number - 1) * count
             e = limit + offset
-            
+            user = views.get_user_from_request(request)
             category = request.query_params.get('category')
             if category is not None:
-                return queries.get_ad_for_category(request.user, category)
+                return queries.get_ad_for_category(user, category)
             else:
-                return queries.get_ad_by_category(request.user)[offset:e]        
+                return queries.get_ad_by_category(user)[offset:e]        
         return None
     
 similar_pk = None
@@ -133,7 +133,8 @@ class SimilarPages(RecommendedPages):
             e = limit + offset
             pk = similar_pk
             print(pk)
-            ads = queries.get_similar_ads(request.user, pk)[offset:e]
+            user = views.get_user_from_request(request)
+            ads = queries.get_similar_ads(user, pk)[offset:e]
             return ads
         
         return None
