@@ -559,8 +559,9 @@ def check_if_user_is_new(request, id):
         userIsNew = False
     except User.DoesNotExist:
         userIsNew = True
-    except Exception:
+    except Exception as e:
         issue = True
+        print(e)
     
     if issue is True:
         return JsonResponse({
