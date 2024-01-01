@@ -46,5 +46,8 @@ def getUserFromAuthHeader(request):
         return None, False
     User = get_user_model()
     user, created = User.objects.get_or_create(username=uid)
-    print(decoded_token)
+    phone_number = decoded_token['phone_number']
+    if user.phoneNumber != phone_number:
+        user.phoneNumber = phone_number
+        user.save()
     return user, created
