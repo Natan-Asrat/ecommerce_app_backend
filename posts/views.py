@@ -558,10 +558,20 @@ def check_if_user_is_new(request, id):
         userIsNew = False
     except Exception:
         userIsNew = True
-    serializer = serializers.UserSerializer(data = user, many=False)
-    serializer.is_valid()
-    response = {
-        'is_new': userIsNew,
-        'user': serializer.data
-    }
+    if user is not None:
+        response = {
+            'is_new': userIsNew,
+            'id': user.id,
+            'profilePicture': user.profilePicture,
+            'name': user.first_name
+        }
+        
+    else:
+        response = {
+            'is_new': userIsNew,
+            'id': None,
+            'profilePicture': None,
+            'name': None
+        }
     return JsonResponse(response)
+
