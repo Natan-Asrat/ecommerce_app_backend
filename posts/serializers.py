@@ -271,7 +271,7 @@ class NewPostSerializer(serializers.ModelSerializer):
                 image.name = f"image_{order_number}.jpg"
                 obj = Image.objects.create(post=instance, image=image, order=order_number)
             return instance
-
+        
 class EditPostSerializer(serializers.ModelSerializer):
     categories = serializers.ListField(child = serializers.CharField(), required = False)    
     postId = serializers.UUIDField(read_only = True)
