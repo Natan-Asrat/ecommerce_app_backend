@@ -618,7 +618,7 @@ def update_user(request: HttpRequest, pk=None):
         return JsonResponse({})
 
 INITIAL_CATEGORIES_STRENGTH = 100
-# @api_view(['POST'])
+@api_view(['POST'])
 
 def initial_categories(request):
     user = get_user_from_request(request)
@@ -628,8 +628,8 @@ def initial_categories(request):
         print("user is none")
         return JsonResponse({}, status=500)
     try:
-        # categories = request.data['categories']
-        categories = request.POST.getlist('categories')
+        categories = list(request.data['categories'])
+        # categories = request.POST.getlist('categories')
         if len(categories) == 0:
             print("empty")
             return JsonResponse({}, status=500)
