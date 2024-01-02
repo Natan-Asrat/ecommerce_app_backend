@@ -617,6 +617,41 @@ def update_user(request: HttpRequest, pk=None):
         user.save()
         return JsonResponse({})
 
+INITIAL_CATEGORIES_STRENGTH = 100
+# @api_view(['POST'])
+
+def initial_categories(request):
+    user = get_user_from_request(request)
+    # user = request.user
+    # user= models.User.objects.get()
+    if user is None:
+        print("user is none")
+        return JsonResponse({}, status=500)
+    try:
+        # categories = request.data['categories']
+        categories = request.POST.getlist('categories')
+        if len(categories) == 0:
+            print("empty")
+            return JsonResponse({}, status=500)
+        categories_obj = models.Category.objects.filter(id__in = categories)
+        categories_list = [
+            models.InteractionUserToCategory(
+                        category_id=category,
+                        user_id=user,
+                        strength_sum = INITIAL_CATEGORIES_STRENGTH
+                    )
+                    for category in categories_obj
+            
+        ]
+        models.InteractionUserToCategory.objects.bulk_create(categories_list)
+        return JsonResponse({})
+    except Exception as e:
+        print(e)
+        return JsonResponse({}, status = 500)
+    
+
+
+
 
 def get_user_from_request(request):
     user = request.user
@@ -624,3 +659,6 @@ def get_user_from_request(request):
         user_obj, _ = user
         return user_obj
     return user
+
+
+
