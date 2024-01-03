@@ -381,6 +381,14 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.User.objects.all()
     serializer_class = serializers.ProfileSerializer
     pagination_class = paginators.Pages
+    filter_backends = [Search]
+    search_fields = [
+        'first_name', 
+        'last_name', 
+        'phoneNumber', 
+        'username',
+        'website'
+        ]
     def get_serializer_context(self):
         context = super().get_serializer_context()
         context['user'] = get_user_from_request(self.request)
