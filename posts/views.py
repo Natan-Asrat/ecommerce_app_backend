@@ -409,6 +409,7 @@ def update_last_seen(request):
 class GetMyTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
+    pagination_class = paginators.Pages
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Transaction.objects.filter(issuedFor = user).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
@@ -416,6 +417,8 @@ class GetMyTransactions(ListAPIView, GenericViewSet):
 class GetMyPendingTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
+    pagination_class = paginators.Pages
+
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Transaction.objects.filter(issuedFor = user, payVerified = False, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
@@ -423,6 +426,7 @@ class GetMyPendingTransactions(ListAPIView, GenericViewSet):
 class GetMyVerifiedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
+    pagination_class = paginators.Pages
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Transaction.objects.filter(issuedFor = user, payVerified = True, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
@@ -430,6 +434,7 @@ class GetMyVerifiedTransactions(ListAPIView, GenericViewSet):
 class GetMyRejectedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
+    pagination_class = paginators.Pages
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Transaction.objects.filter(issuedFor = user, rejected = True).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
@@ -438,6 +443,7 @@ class GetMyRejectedTransactions(ListAPIView, GenericViewSet):
 class AdminRecentTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
+    pagination_class = paginators.Pages
     filter_backends = [Search]
     search_fields = [
         'title', 
@@ -461,6 +467,7 @@ class AdminRecentTransactions(ListAPIView, GenericViewSet):
 class AdminPendingTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
+    pagination_class = paginators.Pages
     filter_backends = [Search]
     search_fields = [
         'title', 
@@ -483,6 +490,7 @@ class AdminPendingTransactions(ListAPIView, GenericViewSet):
 class AdminVerifiedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
+    pagination_class = paginators.Pages
     filter_backends = [Search]
     search_fields = [
         'title', 
@@ -505,6 +513,7 @@ class AdminVerifiedTransactions(ListAPIView, GenericViewSet):
 class AdminRejectedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
+    pagination_class = paginators.Pages
     filter_backends = [Search]
     search_fields = [
         'title', 
