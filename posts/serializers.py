@@ -787,6 +787,7 @@ class TransactionSerializer(serializers.ModelSerializer):
     verificationScreenshot = serializers.SerializerMethodField()
     issuedFor = UserSerializer()
     issuedBy = UserSerializer()
+    date = serializers.SerializerMethodField()
     payMethod = PaymentMethodsSerializer()
     trueForSuffixFalseForPrefixCurrency = serializers.SerializerMethodField()
 
@@ -794,6 +795,8 @@ class TransactionSerializer(serializers.ModelSerializer):
         image = obj.verificationScreenshot
         if image:
             return image.url 
+    def get_date(self, obj):
+        return obj.created_at.strftime("%b %d, %Y")
     def get_trueForSuffixFalseForPrefixCurrency(self, obj):
         return False
     class Meta:
