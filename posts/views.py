@@ -675,7 +675,9 @@ def send_screenshot(request):
         transaction = models.Transaction.objects.get(issuedFor=user, id = transactionId)
         transaction.verificationScreenshot = image
         transaction.save()
-        return JsonResponse({})
+        return JsonResponse({
+            id: transaction.id,
+        })
     except Exception:
         return JsonResponse({}, status = 401)
 
