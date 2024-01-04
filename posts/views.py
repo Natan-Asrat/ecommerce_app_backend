@@ -564,6 +564,7 @@ class CreateAdsAPI(CreateAPIView, GenericViewSet):
             'adsCount': len(created_ads),
             'transaction': created_ads[0].transaction
         }
+        print(response_data)
 
         return Response(response_data, status=status.HTTP_201_CREATED)
     def get_serializer_context(self):
