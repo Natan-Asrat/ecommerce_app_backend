@@ -561,7 +561,8 @@ class CreateAdsAPI(CreateAPIView, GenericViewSet):
             message = 'Ads were created successfully'
         response_data = {
             'detail': message,
-            'Number of Ads Created': len(created_ads)
+            'adsCount': len(created_ads),
+            'transaction': created_ads[0].transaction
         }
 
         return Response(response_data, status=status.HTTP_201_CREATED)
