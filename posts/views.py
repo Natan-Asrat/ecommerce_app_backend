@@ -688,11 +688,7 @@ def send_screenshot(request):
 def transaction_verification_status(request):
     user = get_user_from_request(request)
     transactionId = request.data.get('transactionId')
-    trueForVerifyFalseForReject = request.data.get('trueForVerifyFalseForReject')
-    if trueForVerifyFalseForReject == "true":
-        trueForVerifyFalseForReject = True
-    else:
-        trueForVerifyFalseForReject = False
+    trueForVerifyFalseForReject = bool(request.data.get('trueForVerifyFalseForReject'))
     if user is not None and user.is_superuser:
         try:
             transaction = models.Transaction.objects.get(id = transactionId)
