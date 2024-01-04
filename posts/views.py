@@ -566,7 +566,7 @@ class CreateAdsAPI(CreateAPIView, GenericViewSet):
         }
         print(response_data)
 
-        return Response(response_data)
+        return Response(response_data, status = 200)
     def get_serializer_context(self):
         c = super().get_serializer_context()
         c['request'] = self.request
