@@ -674,7 +674,10 @@ def send_screenshot(request):
     transactionId = request.data.get('transactionId')
     image = request.FILES.get('imageBitmap')
     try:
-        transaction = models.Transaction.objects.get(issuedFor=user, id = transactionId)
+        if user.is_superuser:
+            transaction = models.Transaction.objects.get(id = transactionId)
+        else:
+            transaction = models.Transaction.objects.get(issuedFor=user, id = transactionId)
         transaction.verificationScreenshot = image
         transaction.save()
         serializer = serializers.TransactionSerializer(data=transaction, many=False)
