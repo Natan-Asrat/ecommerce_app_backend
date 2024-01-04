@@ -562,7 +562,7 @@ class CreateAdsAPI(CreateAPIView, GenericViewSet):
         response_data = {
             'detail': message,
             'adsCount': len(created_ads),
-            'transaction': created_ads[0].transaction
+            'transaction': created_ads[0].transaction.id
         }
         print(response_data)
 
