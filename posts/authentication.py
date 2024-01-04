@@ -35,12 +35,7 @@ def getUserFromAuthHeader(request):
     if not token:
         return None, False
     try:
-        print("token: ", token)
         decoded_token = auth.verify_id_token(token)
-        print("decoded_token: ", decoded_token)
-
-        uid = decoded_token["uid"]
-        print("uid: ", uid)
 
     except Exception as e:
         return None, False
