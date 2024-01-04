@@ -666,6 +666,21 @@ def initial_categories(request):
         print(e)
         return JsonResponse({}, status = 500)
     
+@api_view(['POST'])
+def send_screenshot(request):
+    user = get_user_from_request(request)
+    transactionId = request.data.get('transactionId')
+    image = request.FILES.get('imageBitmap')
+    try:
+        transaction = models.Transaction.objects.get(issuedFor=user, id = transactionId)
+        transaction.verificationScreenshot = image
+        transaction.save()
+        return JsonResponse({})
+    except Exception:
+        return JsonResponse({}, status = 401)
+
+
+
 
 
 
