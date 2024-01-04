@@ -684,6 +684,25 @@ def send_screenshot(request):
         return JsonResponse({}, status = 401)
 
 
+@api_view(['POST'])
+def transaction_verification_status(request):
+    user = get_user_from_request(request)
+    transactionId = request.data.get('transactionId')
+    trueForVerifyFalseForReject = request.data.get('trueForVerifyFalseForReject')
+    if user is not None and user.is_superuser:
+        try:
+            transaction = models.Transaction.objects.get(id = transactionId)
+            transaction.payVerified = trueForVerifyFalseForReject
+            transaction.rejected = not trueForVerifyFalseForReject
+            transaction.save()
+            serializer = serializers.TransactionSerializer(data=transaction, many=False)
+            serializer.is_valid()
+            return Response(serializer.data)
+        except Exception:
+            return JsonResponse({}, status = 401)
+    else:
+        return JsonResponse({}, status = 401)
+
 
 
 
