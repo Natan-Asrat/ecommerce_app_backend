@@ -675,9 +675,9 @@ def send_screenshot(request):
         transaction = models.Transaction.objects.get(issuedFor=user, id = transactionId)
         transaction.verificationScreenshot = image
         transaction.save()
-        return JsonResponse({
-            id: transaction.id,
-        })
+        serializer = serializers.TransactionSerializer(data=transaction, many=False)
+        serializer.is_valid()
+        return Response(serializer.data)
     except Exception:
         return JsonResponse({}, status = 401)
 
