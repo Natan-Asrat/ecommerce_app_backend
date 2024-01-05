@@ -120,6 +120,32 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
             if category is not None:
                 return queries.get_all_posts(self.request).filter(categoryId = category)
         return queries.get_all_posts(self.request)
+    def list(self, request, *args, **kwargs):
+        category = request.query_params.get('category')
+        if category is not None:
+            user = get_user_from_request(request)
+            category = models.Category.objects.get(id = category)
+            userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+            userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW
+            userToCategory.save()
+        return super().list(request, *args, **kwargs)
+    def retrieve(self, request, *args, **kwargs):
+        user = get_user_from_request(request)
+        post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
+        seller = post.sellerId
+        category = post.categoryId
+        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+        userToPost, _ = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
+
+        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_VIEW
+        userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW
+        userToPost.strength_sum += INCREASE_TO_POST_INTERACTION_PER_VIEW
+
+        userToUser.save()
+        userToPost.save()
+        userToCategory.save()
+        return super().retrieve(request, *args, **kwargs)
 class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
     queryset = models.Post.objects.none()  
     serializer_class = serializers.NewPostSerializer
@@ -165,6 +191,15 @@ class GetRecommendation(ListAPIView, GenericViewSet):
         if category is not None:
             return queries.get_recommended_in_category(user, category)
         return queries.recommended_from_table(user)
+    def list(self, request, *args, **kwargs):
+        category = request.query_params.get('category')
+        if category is not None:
+            user = get_user_from_request(request)
+            category = models.Category.objects.get(id = category)
+            userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+            userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW
+            userToCategory.save()
+        return super().list(request, *args, **kwargs)
 class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer
@@ -419,6 +454,13 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         context = super().get_serializer_context()
         context['user'] = get_user_from_request(self.request)
         return context
+    def retrieve(self, request, *args, **kwargs):
+        user = get_user_from_request(self.request)
+        seller = models.User.objects.get(kwargs['id'])
+        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_VIEW
+        userToUser.save()
+        return super().retrieve(request, *args, **kwargs)
     
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.none()
@@ -743,18 +785,21 @@ def call_post(request):
     if user is not None:
         post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
         seller = post.sellerId
-        category = post.categoryId
-        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
-        userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
-        userToPost, _ = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
+        if user.id is not seller.id:
 
-        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
-        userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_CALL
-        userToPost.strength_sum += INCREASE_TO_POST_INTERACTION_PER_CALL
+            category = post.categoryId
+            userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+            userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+            userToPost, _ = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
 
-        userToUser.save()
-        userToPost.save()
-        userToCategory.save()
+            userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
+            userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_CALL
+            userToPost.strength_sum += INCREASE_TO_POST_INTERACTION_PER_CALL
+
+            userToUser.save()
+            userToPost.save()
+            userToCategory.save()
+        return JsonResponse({})
 
     else:
         return JsonResponse({}, status = 401)
@@ -766,11 +811,14 @@ def call_profile(request):
     id = request.data.get('id')
     if user is not None:
         seller = models.User.objects.get(id = id)
-        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        if user.id is not seller.id:
 
-        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
+            userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
 
-        userToUser.save()
+            userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
+
+            userToUser.save()
+        return JsonResponse({})
 
     else:
         return JsonResponse({}, status = 401)
@@ -782,11 +830,14 @@ def share_profile(request):
     id = request.data.get('id')
     if user is not None:
         seller = models.User.objects.get(id = id)
-        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        if user.id is not seller.id:
 
-        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_SHARE
+            userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
 
-        userToUser.save()
+            userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_SHARE
+
+            userToUser.save()
+        return JsonResponse({})
 
     else:
         return JsonResponse({}, status = 401)
@@ -799,18 +850,20 @@ def share_post(request):
     if user is not None:
         post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
         seller = post.sellerId
-        category = post.categoryId
-        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
-        userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
-        userToPost, _ = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
+        if user.id is not seller.id:
+            category = post.categoryId
+            userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+            userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+            userToPost, _ = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
 
-        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_SHARE
-        userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_SHARE
-        userToPost.strength_sum += INCREASE_TO_POST_INTERACTION_PER_SHARE
+            userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_SHARE
+            userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_SHARE
+            userToPost.strength_sum += INCREASE_TO_POST_INTERACTION_PER_SHARE
 
-        userToUser.save()
-        userToPost.save()
-        userToCategory.save()
+            userToUser.save()
+            userToPost.save()
+            userToCategory.save()
+        return JsonResponse({})
 
     else:
         return JsonResponse({}, status = 401)

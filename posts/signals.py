@@ -1,6 +1,6 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Transaction, Ads, Like
+from .models import Transaction, Ads, Like, Post, AssociationCategoryToSeller
 
 @receiver(post_save, sender = Transaction)
 def update_pay_verified(sender, instance, created, **kwargs):
@@ -20,3 +20,14 @@ def update_number_of_likes(sender, instance, created, **kwargs):
     likesCount = post.likes_post.count()
     post.likes = likesCount
     post.save()
+
+
+@receiver(post_save, sender = Post)
+def associate_category_with_seller(sender, instance, created, **kwargs):
+    if created:
+        category = instance.categoryId
+        seller = instance.sellerId
+        association, created_association = AssociationCategoryToSeller.objects.get_or_create(category_id = category, seller_id = seller)
+        association.strength += 1
+        association.save()
+
