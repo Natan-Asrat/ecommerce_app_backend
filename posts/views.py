@@ -124,8 +124,8 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         category = request.query_params.get('category')
         if category is not None:
             user = get_user_from_request(request)
-            category = models.Category.objects.get(id = category)
-            userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+            categoryId = models.Category.objects.get(id = category)
+            userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = categoryId)
             userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW
             userToCategory.save()
         return super().list(request, *args, **kwargs)
@@ -785,7 +785,7 @@ def call_post(request):
     if user is not None:
         post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
         seller = post.sellerId
-        if user.id is not seller.id:
+        if user.id != seller.id:
 
             category = post.categoryId
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
@@ -811,7 +811,7 @@ def call_profile(request):
     id = request.data.get('id')
     if user is not None:
         seller = models.User.objects.get(id = id)
-        if user.id is not seller.id:
+        if user.id != seller.id:
 
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
 
@@ -830,7 +830,7 @@ def share_profile(request):
     id = request.data.get('id')
     if user is not None:
         seller = models.User.objects.get(id = id)
-        if user.id is not seller.id:
+        if user.id != seller.id:
 
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
 
@@ -850,7 +850,7 @@ def share_post(request):
     if user is not None:
         post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
         seller = post.sellerId
-        if user.id is not seller.id:
+        if user.id != seller.id:
             category = post.categoryId
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
             userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
