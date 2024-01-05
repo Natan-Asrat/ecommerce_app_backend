@@ -707,6 +707,34 @@ def transaction_verification_status(request):
         return JsonResponse({}, status = 401)
 
 
+INCREASE_TO_CATEGORY_INTERACTION_PER_CALL = 1
+INCREASE_TO_USER_INTERACTION_PER_CALL = 1
+INCREASE_TO_POST_INTERACTION_PER_CALL = 1
+
+
+@api_view(['POST'])
+def call_post(request):
+    user = get_user_from_request(request)
+    id = request.data.get('id')
+    if user is not None:
+        post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
+        seller = post.sellerId
+        category = post.categoryId
+        userToUser = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        userToCategory = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+        userToPost = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
+
+        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
+        userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_CALL
+        userToPost.strength_sum += INCREASE_TO_POST_INTERACTION_PER_CALL
+
+        userToUser.save()
+        userToPost.save()
+        userToCategory.save()
+
+    else:
+        return JsonResponse({}, status = 401)
+
 
 
 

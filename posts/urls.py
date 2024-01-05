@@ -46,4 +46,5 @@ urlpatterns = [
     path('initial_categories/', views.initial_categories),
     path('send_verification_screenshot/', views.send_screenshot),
     path('verify_transaction/', views.transaction_verification_status),
+    path('call_post', views.call_post)
 ] + profile_router.urls
