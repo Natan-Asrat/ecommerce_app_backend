@@ -131,6 +131,7 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         return super().list(request, *args, **kwargs)
     def retrieve(self, request, *args, **kwargs):
         user = get_user_from_request(request)
+        id = kwargs['postId']
         post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
         seller = post.sellerId
         category = post.categoryId
