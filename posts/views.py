@@ -30,6 +30,32 @@ from rest_framework.authentication import TokenAuthentication
 import operator
 from rest_framework.compat import coreapi, coreschema, distinct
 from functools import reduce
+
+INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW = 1
+INCREASE_TO_USER_INTERACTION_PER_VIEW = 1
+INCREASE_TO_POST_INTERACTION_PER_VIEW = 1
+
+
+INCREASE_TO_CATEGORY_INTERACTION_PER_LIKE = 3
+INCREASE_TO_USER_INTERACTION_PER_LIKE = 3
+INCREASE_TO_POST_INTERACTION_PER_LIKE = 3
+
+
+INCREASE_TO_CATEGORY_INTERACTION_PER_SAVE = 5
+INCREASE_TO_USER_INTERACTION_PER_SAVE = 5
+INCREASE_TO_POST_INTERACTION_PER_SAVE = 5
+
+
+INCREASE_TO_CATEGORY_INTERACTION_PER_CALL = 9
+INCREASE_TO_USER_INTERACTION_PER_CALL = 9
+INCREASE_TO_POST_INTERACTION_PER_CALL = 9
+
+
+INCREASE_TO_CATEGORY_INTERACTION_PER_SHARE = 13
+INCREASE_TO_USER_INTERACTION_PER_SHARE = 13
+INCREASE_TO_POST_INTERACTION_PER_SHARE = 13
+
+
 class Search(SearchFilter):
     def get_search_terms(self, request):
         params = request.query_params.get(self.search_param, '')
@@ -707,9 +733,7 @@ def transaction_verification_status(request):
         return JsonResponse({}, status = 401)
 
 
-INCREASE_TO_CATEGORY_INTERACTION_PER_CALL = 1
-INCREASE_TO_USER_INTERACTION_PER_CALL = 1
-INCREASE_TO_POST_INTERACTION_PER_CALL = 1
+
 
 
 @api_view(['POST'])
@@ -736,6 +760,60 @@ def call_post(request):
         return JsonResponse({}, status = 401)
 
 
+@api_view(['POST'])
+def call_profile(request):
+    user = get_user_from_request(request)
+    id = request.data.get('id')
+    if user is not None:
+        seller = models.User.objects.get(id = id)
+        userToUser = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+
+        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
+
+        userToUser.save()
+
+    else:
+        return JsonResponse({}, status = 401)
+
+
+@api_view(['POST'])
+def share_profile(request):
+    user = get_user_from_request(request)
+    id = request.data.get('id')
+    if user is not None:
+        seller = models.User.objects.get(id = id)
+        userToUser = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+
+        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_SHARE
+
+        userToUser.save()
+
+    else:
+        return JsonResponse({}, status = 401)
+
+
+@api_view(['POST'])
+def share_post(request):
+    user = get_user_from_request(request)
+    id = request.data.get('id')
+    if user is not None:
+        post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
+        seller = post.sellerId
+        category = post.categoryId
+        userToUser = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        userToCategory = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+        userToPost = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
+
+        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_SHARE
+        userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_SHARE
+        userToPost.strength_sum += INCREASE_TO_POST_INTERACTION_PER_SHARE
+
+        userToUser.save()
+        userToPost.save()
+        userToCategory.save()
+
+    else:
+        return JsonResponse({}, status = 401)
 
 
 

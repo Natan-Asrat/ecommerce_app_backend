@@ -46,5 +46,8 @@ urlpatterns = [
     path('initial_categories/', views.initial_categories),
     path('send_verification_screenshot/', views.send_screenshot),
     path('verify_transaction/', views.transaction_verification_status),
-    path('call_post', views.call_post)
+    path('call_post/', views.call_post),
+    path('call_profile/', views.call_profile),
+    path('share_profile/', views.share_profile),
+    path('share_post/', views.share_post)
 ] + profile_router.urls
