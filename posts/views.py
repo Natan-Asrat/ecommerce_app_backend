@@ -744,9 +744,9 @@ def call_post(request):
         post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
         seller = post.sellerId
         category = post.categoryId
-        userToUser = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
-        userToCategory = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
-        userToPost = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
+        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+        userToPost, _ = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
 
         userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
         userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_CALL
@@ -766,7 +766,7 @@ def call_profile(request):
     id = request.data.get('id')
     if user is not None:
         seller = models.User.objects.get(id = id)
-        userToUser = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
 
         userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
 
@@ -782,7 +782,7 @@ def share_profile(request):
     id = request.data.get('id')
     if user is not None:
         seller = models.User.objects.get(id = id)
-        userToUser = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
 
         userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_SHARE
 
@@ -800,9 +800,9 @@ def share_post(request):
         post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
         seller = post.sellerId
         category = post.categoryId
-        userToUser = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
-        userToCategory = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
-        userToPost = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
+        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+        userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+        userToPost, _ = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
 
         userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_SHARE
         userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_SHARE
