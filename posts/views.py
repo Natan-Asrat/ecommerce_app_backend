@@ -662,6 +662,14 @@ class GetBids(ListAPIView, RetrieveAPIView, GenericViewSet):
 class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.PayMethod.objects.all()
     serializer_class = serializers.PaymentMethodsSerializer 
+    def get_queryset(self):
+        showVirtual = self.request.query_params.get('virtual')
+        if showVirtual is not None and showVirtual == 'false':
+            return models.PayMethod.objects.filter(isVirtualCurrency=False)
+        
+        if showVirtual is not None and showVirtual == 'true':
+            return models.PayMethod.objects.filter(isVirtualCurrency=True)
+        return super().get_queryset()
     def list(self, request, *args, **kwargs):
         queryset = self.get_queryset()
         serializer = self.get_serializer(data = queryset, many=True)
