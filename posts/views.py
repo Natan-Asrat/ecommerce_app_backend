@@ -457,7 +457,7 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         return context
     def retrieve(self, request, *args, **kwargs):
         user = get_user_from_request(self.request)
-        seller = models.User.objects.get(kwargs['id'])
+        seller = models.User.objects.get(id = kwargs['pk'])
         userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
         userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_VIEW
         userToUser.save()
