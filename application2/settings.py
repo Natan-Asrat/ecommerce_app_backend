@@ -49,7 +49,7 @@ CATEGORY_REDUCER_CONSTANT = int(os.environ.get('CATEGORY_REDUCER_CONSTANT', 100)
 USER_REDUCER_CONSTANT = int(os.environ.get('USER_REDUCER_CONSTANT', 10))
 
 
-ALLOWED_yHOSTS = ['.vercel.app', '.now.sh', '.onrender.com']
+ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '.onrender.com']
 # ALLOWED_HOSTS = ['*']
 
 # import dotenv
