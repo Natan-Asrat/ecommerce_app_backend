@@ -813,11 +813,15 @@ class BuyPackageSerializer(serializers.Serializer):
         virtual = validated_data['useVirtualCurrency']
         price = validated_data['price']
         currency = validated_data['currency']
-        amount = validated_data['amount']
+        amountInWords = validated_data['amount']
         coinAmountInt = validated_data['coinAmountInt']
         tip = validated_data['tip']
         reason = ""
         title = ""
+        if virtual is True:
+            amountToSave = coinAmountInt
+        else:
+            amountToSave = price
         verified = False
         if virtual is True:
             if tip is True and issuedByObj.coins > coinAmountInt :
@@ -834,12 +838,12 @@ class BuyPackageSerializer(serializers.Serializer):
 
             title = "Tip"
         else:
-            reason = "Buy " + amount + " Package"
+            reason = "Buy " + amountInWords + " Package"
             title = "Package"
         transaction = Transaction.objects.create(
             issuedBy = issuedByObj, 
             issuedFor = issuedForObj, 
-            amount = price,
+            amount = amountToSave,
             currency = currency,
             usedVirtualCurrency = virtual,
             payMethod = payMethodObj,
