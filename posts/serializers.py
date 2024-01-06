@@ -827,7 +827,11 @@ class BuyPackageSerializer(serializers.Serializer):
                 #adding to the issuedFor coins is done in signals.py
             
         if tip is True:
-            reason = "Tip " + " " + currency + " " + str(price) + " to " + str(issuedForObj.first_name)
+            if virtual is True:
+                reason = "Tip " +  " " + str(coinAmountInt) + " " + currency + " to " + str(issuedForObj.first_name)
+            else:
+                reason = "Tip " +  " " + str(price) + " " + currency + " to " + str(issuedForObj.first_name)
+
             title = "Tip"
         else:
             reason = "Buy " + amount + " Package"
