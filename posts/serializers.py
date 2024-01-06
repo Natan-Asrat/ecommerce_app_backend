@@ -881,12 +881,16 @@ class TransactionSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class PackageSerializer(serializers.ModelSerializer):
-    discountedPriceStrikeThrough = serializers.SerializerMethodField()
+    originalPriceStrikeThrough = serializers.SerializerMethodField()
     class Meta:
         model = Package
         fields = '__all__'
-    def get_discountedPriceStrikeThrough(self, obj):
-        return strike(obj.discounted_price_in_words)
+    def get_originalPriceStrikeThrough(self, obj):
+        if obj.hasDiscount is True:
+            return strike(obj.original_price_in_words)
+        else:
+            return obj.original_price_in_words
+
 
 
 def get_originalPrice_string(obj):
