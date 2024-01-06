@@ -225,6 +225,7 @@ class Transaction(models.Model):
 class Package(models.Model):
     coin_amount_in_words = models.CharField(max_length=100)
     coin_amount_in_number = models.IntegerField()
+    price = models.IntegerField()
     hasDiscount = models.BooleanField()
     originalPriceCurrency = models.CharField(max_length=CURRENCY_LENGTH, choices=CURRENCY_CHOICES, null=True, blank = True)
     discountPriceCurrency = models.CharField(max_length=CURRENCY_LENGTH, choices=CURRENCY_CHOICES, null=True, blank = True)
