@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save
+from . import serializers
 from django.dispatch import receiver
-from .models import Transaction, Ads, Like, Post, AssociationCategoryToSeller
+from .models import Transaction, Ads, Like, Post, AssociationCategoryToSeller, Package
 
 @receiver(post_save, sender = Transaction)
 def update_pay_verified(sender, instance, created, **kwargs):
@@ -40,3 +41,8 @@ def associate_category_with_seller(sender, instance, created, **kwargs):
         association.strength += 1
         association.save()
 
+@receiver(post_save, sender = Package)
+def strike_through_coin_discount(sender, instance, created, **kwargs):
+    if instance.hasDiscount:
+        instance.discounted_price_in_words = serializers.strike(instance.discounted_price_in_words)
+        instance.save()
