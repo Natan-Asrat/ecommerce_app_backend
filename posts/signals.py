@@ -6,12 +6,21 @@ from .models import Transaction, Ads, Like, Post, AssociationCategoryToSeller
 def update_pay_verified(sender, instance, created, **kwargs):
     rejected = instance.rejected
     verified = instance.payVerified
+    pay_for = instance.pay_for
+
+
     if rejected is False and verified is True:
-        instance.ads.update(payVerified=True)
-        print("payment verified: ", instance)
+        if pay_for == 'A':
+            instance.ads.update(payVerified=True)
+            print("payment verified: ", instance)
+        elif pay_for == 'P':
+            for_user = instance.issuedFor
+            for_user.coins += instance.coin_amount
+            for_user.save()
     else:
-        instance.ads.update(payVerified=False)
-        print("payment not verified: ", instance)
+        if pay_for == 'A':
+            instance.ads.update(payVerified=False)
+            print("payment not verified: ", instance)
 
 
 @receiver(post_save, sender = Like)

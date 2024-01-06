@@ -567,6 +567,7 @@ class ProfileSerializer(serializers.ModelSerializer):
     hasWebsite = serializers.SerializerMethodField()
     follows = serializers.SerializerMethodField()
     is_admin = serializers.SerializerMethodField()
+    coins_in_words = serializers.SerializerMethodField()
 
     def get_hasWebsite(self, obj):
         link = obj.website
@@ -616,10 +617,11 @@ class ProfileSerializer(serializers.ModelSerializer):
         representation = super().to_representation(instance)
         representation["usernameToLink"] = USERNAME_TO_LINK_JSON_BOOLEAN
         return representation
-    
+    def get_coins_in_words(self, obj):
+        return str(obj.coins) + " Coins"
     class Meta:
         model = User
-        fields = ['id', 'is_admin', 'follows', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
+        fields = ['id', 'is_admin', 'coins_in_words', 'follows', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
   
 COIN_TO_MONEY_MULTIPLIER = 20
 class SingleCategoryBidSerializer(serializers.Serializer):
@@ -782,6 +784,71 @@ class CreateAdSerializer(serializers.Serializer):
                 createdAds.append(adCreated)
             
         return createdAds
+    
+class BuyPackageSerializer(serializers.Serializer):
+    contextRequest = None
+    def setRequest(self, request):
+        self.contextRequest = request
+    payMethod = serializers.UUIDField()
+    issuedFor = serializers.UUIDField()
+    currency = serializers.CharField(max_length=CURRENCY_LENGTH)
+    useVirtualCurrency = serializers.BooleanField()
+    price = serializers.IntegerField()
+    amount = serializers.CharField(max_length=100)
+    coinAmountInt = serializers.IntegerField()
+    tip = serializers.BooleanField()
+    def create(self, validated_data):
+        request = self.contextRequest
+        is_issued_by_admin = self.contextRequest.headers.get('by_admin', False)
+        is_issued_by_admin = bool(is_issued_by_admin)
+
+        if is_issued_by_admin is True:
+            issuedByObj, _ = authentication.getUserFromAuthHeader(self.contextRequest)
+        else:
+            issuedByObj = request.user
+
+        payMethodObj = PayMethod.objects.get(id=validated_data['payMethod'])
+        issuedForObj = User.objects.get(id=validated_data['issuedFor'])
+        virtual = validated_data['useVirtualCurrency']
+        price = validated_data['price']
+        currency = validated_data['currency']
+        amount = validated_data['amount']
+        coinAmountInt = validated_data['coinAmountInt']
+        tip = validated_data['tip']
+        reason = ""
+        title = ""
+        verified = False
+        if virtual is True:
+            if tip is True and issuedByObj.coins > coinAmountInt :
+                verified = True
+                issuedByObj.coins -= coinAmountInt
+                issuedByObj.save()
+                #adding to the issuedFor coins is done in signals.py
+            
+        if tip is True:
+            reason = "Tip " + " " + currency + str(price) + " to " + str(issuedForObj.first_name)
+            title = "Tip"
+        else:
+            reason = "Buy " + amount + " Package"
+            title = "Package"
+        transaction = Transaction.objects.create(
+            issuedBy = issuedByObj, 
+            issuedFor = issuedForObj, 
+            amount = price,
+            currency = currency,
+            usedVirtualCurrency = virtual,
+            payMethod = payMethodObj,
+            payVerified = verified,
+            title = title,
+            reason = reason,
+            coin_amount = coinAmountInt,
+            trueForDepositFalseForWithdraw = True
+        )
+
+        
+
+        return transaction
+
 
 class TransactionSerializer(serializers.ModelSerializer):
     verificationScreenshot = serializers.SerializerMethodField()
@@ -802,6 +869,12 @@ class TransactionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Transaction
         fields = '__all__'
+
+class PackageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Package
+        fields = '__all__'
+
 
 def get_originalPrice_string(obj):
     return str(obj.currency) + ' ' + str(obj.price)

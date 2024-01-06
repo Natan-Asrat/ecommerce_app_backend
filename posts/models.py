@@ -17,6 +17,7 @@ class User(AbstractUser):
     website = models.TextField(default = "", blank=True)
     REQUIRED_FIELDS = ['phoneNumber']
     created_at = models.DateTimeField(auto_now_add=True)
+    coins = models.IntegerField(default = 0, blank = True)
 
 
 
@@ -195,6 +196,12 @@ PAY_TYPE = [
     ('L', 'Link'),
     ('C', 'Coin')
 ]
+
+PAY_FOR = [
+    ('A', 'Ads'),
+    ('P', 'Package')
+]
+
 class Transaction(models.Model):
     issuedBy = models.ForeignKey(to="User", on_delete=models.DO_NOTHING, related_name = 'byUser')
     issuedFor = models.ForeignKey(to="User", on_delete=models.DO_NOTHING, related_name = 'forUser')
@@ -210,8 +217,23 @@ class Transaction(models.Model):
     verificationScreenshot = CloudinaryField('image', null=True, blank = True)
     transactionConfirmationCode = models.CharField(max_length=100, null=True, blank =True)
     created_at = models.DateTimeField(auto_now_add=True)
+    pay_for = models.CharField(max_length = 1, choices = PAY_FOR)
+    coin_amount = models.IntegerField(default=0, blank = True)
     def __str__(self):
         return "For: " + str(self.issuedFor) + ", Amount: " + str(self.amount)
+    
+class Package(models.Model):
+    coin_amount_in_words = models.CharField(max_length=100)
+    coin_amount_in_number = models.IntegerField()
+    hasDiscount = models.BooleanField()
+    originalPriceCurrency = models.CharField(max_length=CURRENCY_LENGTH, choices=CURRENCY_CHOICES, null=True, blank = True)
+    discountPriceCurrency = models.CharField(max_length=CURRENCY_LENGTH, choices=CURRENCY_CHOICES, null=True, blank = True)
+    original_price_in_words = models.CharField(max_length=100)
+    discounted_price_in_words = models.CharField(max_length=100, blank = True, default = "")
+    level_of_payment_1_through_4 = models.IntegerField()
+    order = models.IntegerField(default=0, blank = True)
+    class Meta:
+        ordering = ['-order', 'coin_amount_in_number']
 from django.db.models.signals import post_save
 from .signals import *
 post_save.connect(update_pay_verified, sender=Transaction)

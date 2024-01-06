@@ -662,7 +662,59 @@ class GetBids(ListAPIView, RetrieveAPIView, GenericViewSet):
 class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.PayMethod.objects.all()
     serializer_class = serializers.PaymentMethodsSerializer 
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        serializer = self.get_serializer(data = queryset, many=True)
+        serializer.is_valid()
+        data = serializer.data
+        amount = self.request.query_params.get('amount')
+        if amount is not None:
+            required = int(amount)
+            deposit = request.user.coins
+            for  payment in data:
+                virtual = payment['isVirtualCurrency']
+                if virtual is True:
+                    if deposit >= required:
+                        payment['sufficientBalance'] = True
+                    else:
+                        payment['sufficientBalance'] = False
 
+        return Response(data)
+
+class BuyPackagesAPI(ListAPIView,CreateAPIView, GenericViewSet):
+    queryset = models.Package.objects.all()
+    serializer_class = serializers.PackageSerializer
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return serializers.BuyPackageSerializer
+        elif self.action == 'list':
+            return serializers.PackageSerializer
+        return super().get_serializer_class()
+    def create(self, request):
+        serializer = serializers.BuyPackageSerializer(data=request.data)
+        serializer.setRequest(request)
+        serializer.is_valid(raise_exception=True)
+        transaction = serializer.save()  # This will call the serializer's create method
+        pending = True
+        # for ad in created_ads:
+        #     if ad.payVerified is False:
+        #         pending = True
+        if pending is True:
+            message = 'Transaction is pending'
+        else:
+            message = 'Your request was successful!'
+        response_data = {
+            'detail': message,
+            'transaction': transaction.id
+        }
+        print(response_data)
+
+        return Response(response_data, status = 200)
+    def get_serializer_context(self):
+        c = super().get_serializer_context()
+        c['request'] = self.request
+        return c
+   
 class ProfilePostsAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.WideCardSerializer

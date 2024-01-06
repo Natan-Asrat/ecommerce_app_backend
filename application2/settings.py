@@ -157,6 +157,7 @@ DATABASES = {
 
 import dj_database_url
 DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_LINK'))
+
 CONN_MAX_AGE = None
 AUTH_USER_MODEL = 'posts.User'
 # from neomodel import config
@@ -218,7 +219,7 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'posts.authentication.FirebaseAuthentication',
+        # 'posts.authentication.FirebaseAuthentication',
         'django.contrib.auth.backends.ModelBackend',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication'
