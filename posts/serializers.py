@@ -765,7 +765,8 @@ class CreateAdSerializer(serializers.Serializer):
             payVerified = False,
             title = "Boost Ads",
             reason = str(adCount) + " ads in " + str(subcategoriesTotal) + " subcategories",
-            trueForDepositFalseForWithdraw = True
+            trueForDepositFalseForWithdraw = True,
+            pay_for = 'A'
         )
 
         posts = validated_data['postIds']
@@ -842,7 +843,8 @@ class BuyPackageSerializer(serializers.Serializer):
             title = title,
             reason = reason,
             coin_amount = coinAmountInt,
-            trueForDepositFalseForWithdraw = True
+            trueForDepositFalseForWithdraw = True,
+            pay_for = 'P'
         )
 
         
