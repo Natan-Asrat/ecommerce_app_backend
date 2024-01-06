@@ -131,21 +131,22 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         return super().list(request, *args, **kwargs)
     def retrieve(self, request, *args, **kwargs):
         user = get_user_from_request(request)
-        id = kwargs['pk']
-        post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
-        seller = post.sellerId
-        category = post.categoryId
-        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
-        userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
-        userToPost, _ = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
+        if user is not None:
+            id = kwargs['pk']
+            post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
+            seller = post.sellerId
+            category = post.categoryId
+            userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+            userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
+            userToPost, _ = models.InteractionUserToPost.objects.get_or_create(user_id = user, post_id = post)
 
-        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_VIEW
-        userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW
-        userToPost.strength_sum += INCREASE_TO_POST_INTERACTION_PER_VIEW
+            userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_VIEW
+            userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW
+            userToPost.strength_sum += INCREASE_TO_POST_INTERACTION_PER_VIEW
 
-        userToUser.save()
-        userToPost.save()
-        userToCategory.save()
+            userToUser.save()
+            userToPost.save()
+            userToCategory.save()
         return super().retrieve(request, *args, **kwargs)
 class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
     queryset = models.Post.objects.none()  
@@ -457,10 +458,11 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         return context
     def retrieve(self, request, *args, **kwargs):
         user = get_user_from_request(self.request)
-        seller = models.User.objects.get(id = kwargs['pk'])
-        userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
-        userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_VIEW
-        userToUser.save()
+        if user is not None:
+            seller = models.User.objects.get(id = kwargs['pk'])
+            userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
+            userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_VIEW
+            userToUser.save()
         return super().retrieve(request, *args, **kwargs)
     
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
