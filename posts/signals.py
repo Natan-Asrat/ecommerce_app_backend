@@ -39,3 +39,8 @@ def associate_category_with_seller(sender, instance, created, **kwargs):
         association, created_association = AssociationCategoryToSeller.objects.get_or_create(category_id = category, seller_id = seller)
         association.strength += 1
         association.save()
+
+        seller.coins -= 1
+        seller.save()
+
+

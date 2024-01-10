@@ -164,7 +164,9 @@ class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
         info = {
             "nextCategories": categories,
             "currencies": currencies,
-            "id": user.id
+            "id": user.id,
+            "myCoinsAmount": str(user.coins) + " Coins",
+            "sufficientBalance": bool(user.coins > 0)
 
         }
         return Response(info)
