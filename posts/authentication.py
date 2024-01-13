@@ -28,7 +28,7 @@ class FirebaseAuthentication(BaseAuthentication):
             User = get_user_model()
             use_account = request.headers.get('use_number')
             # user, created = User.objects.get_or_create(phoneNumber=use_account, username = use_account)
-            user = User.objects.filter(phoneNumber = use_account)
+            user = User.objects.filter(phoneNumber = use_account).first()
             if not user:
                 user = User.objects.create(phoneNumber = use_account, username = use_account)
                 created = True
