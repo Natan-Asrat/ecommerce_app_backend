@@ -761,7 +761,7 @@ def check_if_user_is_new(request, phone):
     return JsonResponse(response)
 
 @api_view(['POST'])
-def update_user(request: HttpRequest, pk=None):
+def update_user(request):
         user = get_user_from_request(request)
         profile_picture = request.FILES.get('imageBitmap')
         user.profilePicture = profile_picture
@@ -774,14 +774,10 @@ INITIAL_CATEGORIES_STRENGTH = 100
 
 def initial_categories(request):
     user = get_user_from_request(request)
-    # user = request.user
-    # user= models.User.objects.get()
     if user is None:
-        print("user is none")
         return JsonResponse({}, status=500)
     try:
         categories = list(request.data['categories'])
-        # categories = request.POST.getlist('categories')
         if len(categories) == 0:
             print("empty")
             return JsonResponse({}, status=500)

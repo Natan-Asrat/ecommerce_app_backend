@@ -27,7 +27,6 @@ class FirebaseAuthentication(BaseAuthentication):
         if user is not None and user.is_superuser and is_issued_by_admin:
             User = get_user_model()
             use_account = request.headers.get('use_number')
-            # user, created = User.objects.get_or_create(phoneNumber=use_account, username = use_account)
             user = User.objects.filter(phoneNumber = use_account).first()
             if not user:
                 user = User.objects.create(phoneNumber = use_account, username = use_account)
