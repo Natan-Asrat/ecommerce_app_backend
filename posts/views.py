@@ -763,6 +763,7 @@ def check_if_user_is_new(request, phone):
 @api_view(['POST'])
 def update_user(request):
         user = get_user_from_request(request)
+        print(user.username)
         profile_picture = request.FILES.get('imageBitmap')
         user.profilePicture = profile_picture
         user.first_name = request.data.get('name')
