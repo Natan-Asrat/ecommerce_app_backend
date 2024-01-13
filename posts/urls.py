@@ -42,7 +42,7 @@ urlpatterns = [
     path('', include(router.urls)),
     path('refresh', views.create_recommendations_api),
     path('update_last_seen', views.update_last_seen),
-    path('check_is_user_new/<str:id>/', views.check_if_user_is_new),
+    path('check_is_user_new/<str:phone>/', views.check_if_user_is_new),
     path('update_user/', views.update_user),
     path('initial_categories/', views.initial_categories),
     path('send_verification_screenshot/', views.send_screenshot),

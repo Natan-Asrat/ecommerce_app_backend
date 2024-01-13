@@ -732,10 +732,10 @@ class ProfilePostsAPI(ListAPIView, GenericViewSet):
     def get_queryset(self):
         return models.Post.objects.filter(sellerId = self.kwargs['seller_pk']).select_related('sellerId', 'categoryId', 'categoryId__parent')
     
-def check_if_user_is_new(request, id):
+def check_if_user_is_new(request, phone):
     user = None
     try:
-        user = models.User.objects.get(username=id)
+        user = models.User.objects.get(phoneNumber=phone)
         userIsNew = False
     except Exception:
         userIsNew = True
