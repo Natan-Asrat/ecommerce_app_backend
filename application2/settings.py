@@ -78,6 +78,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'posts.apps.PostsConfig',
     'debug_toolbar',
+    'fcm_django',
     # 'whitenoise.runserver_nostatic'
 ]
 INTERNAL_IPS = [

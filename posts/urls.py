@@ -4,6 +4,7 @@ from . import views
 from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework_nested import routers
+from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet, FCMDeviceViewSet
 
 router = DefaultRouter()
 router.register('categories', views.CategoriesAPI)
@@ -35,6 +36,7 @@ router.register('admin_pending_transactions', views.AdminPendingTransactions)
 router.register('admin_rejected_transactions', views.AdminRejectedTransactions)
 router.register('admin_verified_transactions', views.AdminVerifiedTransactions)
 router.register('admin_recent_transactions', views.AdminRecentTransactions)
+router.register('devices', FCMDeviceAuthorizedViewSet)
 
 profile_router = routers.NestedDefaultRouter(router, 'profiles', lookup = 'seller')
 profile_router.register('profile_posts', views.ProfilePostsAPI, basename='profile-posts')
