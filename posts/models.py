@@ -240,3 +240,4 @@ from .signals import *
 post_save.connect(update_pay_verified, sender=Transaction)
 post_save.connect(update_number_of_likes, sender = Like)
 post_save.connect(associate_category_with_seller, sender = Post)
+post_save.connect(send_notification, sender = Notification)

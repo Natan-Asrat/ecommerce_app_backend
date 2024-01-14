@@ -1,6 +1,7 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Transaction, Ads, Like, Post, AssociationCategoryToSeller, Package
+from fcm_django.models import FCMDevice
+from .models import Transaction, Ads, Like, Post, AssociationCategoryToSeller, Package, Notification, GET_NOTIFICATION_IMAGE_FROM
 
 @receiver(post_save, sender = Transaction)
 def update_pay_verified(sender, instance, created, **kwargs):
@@ -44,3 +45,25 @@ def associate_category_with_seller(sender, instance, created, **kwargs):
         seller.save()
 
 
+from .notifications import send_notification_to_user
+
+@receiver(post_save, sender = Notification)
+def send_notification(sender, instance: Notification, created, **kwargs):
+    title = instance.message
+    user = instance.notifyUser
+    date = str(instance.date)
+    img_from = instance.image_from
+    imgUrl = ""
+    if img_from is GET_NOTIFICATION_IMAGE_FROM[0]:
+        profile = instance.profileId
+        if profile is not None:
+            img = profile.profilePicture
+            if img is not None:
+                imgUrl = img.url
+    elif img_from is GET_NOTIFICATION_IMAGE_FROM[1]:
+        post = instance.postId
+        if post is not None:
+            img = post.postImage.first()
+            if img is not None:
+                imgUrl = img.image.url
+    send_notification_to_user(user, title, date, imgUrl)
