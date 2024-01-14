@@ -36,7 +36,7 @@ router.register('admin_pending_transactions', views.AdminPendingTransactions)
 router.register('admin_rejected_transactions', views.AdminRejectedTransactions)
 router.register('admin_verified_transactions', views.AdminVerifiedTransactions)
 router.register('admin_recent_transactions', views.AdminRecentTransactions)
-router.register('devices', FCMDeviceAuthorizedViewSet)
+router.register('devices', FCMDeviceViewSet)
 
 profile_router = routers.NestedDefaultRouter(router, 'profiles', lookup = 'seller')
 profile_router.register('profile_posts', views.ProfilePostsAPI, basename='profile-posts')
