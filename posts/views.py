@@ -6,7 +6,6 @@ from rest_framework.viewsets import ModelViewSet, GenericViewSet
 from rest_framework.generics import ListAPIView, UpdateAPIView, ListCreateAPIView, CreateAPIView, RetrieveUpdateAPIView, RetrieveAPIView, DestroyAPIView
 from . import serializers, queries, models
 from . import authentication
-from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet
 from django.http import JsonResponse
 from django.http import HttpResponse, HttpRequest
 from datetime import datetime, timedelta
@@ -415,9 +414,6 @@ class FavouritesAPI(ListAPIView, GenericViewSet):
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Favourite.objects.filter(user_id = user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
-
-class FCM(FCMDeviceAuthorizedViewSet):
-    authentication_classes = [authentication.FirebaseAuthentication]
 
 class LikedAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
