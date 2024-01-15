@@ -775,6 +775,7 @@ INITIAL_CATEGORIES_STRENGTH = 100
 def initial_categories(request):
     user = get_user_from_request(request)
     if user is None:
+        print("user is none")
         return JsonResponse({}, status=500)
     try:
         categories = list(request.data['categories'])
