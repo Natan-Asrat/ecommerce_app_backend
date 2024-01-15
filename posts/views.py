@@ -781,6 +781,10 @@ def initial_categories(request):
         if len(categories) == 0:
             print("empty")
             return JsonResponse({}, status=500)
+        existing_categories = models.InteractionUserToCategory.objects.filter(
+            category_id__in=categories,
+            user_id=user
+        ).values_list('category_id', flat=True)
         categories_obj = models.Category.objects.filter(id__in = categories)
         categories_list = [
             models.InteractionUserToCategory(
@@ -789,6 +793,7 @@ def initial_categories(request):
                         strength_sum = INITIAL_CATEGORIES_STRENGTH
                     )
                     for category in categories_obj
+                    if category not in existing_categories
             
         ]
         models.InteractionUserToCategory.objects.bulk_create(categories_list)
