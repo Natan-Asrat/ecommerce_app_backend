@@ -4,6 +4,11 @@ from django.contrib.auth import get_user_model
 import firebase_admin
 from firebase_admin import credentials, auth
 from django.conf import settings
+import pytz
+from datetime import datetime, timedelta
+
+timezone = pytz.timezone('UTC')
+SECONDS_TO_WAIT_FOR_NEXT_LAST_SEEN_UPDATE = 4 * 60
 
 cred = credentials.Certificate({
         "type" : settings.FIREBASE_ACCOUNT_TYPE,
@@ -33,6 +38,10 @@ class FirebaseAuthentication(BaseAuthentication):
                 created = True
             else:
                 created = False
+
+        if should_update_last_seen(user) is True:
+            user.last_seen = datetime.now().astimezone(timezone)
+            user.save()
         return user, created
 def getUserFromAuthHeader(request):
     token = request.headers.get('Authorization')
@@ -55,3 +64,10 @@ def getUserFromAuthHeader(request):
         user.phoneNumber = phone_number
         user.save()
     return user, created
+def should_update_last_seen(user):
+        last_seen = user.last_seen.astimezone(timezone)
+        now = datetime.now().astimezone(timezone)
+        seconds = int((now - last_seen).total_seconds())
+        if seconds < SECONDS_TO_WAIT_FOR_NEXT_LAST_SEEN_UPDATE:
+            return False
+        return True
