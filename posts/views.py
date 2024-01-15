@@ -734,13 +734,20 @@ class ProfilePostsAPI(ListAPIView, GenericViewSet):
     
 def check_if_user_is_new(request, phone):
     user = None
-    user, created = models.User.objects.get_or_create(phoneNumber=phone, username = phone)
-    if not created:
+    try:
+        user = models.User.objects.get(username=phone)
+        userIsNew = False
+    except Exception:
+        user = models.User.objects.create(phoneNumber = phone, username=phone)
+
+        userIsNew = True
+
+    if user is not None:
         imgUrl = None
         if user.profilePicture is not None:
             imgUrl = user.profilePicture.url
         response = {
-            'is_new': created,
+            'is_new': userIsNew,
             'id': user.id,
             'profilePicture': imgUrl,
             'name': user.first_name
@@ -748,7 +755,7 @@ def check_if_user_is_new(request, phone):
         
     else:
         response = {
-            'is_new': created,
+            'is_new': userIsNew,
             'id': None,
             'profilePicture': None,
             'name': None
