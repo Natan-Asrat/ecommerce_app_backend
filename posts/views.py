@@ -487,10 +487,11 @@ def update_last_seen(request):
     user.save()
     return HttpResponse('Updated last seen of user: ' + str(user))
 
-class GetMyTransactions(ListAPIView, GenericViewSet):
+class GetMyTransactions(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     pagination_class = paginators.Pages
+
     def get_queryset(self): 
         user = get_user_from_request(self.request)
         return models.Transaction.objects.filter(Q(issuedFor = user ) | Q(issuedBy = user)).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
@@ -521,7 +522,7 @@ class GetMyRejectedTransactions(ListAPIView, GenericViewSet):
         return models.Transaction.objects.filter(Q(issuedFor = user ) | Q(issuedBy = user), rejected = True).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
 
 
-class AdminRecentTransactions(ListAPIView, GenericViewSet):
+class AdminRecentTransactions(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
     pagination_class = paginators.Pages
