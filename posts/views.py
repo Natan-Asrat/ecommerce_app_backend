@@ -986,30 +986,43 @@ def check_if_following_seller(user, seller):
     
 def ask_user_to_follow_profile_if_not(user, seller):
     followStatus = check_if_following_seller(user, seller)
-    if followStatus==0 or followStatus == PROFILE_FOLLOWS_USER:
-        if followStatus == 0:
-            followMessage = "Follow " + str(seller.phoneNumber) + ": " + seller.first_name
-        else: 
-            followMessage = "Follow back " + str(seller.phoneNumber) + ": " + seller.first_name
-        models.Notification.objects.create(
-            notifyUser = user,
-            profileId = seller,
-            image_from = 'U',
-            action = 'F',
-            message = followMessage
-        )
+    already_sent_notification = models.Notification.objects.filter(
+        notifyUser=user,
+        profileId=seller,
+        action = 'F'
+        ).exists()
+
+    if not already_sent_notification:
+        if  followStatus==0 or followStatus == PROFILE_FOLLOWS_USER:
+            if followStatus == 0:
+                followMessage = "Follow " + str(seller.phoneNumber) + ": " + seller.first_name
+            else: 
+                followMessage = "Follow back " + str(seller.phoneNumber) + ": " + seller.first_name
+            models.Notification.objects.create(
+                notifyUser = user,
+                profileId = seller,
+                image_from = 'U',
+                action = 'F',
+                message = followMessage
+            )
 
 def ask_profile_to_follow_user_if_not(user, seller):
     followStatus = check_if_following_seller(seller, user)
-    if followStatus==0 or followStatus == PROFILE_FOLLOWS_USER:
-        if followStatus == 0:
-            followMessage = "Follow " + str(user.phoneNumber) + ": " + user.first_name
-        else: 
-            followMessage = "Follow back " + str(user.phoneNumber) + ": " + user.first_name
-        models.Notification.objects.create(
-            notifyUser = seller,
-            profileId = user,
-            image_from = 'U',
-            action = 'F',
-            message = followMessage
-        )
+    already_sent_notification = models.Notification.objects.filter(
+        notifyUser=seller,
+        profileId=user,
+        action = 'F'
+        ).exists()
+    if not already_sent_notification:
+        if followStatus==0 or followStatus == PROFILE_FOLLOWS_USER:
+            if followStatus == 0:
+                followMessage = "Follow " + str(user.phoneNumber) + ": " + user.first_name
+            else: 
+                followMessage = "Follow back " + str(user.phoneNumber) + ": " + user.first_name
+            models.Notification.objects.create(
+                notifyUser = seller,
+                profileId = user,
+                image_from = 'U',
+                action = 'F',
+                message = followMessage
+            )
