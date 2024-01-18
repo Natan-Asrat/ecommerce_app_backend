@@ -509,6 +509,7 @@ class NotificationSerializer(serializers.ModelSerializer):
     notificationId = serializers.SerializerMethodField()
     phoneNumber = serializers.SerializerMethodField()
     link = serializers.SerializerMethodField()
+    button = serializers.SerializerMethodField()
 
     class Meta:
         model = Notification
@@ -520,9 +521,17 @@ class NotificationSerializer(serializers.ModelSerializer):
             'image', 
             'action', 
             'seen', 
-            'buttonPressed', 
+            'button', 
             'profileId', 
             'postId']
+        
+    def get_button(self, obj):
+        if obj['action'] == 'F':
+            user = obj['notifyUser']
+            followed = obj['profileId']
+            return Follower.objects.filter(user_followed = followed, user_follower = user.id).exists()
+
+        return obj['buttonPressed']
 
     def get_phoneNumber(self, obj):
         if obj['profileId'] is not None:
