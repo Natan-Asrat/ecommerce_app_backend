@@ -529,7 +529,7 @@ class NotificationSerializer(serializers.ModelSerializer):
         if obj['action'] == 'F':
             user = obj['notifyUser']
             followed = obj['profileId']
-            return Follower.objects.filter(user_followed = followed, user_follower = user.id).exists()
+            return Follower.objects.filter(user_followed = followed, user_follower = user).exists()
 
         return obj['buttonPressed']
 
