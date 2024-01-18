@@ -476,8 +476,8 @@ class LikePostSerializer(serializers.ModelSerializer):
 class FollowProfileSerializer(serializers.ModelSerializer):
     follows = serializers.SerializerMethodField(read_only = True)
     hasFollowed = serializers.SerializerMethodField(read_only = True)
-    user_followed = serializers.SerializerMethodField(required = False)
-    user_follower = serializers.SerializerMethodField(required = False, read_only = True)
+    user_followed = serializers.UUIDField(required = False)
+    user_follower = serializers.UUIDField(required = False, read_only = True)
     class Meta:
         model = Follower
         fields = ['follows', 'hasFollowed', 'user_followed', 'user_follower']
