@@ -988,9 +988,9 @@ def ask_user_to_follow_profile_if_not(user, seller):
     followStatus = check_if_following_seller(user, seller)
     if followStatus==0 or followStatus == PROFILE_FOLLOWS_USER:
         if followStatus == 0:
-            followMessage = "Follow " + str(seller.phoneNumber) + " " + user.first_name
+            followMessage = "Follow " + str(seller.phoneNumber) + ": " + seller.first_name
         else: 
-            followMessage = "Follow back " + str(seller.phoneNumber) + " " + user.first_name
+            followMessage = "Follow back " + str(seller.phoneNumber) + ": " + seller.first_name
         models.Notification.objects.create(
             notifyUser = user,
             profileId = seller,
@@ -1003,9 +1003,9 @@ def ask_profile_to_follow_user_if_not(user, seller):
     followStatus = check_if_following_seller(seller, user)
     if followStatus==0 or followStatus == PROFILE_FOLLOWS_USER:
         if followStatus == 0:
-            followMessage = "Follow " + str(user.phoneNumber) + " " + user.first_name
+            followMessage = "Follow " + str(user.phoneNumber) + ": " + user.first_name
         else: 
-            followMessage = "Follow back " + str(user.phoneNumber) + " " + user.first_name
+            followMessage = "Follow back " + str(user.phoneNumber) + ": " + user.first_name
         models.Notification.objects.create(
             notifyUser = seller,
             profileId = user,
