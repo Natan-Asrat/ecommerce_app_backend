@@ -414,7 +414,7 @@ class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Notification.objects.filter(
-                notifyUser = user.id
+                notifyUser = user
             ).values(
                 'action', 
                 'buttonPressed', 
