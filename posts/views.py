@@ -355,6 +355,53 @@ class SaveAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
                 }, status = status.HTTP_404_NOT_FOUND
             )
 
+
+class FollowAPI(CreateAPIView, DestroyAPIView, GenericViewSet):
+    queryset = models.Follower.objects.all()
+    serializer_class = serializers.FollowProfileSerializer
+    permission_classes = (IsAuthenticated,)
+    lookup_field = 'user_followed'
+    def get_serializer(self, *args, **kwargs):
+        s = super().get_serializer(*args, **kwargs)
+        s.setRequest(self.request)
+        return s
+    def retrieve(self, request, *args, **kwargs):
+        followed = self.kwargs['user_followed']
+        follows = models.Follower.objects.filter(
+            user_followed = followed
+        ).first()
+        serializer = self.get_serializer(data = follows)
+        try:
+            serializer.is_valid(raise_exception = True)
+        except Exception:
+            return Response({
+                'follows': 0,
+                'hasFollowed': False
+            })
+
+        return Response(serializer.data)
+    def perform_create(self, serializer):
+        user = get_user_from_request(self.request)
+        profile = models.User.objects.get(id =self.kwargs.get('user_followed') )
+        serializer.save(user_follower= user, user_followed = profile)
+    def destroy(self, request, *args, **kwargs):
+        user = get_user_from_request(self.request)
+        user_id = None
+        if user is not None:
+            user_id = user.id
+        profile = self.kwargs['user_followed']
+        follows = models.Follower.objects.filter(user_follower = user_id, user_followed = profile)
+        if follows.exists():
+            follows.delete()
+            return Response(status =status.HTTP_204_NO_CONTENT)
+        else:
+            return Response(
+                {
+                    'error': 'Profile and associated user not found in follows table'
+                }, status = status.HTTP_404_NOT_FOUND
+            )
+
+
 class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Notification.objects.all(
     ).values(

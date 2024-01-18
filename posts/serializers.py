@@ -472,7 +472,16 @@ class LikePostSerializer(serializers.ModelSerializer):
         else:            
             post_id = obj.post_id
         return Like.objects.filter(post_id = post_id, user_id = user.id).exists()
+
+class FollowProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Follower
+        fields = '__all__'
     
+    def create(self, validated_data):
+        like, created = Follower.objects.get_or_create(**validated_data)
+        return like
+
 class NotificationSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()
     profileId = serializers.UUIDField()
