@@ -6,11 +6,11 @@ def send_notification_to_user(user, title, body, imageUrl, id):
         notification=Notification(
             title=title,
             body= body,
-            image=imageUrl,
+            image=imageUrl
+        ),
             data = {
                 "notificationId": id
             }
-        )
     )
     devices = FCMDevice.objects.filter(user = user)
     devices.send_message(message)
