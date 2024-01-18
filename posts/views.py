@@ -391,6 +391,7 @@ class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
             groups = group_by_days(page)
             
             for daysBefore, notifications in groups.items():
+                notifications.reverse()
                 serialized.append(
                     {
                         "daysBefore": daysBefore,

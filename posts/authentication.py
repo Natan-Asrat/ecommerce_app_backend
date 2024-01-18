@@ -39,7 +39,7 @@ class FirebaseAuthentication(BaseAuthentication):
             else:
                 created = False
 
-        if should_update_last_seen(user) is True:
+        if user is not None and should_update_last_seen(user) is True:
             user.last_seen = datetime.now().astimezone(timezone)
             user.save()
         return user, created
