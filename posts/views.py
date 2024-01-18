@@ -856,7 +856,15 @@ def call_post(request):
         post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
         seller = post.sellerId
         if user.id != seller.id:
-
+            message = "Call " + str(user.phoneNumber) + " about your post '" + post.title + "'"
+            models.Notification.objects.create(
+                notifyUser = seller,
+                profileId = user,
+                image_from = 'P',
+                postId = post,
+                action = 'C',
+                message = message
+            )
             category = post.categoryId
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
             userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
@@ -882,7 +890,14 @@ def call_profile(request):
     if user is not None:
         seller = models.User.objects.get(id = id)
         if user.id != seller.id:
-
+            message = str(user.phoneNumber) + " is trying to call you!"
+            models.Notification.objects.create(
+                notifyUser = seller,
+                profileId = user,
+                image_from = 'U',
+                action = 'C',
+                message = message
+            )
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
 
             userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
