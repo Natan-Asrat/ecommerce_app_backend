@@ -69,8 +69,7 @@ GET_NOTIFICATION_IMAGE_FROM = [
     ('P', 'Post')
 ]
 class Notification(models.Model):
-    # date = models.DateField(auto_now_add=True)
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
     message = models.CharField(max_length=255)
     notifyUser = models.ForeignKey(to = "User", on_delete=models.CASCADE, related_name='notify_to')
     profileId = models.ForeignKey(to = "User", on_delete=models.CASCADE, blank=True, null = True, related_name='profile_seller')
