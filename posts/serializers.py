@@ -187,6 +187,7 @@ class PostDetailSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField(read_only = True)
     originalPrice = serializers.SerializerMethodField()
     discountedPrice = serializers.SerializerMethodField()
+    link = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Post
         fields = [
@@ -207,6 +208,10 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'hasSaved',
             'images'
             ]
+    def get_link(self, obj):
+        if obj.link == "":
+            return POST_WEB_URL + str(obj.postId)
+        return obj.link
     def get_originalPrice(self, obj):
         return get_originalPrice_string(obj)
     def get_discountedPrice(self, obj):
