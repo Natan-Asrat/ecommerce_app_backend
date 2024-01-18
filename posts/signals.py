@@ -66,4 +66,4 @@ def send_notification(sender, instance: Notification, created, **kwargs):
             img = post.postImage.first()
             if img is not None:
                 imgUrl = img.image.url
-    send_notification_to_user(user, title, date, imgUrl)
+    send_notification_to_user(user, title, date, imgUrl, id)
