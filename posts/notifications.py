@@ -9,7 +9,7 @@ def send_notification_to_user(user, title, body, imageUrl, id):
             image=imageUrl
         ),
             data = {
-                "notificationId": id
+                "notificationId": str(id)
             }
     )
     devices = FCMDevice.objects.filter(user = user)
