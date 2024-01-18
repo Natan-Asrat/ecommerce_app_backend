@@ -21,8 +21,8 @@ USERNAME_TO_LINK_JSON_BOOLEAN = True
 
 
 WEB_BASE_URL = "https://emishopapp.onrender.com/"
-PROFILE_WEB_URL = WEB_BASE_URL + "profile/?s"
-POST_WEB_URL = WEB_BASE_URL + "post/?p"
+PROFILE_WEB_URL = WEB_BASE_URL + "profile/?s="
+POST_WEB_URL = WEB_BASE_URL + "post/?p="
 
 
 
