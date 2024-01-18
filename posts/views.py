@@ -55,6 +55,10 @@ INCREASE_TO_CATEGORY_INTERACTION_PER_SHARE = 13
 INCREASE_TO_USER_INTERACTION_PER_SHARE = 13
 INCREASE_TO_POST_INTERACTION_PER_SHARE = 13
 
+BOTH_FOLLOW_EACH_OTHER = 2
+USER_FOLLOWS_PROFILE = -1
+PROFILE_FOLLOWS_USER = 1
+
 
 class Search(SearchFilter):
     def get_search_terms(self, request):
@@ -866,6 +870,7 @@ def call_post(request):
                 action = 'C',
                 message = message
             )
+            ask_user_to_follow_profile_if_not(user, seller)
             category = post.categoryId
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
             userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
@@ -891,14 +896,15 @@ def call_profile(request):
     if user is not None:
         seller = models.User.objects.get(id = id)
         if user.id != seller.id:
-            message = str(user.phoneNumber) + " is trying to call you!"
+            callMessage = str(user.phoneNumber) + " is trying to call you!"
             models.Notification.objects.create(
                 notifyUser = seller,
                 profileId = user,
                 image_from = 'U',
                 action = 'C',
-                message = message
+                message = callMessage
             )
+            ask_user_to_follow_profile_if_not(user, seller)
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
 
             userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_CALL
@@ -917,7 +923,7 @@ def share_profile(request):
     if user is not None:
         seller = models.User.objects.get(id = id)
         if user.id != seller.id:
-
+            ask_profile_to_follow_user_if_not(user, seller)
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
 
             userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_SHARE
@@ -937,6 +943,7 @@ def share_post(request):
         post = models.Post.objects.select_related('sellerId', 'categoryId').get(postId = id)
         seller = post.sellerId
         if user.id != seller.id:
+            ask_profile_to_follow_user_if_not(user, seller)
             category = post.categoryId
             userToUser, _ = models.InteractionUserToUser.objects.get_or_create(user_performer = user, user_performed_on = seller)
             userToCategory, _ = models.InteractionUserToCategory.objects.get_or_create(user_id = user, category_id = category)
@@ -965,3 +972,44 @@ def get_user_from_request(request):
 
 
 
+def check_if_following_seller(user, seller):
+    user_follows_profile = models.Follower.objects.filter(user_follower=user,user_followed=seller).exists()
+    profile_follows_user = models.Follower.objects.filter(user_follower=seller, user_followed=user).exists()
+    if user_follows_profile and profile_follows_user:
+        return BOTH_FOLLOW_EACH_OTHER
+    elif user_follows_profile:
+        return USER_FOLLOWS_PROFILE
+    elif profile_follows_user:
+        return PROFILE_FOLLOWS_USER
+    else:
+        return 0
+    
+def ask_user_to_follow_profile_if_not(user, seller):
+    followStatus = check_if_following_seller(user, seller)
+    if followStatus==0 or followStatus == PROFILE_FOLLOWS_USER:
+        if followStatus == 0:
+            followMessage = "Follow " + str(seller.phoneNumber) + " " + user.first_name
+        else: 
+            followMessage = "Follow back " + str(seller.phoneNumber) + " " + user.first_name
+        models.Notification.objects.create(
+            notifyUser = user,
+            profileId = seller,
+            image_from = 'U',
+            action = 'F',
+            message = followMessage
+        )
+
+def ask_profile_to_follow_user_if_not(user, seller):
+    followStatus = check_if_following_seller(seller, user)
+    if followStatus==0 or followStatus == PROFILE_FOLLOWS_USER:
+        if followStatus == 0:
+            followMessage = "Follow " + str(user.phoneNumber) + " " + user.first_name
+        else: 
+            followMessage = "Follow back " + str(user.phoneNumber) + " " + user.first_name
+        models.Notification.objects.create(
+            notifyUser = seller,
+            profileId = user,
+            image_from = 'U',
+            action = 'F',
+            message = followMessage
+        )
