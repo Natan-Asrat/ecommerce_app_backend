@@ -19,6 +19,14 @@ SECONDS_BEFORE_OFFLINE = 5 * 60
 MAX_CATEGORY_LEVELS = 5
 USERNAME_TO_LINK_JSON_BOOLEAN = True
 
+
+WEB_BASE_URL = "https://emishopapp.onrender.com/"
+PROFILE_WEB_URL = WEB_BASE_URL + "profile/"
+POST_WEB_URL = WEB_BASE_URL + "post/"
+
+
+
+
 class EmptySerializer(serializers.Serializer):
     pass
 class CategoryForTraversalSerializer(serializers.ModelSerializer):
@@ -108,6 +116,7 @@ class PostSerializer(serializers.ModelSerializer):
     discountedPrice = serializers.SerializerMethodField()
     sellerId = UserSerializer()
     image = serializers.SerializerMethodField(read_only = True)
+    web = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = Post
         fields = [
@@ -126,8 +135,11 @@ class PostSerializer(serializers.ModelSerializer):
             'hasDiscount',
             'hasLiked', 
             'hasSaved',
-            'image'
+            'image',
+            'web'
             ]
+    def get_web(self, obj):
+        return POST_WEB_URL + str(obj.postId)
     def get_originalPrice(self, obj):
         return get_originalPrice_string(obj)
     def get_discountedPrice(self, obj):
