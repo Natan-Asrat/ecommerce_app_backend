@@ -359,7 +359,6 @@ class SaveAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
 class FollowAPI(CreateAPIView, DestroyAPIView, GenericViewSet):
     queryset = models.Follower.objects.all()
     serializer_class = serializers.FollowProfileSerializer
-    permission_classes = (IsAuthenticated,)
     lookup_field = 'user_followed'
     def retrieve(self, request, *args, **kwargs):
         followed = self.kwargs['user_followed']
