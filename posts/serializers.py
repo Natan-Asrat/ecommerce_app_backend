@@ -474,9 +474,6 @@ class LikePostSerializer(serializers.ModelSerializer):
         return Like.objects.filter(post_id = post_id, user_id = user.id).exists()
 
 class FollowProfileSerializer(serializers.ModelSerializer):
-    contextRequest = None
-    def setRequest(self, request):
-        self.contextRequest = request
     follows = serializers.SerializerMethodField(read_only = True)
     hasFollowed = serializers.SerializerMethodField(read_only = True)
     class Meta:
@@ -493,13 +490,15 @@ class FollowProfileSerializer(serializers.ModelSerializer):
             followed = obj.user_followed
         return Follower.objects.filter(user_followed=followed).count()
     def get_hasFollowed(self, obj):
-        request = self.contextRequest
-        user = request.user
+        if isinstance(obj, OrderedDict) :
+            user = obj['user_follower']
+        else:            
+            user = obj.user_follower
         if isinstance(obj, OrderedDict) :
             followed = obj['user_followed']
         else:            
             followed = obj.user_followed
-        return Like.objects.filter(user_followed = followed, user_follower = user.id).exists()
+        return Follower.objects.filter(user_followed = followed, user_follower = user.id).exists()
 
 class NotificationSerializer(serializers.ModelSerializer):
     image = serializers.SerializerMethodField()

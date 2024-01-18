@@ -361,10 +361,6 @@ class FollowAPI(CreateAPIView, DestroyAPIView, GenericViewSet):
     serializer_class = serializers.FollowProfileSerializer
     permission_classes = (IsAuthenticated,)
     lookup_field = 'user_followed'
-    def get_serializer(self, *args, **kwargs):
-        s = super().get_serializer(*args, **kwargs)
-        s.setRequest(self.request)
-        return s
     def retrieve(self, request, *args, **kwargs):
         followed = self.kwargs['user_followed']
         follows = models.Follower.objects.filter(
@@ -376,7 +372,7 @@ class FollowAPI(CreateAPIView, DestroyAPIView, GenericViewSet):
         except Exception:
             return Response({
                 'follows': 0,
-                'haed': False
+                'hasFollowed': False
             })
 
         return Response(serializer.data)
