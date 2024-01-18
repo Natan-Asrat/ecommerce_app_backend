@@ -21,8 +21,8 @@ USERNAME_TO_LINK_JSON_BOOLEAN = True
 
 
 WEB_BASE_URL = "https://emishopapp.onrender.com/"
-PROFILE_WEB_URL = WEB_BASE_URL + "profile/"
-POST_WEB_URL = WEB_BASE_URL + "post/"
+PROFILE_WEB_URL = WEB_BASE_URL + "profile/?s"
+POST_WEB_URL = WEB_BASE_URL + "post/?p"
 
 
 
@@ -587,7 +587,11 @@ class ProfileSerializer(serializers.ModelSerializer):
     follows = serializers.SerializerMethodField()
     is_admin = serializers.SerializerMethodField()
     coins_in_words = serializers.SerializerMethodField()
-
+    website = serializers.SerializerMethodField(read_only=True)
+    def get_website(self, obj):
+        if obj.website == "":
+            return PROFILE_WEB_URL + str(obj.id)
+        return obj.website
     def get_hasWebsite(self, obj):
         link = obj.website
         if link is not None and link != "":
