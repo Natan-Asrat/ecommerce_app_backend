@@ -367,7 +367,7 @@ class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     )
     def get_queryset(self):
         user = get_user_from_request(self.request)
-        return models.Notification.objects.annotate('profileId__phoneNumber').filter(
+        return models.Notification.objects.filter(
                 notifyUser = user.id
             ).values(
                 'action', 
@@ -379,7 +379,6 @@ class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
                 'notifyUser', 
                 'postId', 
                 'profileId', 
-                'profileId__phoneNumber',
                 'seen'
             )
     pagination_class = paginators.Pages

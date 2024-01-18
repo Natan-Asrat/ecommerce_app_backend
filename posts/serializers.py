@@ -478,11 +478,10 @@ class NotificationSerializer(serializers.ModelSerializer):
 
     def get_phoneNumber(self, obj):
         if obj['profileId'] is not None:
-            # user = User.objects.get(id = obj['profileId'])
-            # num = user.phoneNumber
-            # if num is not None:
-            #     return num
-            return obj['profileId__phoneNumber']
+            user = User.objects.get(id = obj['profileId'])
+            num = user.phoneNumber
+            if num is not None:
+                return num
         return None
     def get_link(self, obj):
         if obj['action'] == 'L':
