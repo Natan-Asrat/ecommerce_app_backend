@@ -376,7 +376,7 @@ class FollowAPI(CreateAPIView, DestroyAPIView, GenericViewSet):
         except Exception:
             return Response({
                 'follows': 0,
-                'hasFollowed': False
+                'haed': False
             })
 
         return Response(serializer.data)

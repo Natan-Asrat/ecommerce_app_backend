@@ -481,7 +481,7 @@ class FollowProfileSerializer(serializers.ModelSerializer):
     hasFollowed = serializers.SerializerMethodField(read_only = True)
     class Meta:
         model = Follower
-        fields = '__all__'
+        fields = ['follows', 'hasFollowed', 'user_followed', 'user_follower']
     
     def create(self, validated_data):
         follow, created = Follower.objects.get_or_create(**validated_data)
