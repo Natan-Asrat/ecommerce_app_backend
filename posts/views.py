@@ -897,7 +897,7 @@ def notification_button_pressed(request):
     user = get_user_from_request(request)
     notificationId = request.data.get('id')
     if user is not None:
-        notification : models.Notification = models.Notification.objects.get(id = notificationId)
+        notification = models.Notification.objects.get(id = notificationId)
         wasPressedBefore = notification.buttonPressed
         if wasPressedBefore is False:
             notification.buttonPressed=True
@@ -915,7 +915,7 @@ def notification_seen(request):
     user = get_user_from_request(request)
     notificationId = request.data.get('id')
     if user is not None:
-        notification : models.Notification = models.Notification.objects.get(id = notificationId)
+        notification = models.Notification.objects.get(id = notificationId)
         wasSeenBefore = notification.seen
         if wasSeenBefore is False:
             notification.seen=True
