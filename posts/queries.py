@@ -3,6 +3,9 @@ from django.db.models import Case, When, Exists, OuterRef, FloatField, Expressio
 from django.db.models.functions import Coalesce, Ln, Cast
 from datetime import date, timedelta
 from itertools import chain
+from rest_framework.response import Response
+from rest_framework import status
+
 from django.db.models.aggregates import Avg
 from django.conf import settings
 NEW_POST_RECOMMENDATION_LIMIT = settings.NEW_POST_RECOMMENDATION_LIMIT
@@ -783,3 +786,23 @@ def get_recommended_in_category(user, category):
                 '-rank'
             )
     return posts
+
+
+def follow(follower, followed):
+    models.Follower.objects.get_or_create(user_follower = follower, user_followed = followed)
+
+
+def unfollow(follower, followed):
+    user_id = None
+    if follower is not None:
+        user_id = follower.id
+    follows = models.Follower.objects.filter(user_follower = user_id, user_followed = followed)
+    if follows.exists():
+        follows.delete()
+        return Response(status =status.HTTP_204_NO_CONTENT)
+    else:
+        return Response(
+            {
+                'error': 'Profile and associated user not found in follows table'
+            }, status = status.HTTP_404_NOT_FOUND
+        )

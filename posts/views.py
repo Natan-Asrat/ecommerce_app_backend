@@ -892,7 +892,36 @@ def transaction_verification_status(request):
         return JsonResponse({}, status = 401)
 
 
-
+@api_view(['POST'])
+def notification_button_pressed(request):
+    user = get_user_from_request(request)
+    notificationId = request.data.get('id')
+    if user is not None:
+        notification : models.Notification = models.Notification.objects.get(id = notificationId)
+        wasPressedBefore = notification.buttonPressed
+        if wasPressedBefore is False:
+            notification.buttonPressed=True
+            notification.save()
+        if notification.action == models.NOTIFICATION_ACTION_FOLLOW:
+            profile = notification.profileId
+            if wasPressedBefore == True:
+                return queries.unfollow(user, profile)  
+            else:              
+                queries.follow(user, profile)
+        return JsonResponse({})
+        
+@api_view(['POST'])
+def notification_seen(request):
+    user = get_user_from_request(request)
+    notificationId = request.data.get('id')
+    if user is not None:
+        notification : models.Notification = models.Notification.objects.get(id = notificationId)
+        wasSeenBefore = notification.seen
+        if wasSeenBefore is False:
+            notification.seen=True
+            notification.save()
+        return JsonResponse({})
+    
 
 
 @api_view(['POST'])

@@ -51,6 +51,8 @@ urlpatterns = [
     path('send_verification_screenshot/', views.send_screenshot),
     path('verify_transaction/', views.transaction_verification_status),
     path('call_post/', views.call_post),
+    path('notification_seen/', views.notification_seen),
+    path('notification_button_pressed/', views.notification_button_pressed),
     path('call_profile/', views.call_profile),
     path('share_profile/', views.share_profile),
     path('share_post/', views.share_post)

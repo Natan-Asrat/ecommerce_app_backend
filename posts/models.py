@@ -58,11 +58,11 @@ class Category(models.Model):
     def __str__(self) -> str:
         return self.name
     
-
+NOTIFICATION_ACTION_FOLLOW = 'F'
 NOTIFICATION_ACTIONS = [
     ('L', 'link'),
     ('C', 'call'),
-    ('F', 'follow'),
+    (NOTIFICATION_ACTION_FOLLOW, 'follow'),
 ]
 GET_NOTIFICATION_IMAGE_FROM = [
     ('U', 'User'),
