@@ -914,6 +914,7 @@ def notification_button_pressed(request):
 def notification_seen(request):
     user = get_user_from_request(request)
     notificationId = request.data.get('id')
+    print(notificationId)
     if user is not None:
         notification = models.Notification.objects.get(id = notificationId)
         wasSeenBefore = notification.seen
