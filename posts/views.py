@@ -726,7 +726,6 @@ class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
         serializer.is_valid()
         data = serializer.data
         amount = self.request.query_params.get('amount')
-        price = self.request.query_params.get('price')
 
         if amount is not None:
             required = int(amount)
@@ -738,14 +737,19 @@ class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
                         payment['sufficientBalance'] = True
                     else:
                         payment['sufficientBalance'] = False
+        
+        return Response(data)
+    def retrieve(self, request, *args, **kwargs):
+        response = super().retrieve(request, *args, **kwargs)
+        price = self.request.query_params.get('price')
         if price is not None:
             required = int(price)
-            for  payment in data:
-                isLink = payment['hasLink']
-                if isLink is True:
-                    payment['payLink'] = generateLink(required)
+            isLink = response.data['hasLink']
+            if isLink is True:
+                response.data['payLink'] = generateLink(required)
 
-        return Response(data)
+        return response
+
 def generateLink(price):
     payLink = "https://www.google.com/" + str(price)
     return payLink
