@@ -820,15 +820,18 @@ class CreateAdSerializer(serializers.Serializer):
         payVerified = False
         if virtual is True:
             totalAmount /= COIN_TO_MONEY_MULTIPLIER
-            if deposit >= totalAmount:
-                payVerified = True
-                issuedByObj.coins -= totalAmount
-                issuedByObj.save()
+            
             
         totalAmount = math.ceil(totalAmount)
         postCount = len(posts)
         totalAmount*=postCount
         adCount*=postCount
+
+        if virtual is True and deposit >= totalAmount:
+            payVerified = True
+            issuedByObj.coins -= totalAmount
+            issuedByObj.save()
+            
         transaction = Transaction.objects.create(
             issuedBy = issuedByObj, 
             issuedFor = issuedForObj, 
