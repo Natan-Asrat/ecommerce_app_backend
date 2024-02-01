@@ -816,8 +816,15 @@ class CreateAdSerializer(serializers.Serializer):
                 subcategoriesTotal += 1
             else:
                 subcategoriesTotal += category['subcategoriesCount'] + 1
+        deposit = issuedByObj.coins
+        payVerified = False
         if virtual is True:
             totalAmount /= COIN_TO_MONEY_MULTIPLIER
+            if deposit >= totalAmount:
+                payVerified = True
+                issuedByObj.coins -= totalAmount
+                issuedByObj.save()
+            
         totalAmount = math.ceil(totalAmount)
         postCount = len(posts)
         totalAmount*=postCount
@@ -828,7 +835,7 @@ class CreateAdSerializer(serializers.Serializer):
             amount = totalAmount,
             currency = validated_data['currency'],
             payMethod = payMethodObj,
-            payVerified = False,
+            payVerified = payVerified,
             title = "Boost Ads",
             reason = str(adCount) + " ads in " + str(subcategoriesTotal) + " subcategories",
             trueForDepositFalseForWithdraw = True,
