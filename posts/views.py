@@ -743,19 +743,17 @@ class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         price = self.request.query_params.get('price')
-        amount = math.ceil(price/serializers.COIN_TO_MONEY_MULTIPLIER)
-        if amount is not None:
-            required = int(amount)
+        if price is not None:
+            required = int(price)
             deposit = request.user.coins
+            coins = math.ceil(required/serializers.COIN_TO_MONEY_MULTIPLIER)
             virtual = response.data['isVirtualCurrency']
             if virtual is True:
-                if deposit >= required:
+                if deposit >= coins:
                     response.data['sufficientBalance'] = True
                 else:
                     response.data['sufficientBalance'] = False
         
-        if price is not None:
-            required = int(price)
             isLink = response.data['hasLink']
             if isLink is True:
                 response.data['payLink'] = generateLink(required)
