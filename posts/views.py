@@ -726,25 +726,28 @@ class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
         serializer.is_valid()
         data = serializer.data
         amount = self.request.query_params.get('amount')
+        price = self.request.query_params.get('price')
+
         if amount is not None:
             required = int(amount)
             deposit = request.user.coins
             for  payment in data:
                 virtual = payment['isVirtualCurrency']
-                isLink = payment['hasLink']
-                print(isLink)
                 if virtual is True:
                     if deposit >= required:
                         payment['sufficientBalance'] = True
                     else:
                         payment['sufficientBalance'] = False
+        if price is not None:
+            required = int(price)
+            for  payment in data:
+                isLink = payment['hasLink']
                 if isLink is True:
-                    payment['payLink'] = generateLink()
+                    payment['payLink'] = generateLink(required)
 
         return Response(data)
-def generateLink():
-    payLink = "https://www.google.com"
-    print(payLink)
+def generateLink(price):
+    payLink = "https://www.google.com/" + str(price)
     return payLink
 class BuyPackagesAPI(ListAPIView,CreateAPIView, GenericViewSet):
     queryset = models.Package.objects.all()
