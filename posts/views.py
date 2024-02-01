@@ -732,6 +732,7 @@ class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
             for  payment in data:
                 virtual = payment['isVirtualCurrency']
                 isLink = payment['hasLink']
+                print(isLink)
                 if virtual is True:
                     if deposit >= required:
                         payment['sufficientBalance'] = True
@@ -743,6 +744,7 @@ class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
         return Response(data)
 def generateLink():
     payLink = "https://www.google.com"
+    print(payLink)
     return payLink
 class BuyPackagesAPI(ListAPIView,CreateAPIView, GenericViewSet):
     queryset = models.Package.objects.all()
