@@ -30,6 +30,7 @@ from rest_framework.authentication import TokenAuthentication
 import operator
 from rest_framework.compat import coreapi, coreschema, distinct
 from functools import reduce
+import math
 
 INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW = 1
 INCREASE_TO_USER_INTERACTION_PER_VIEW = 1
@@ -742,6 +743,17 @@ class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
     def retrieve(self, request, *args, **kwargs):
         response = super().retrieve(request, *args, **kwargs)
         price = self.request.query_params.get('price')
+        amount = math.ceil(price/serializers.COIN_TO_MONEY_MULTIPLIER)
+        if amount is not None:
+            required = int(amount)
+            deposit = request.user.coins
+            virtual = response.data['isVirtualCurrency']
+            if virtual is True:
+                if deposit >= required:
+                    response.data['sufficientBalance'] = True
+                else:
+                    response.data['sufficientBalance'] = False
+        
         if price is not None:
             required = int(price)
             isLink = response.data['hasLink']
