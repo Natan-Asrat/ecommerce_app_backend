@@ -807,6 +807,8 @@ class CreateAdSerializer(serializers.Serializer):
         totalAmount = 0
         subcategoriesTotal = 0
         adCount = 0
+        posts = validated_data['postIds']
+
         for category in categoriesSelected:
             totalAmount += category['amount']
             adCount += 1
@@ -817,7 +819,9 @@ class CreateAdSerializer(serializers.Serializer):
         if virtual is True:
             totalAmount /= COIN_TO_MONEY_MULTIPLIER
         totalAmount = math.ceil(totalAmount)
-
+        postCount = len(posts)
+        totalAmount*=postCount
+        adCount*=postCount
         transaction = Transaction.objects.create(
             issuedBy = issuedByObj, 
             issuedFor = issuedForObj, 
@@ -831,7 +835,6 @@ class CreateAdSerializer(serializers.Serializer):
             pay_for = 'A'
         )
 
-        posts = validated_data['postIds']
         createdAds = []
         for post in posts:
             postObj = Post.objects.get(postId=post)
