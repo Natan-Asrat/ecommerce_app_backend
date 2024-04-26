@@ -127,8 +127,6 @@ def get_ad_by_category(user):
     personalized_ads = ads_for_categories(most_interacted_categories)
     posts = models.Post.objects.filter(
                 postId__in=Subquery(personalized_ads.values('postId')) 
-            ).exclude(
-                sellerId=user.id
             ).select_related('categoryId', 'sellerId').annotate(
                 tag=Value('ads', output_field=CharField()),
                 hasLiked=Exists(models.Like.objects.filter(
@@ -169,8 +167,6 @@ def get_ad_for_category(user, category):
             )
     posts = models.Post.objects.filter(
                 postId__in=Subquery(personalized_ads.values('postId')) 
-            ).exclude(
-                sellerId=user.id
             ).select_related('categoryId', 'sellerId').annotate(
                 tag=Value('ads', output_field=CharField()),
                 hasLiked=Exists(models.Like.objects.filter(
@@ -193,8 +189,6 @@ def get_similar_ads(user, postId):
     similar_ads = ads_similar(post)
     posts = models.Post.objects.filter(
                 postId__in=Subquery(similar_ads.values('postId')) 
-            ).exclude(
-                sellerId=user.id
             ).select_related('categoryId', 'sellerId').annotate(
                 tag=Value('ads', output_field=CharField()),
                 hasLiked=Exists(models.Like.objects.filter(
@@ -759,8 +753,6 @@ def get_recommended_in_category(user, category):
                 |Q(
                     categoryId__parent__parent__parent__parent=category
                     ) 
-            ).exclude(
-                sellerId=user.id
             ).select_related(
                 'categoryId', 'sellerId'
             ).prefetch_related('postImage').annotate(
