@@ -30,7 +30,7 @@ from rest_framework.authentication import TokenAuthentication
 import operator
 from rest_framework.compat import coreapi, coreschema, distinct
 from functools import reduce
-import math
+import math, os
 
 INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW = 1
 INCREASE_TO_USER_INTERACTION_PER_VIEW = 1
@@ -153,6 +153,13 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
             userToPost.save()
             userToCategory.save()
         return super().retrieve(request, *args, **kwargs)
+        
+allowFreePost = os.environ.get("allowFreePost")
+if allowFreePost is not None and allowFreePost.lower() == 'true':
+    allowFreePost = true
+else:
+    allowFreePost = false
+    
 class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
     queryset = models.Post.objects.none()  
     serializer_class = serializers.NewPostSerializer
@@ -171,7 +178,7 @@ class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
             "currencies": currencies,
             "id": user.id,
             "myCoinsAmount": str(user.coins) + " Coins",
-            "sufficientBalance": bool(user.coins > 0)
+            "sufficientBalance": bool(user.coins > 0 or allowFreePost)
 
         }
         return Response(info)
