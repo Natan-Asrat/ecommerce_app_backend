@@ -2,6 +2,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from fcm_django.models import FCMDevice
 from .models import Transaction, Ads, Like, Post, AssociationCategoryToSeller, Package, Notification, GET_NOTIFICATION_IMAGE_FROM
+from django.conf import settings
 
 @receiver(post_save, sender = Transaction)
 def update_pay_verified(sender, instance, created, **kwargs):
@@ -40,9 +41,9 @@ def associate_category_with_seller(sender, instance, created, **kwargs):
         association, created_association = AssociationCategoryToSeller.objects.get_or_create(category_id = category, seller_id = seller)
         association.strength += 1
         association.save()
-
-        seller.coins -= 1
-        seller.save()
+        if settings.ALLOW_FREE_POST is False:
+            seller.coins -= 1
+            seller.save()
 
 
 from .notifications import send_notification_to_user

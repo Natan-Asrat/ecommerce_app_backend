@@ -24,7 +24,8 @@ SECRET_KEY = 'django-insecure-b3ul3!0ob3a!)@5r7dqy65#lh_mea)ovbqm5g94oi0g+8tt#rf
 
 # SECURITY WARNING: don't run with debug turned on in production!
 import os
-DEBUG = os.environ.get('DEBUG') == 'true' if os.environ.get('DEBUG') else False
+DEBUG = os.environ.get('DEBUG').lower() == 'true' if os.environ.get('DEBUG') else False
+ALLOW_FREE_POST = os.environ.get("ALLOW_FREE_POST").lower() == 'true' if os.environ.get('ALLOW_FREE_POST') else False
 ADS_INITIAL_POSITION = int(os.environ.get('ADS_INITIAL_POSITION', 2)) 
 INTERVAL_BETWEEN_ADS = int(os.environ.get('INTERVAL_BETWEEN_ADS', 3))
 
