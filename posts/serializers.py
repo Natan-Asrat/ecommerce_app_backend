@@ -10,6 +10,7 @@ from rest_framework.reverse import reverse
 import pytz
 from . import queries
 import math
+from django.conf import settings
 from . import authentication
 app_name = __package__.split('.')[-1]
 
@@ -685,18 +686,12 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'is_admin', 'coins_in_words', 'follows', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
   
-COIN_TO_MONEY_MULTIPLIER = 20
 class SingleCategoryBidSerializer(serializers.Serializer):
     categoryId = serializers.UUIDField()
     amount = serializers.IntegerField()
     subcategoriesCount = serializers.IntegerField()
     hasChildren = serializers.BooleanField()
 
-PRICE_PER_CATEGORY = 2
-MINIMUM_TO_STANDARD_MULTIPLIER = 3
-INCREMENT_MULTIPLE = 1
-PREMIUM_MULTIPLIER = 1.5
-COUNT_ADS_THRESHOLD_BEFORE_AVERAGING_FOR_STANDARD = 5
 class AdCategoriesSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only = True)
     subcategoriesCount = serializers.IntegerField()
@@ -731,44 +726,44 @@ class AdCategoriesSerializer(serializers.ModelSerializer):
             ]
     
     def get_minimumPrice(self, obj):
-        return self.get_minimum_coins(obj) * COIN_TO_MONEY_MULTIPLIER
+        return self.get_minimum_coins(obj) * settings.COIN_TO_MONEY_MULTIPLIER
     def get_minimum_coins(self, obj):
         count = obj.subcategoriesCount + 1
-        return PRICE_PER_CATEGORY * count
+        return settings.PRICE_PER_CATEGORY * count
     def get_standardPrice(self, obj):
         median = obj.averagePrice
         count = obj.countAds
-        minimum = self.get_minimum_coins(obj) * MINIMUM_TO_STANDARD_MULTIPLIER
-        if median < minimum or count < COUNT_ADS_THRESHOLD_BEFORE_AVERAGING_FOR_STANDARD:
-            return minimum * COIN_TO_MONEY_MULTIPLIER
-        return median * COIN_TO_MONEY_MULTIPLIER
+        minimum = self.get_minimum_coins(obj) * settings.MINIMUM_TO_STANDARD_MULTIPLIER
+        if median < minimum or count < settings.COUNT_ADS_THRESHOLD_BEFORE_AVERAGING_FOR_STANDARD:
+            return minimum * settings.COIN_TO_MONEY_MULTIPLIER
+        return median * settings.COIN_TO_MONEY_MULTIPLIER
     def get_highestBid(self, obj):
         highest = obj.highestBid
         minimum = self.get_minimum_coins(obj)
         if highest < minimum:
-            return  minimum * COIN_TO_MONEY_MULTIPLIER
-        return highest * COIN_TO_MONEY_MULTIPLIER
+            return  minimum * settings.COIN_TO_MONEY_MULTIPLIER
+        return highest * settings.COIN_TO_MONEY_MULTIPLIER
     def get_secondHighestBid(self, obj):
         secondHighest = obj.secondHighestBid
         minimum = self.get_minimum_coins(obj)
         if secondHighest < minimum:
-            return  minimum * COIN_TO_MONEY_MULTIPLIER
-        return secondHighest * COIN_TO_MONEY_MULTIPLIER
+            return  minimum * settings.COIN_TO_MONEY_MULTIPLIER
+        return secondHighest * settings.COIN_TO_MONEY_MULTIPLIER
     def get_thirdHighestBid(self, obj):
         thirdHighest = obj.thirdHighestBid
         minimum = self.get_minimum_coins(obj)
         if thirdHighest < minimum:
-            return  minimum * COIN_TO_MONEY_MULTIPLIER
-        return thirdHighest * COIN_TO_MONEY_MULTIPLIER
+            return  minimum * settings.COIN_TO_MONEY_MULTIPLIER
+        return thirdHighest * settings.COIN_TO_MONEY_MULTIPLIER
     def get_premiumBidMultiplier(self, obj):
-        return PREMIUM_MULTIPLIER
+        return settings.PREMIUM_MULTIPLIER
     def get_trueForSuffixFalseForPrefixCurrency(self, obj):
         return False
     def get_currency(self, obj):
         return CURRENCY_CHOICES[0][0]
     def get_incrementPrice(self, obj):
         minimum = self.get_minimum_coins(obj)
-        return minimum * INCREMENT_MULTIPLE * COIN_TO_MONEY_MULTIPLIER
+        return minimum * settings.INCREMENT_MULTIPLE * settings.COIN_TO_MONEY_MULTIPLIER
     
 class PaymentMethodsSerializer(serializers.ModelSerializer):
     payImage = serializers.SerializerMethodField()
@@ -819,7 +814,7 @@ class CreateAdSerializer(serializers.Serializer):
         deposit = issuedByObj.coins
         payVerified = False
         if virtual is True:
-            totalAmount /= COIN_TO_MONEY_MULTIPLIER
+            totalAmount /= settings.COIN_TO_MONEY_MULTIPLIER
             
             
         totalAmount = math.ceil(totalAmount)
