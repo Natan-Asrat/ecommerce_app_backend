@@ -1,36 +1,35 @@
 # Emi Shop Backend
 - Django Backend for Mobile Application
 ## Endpoints
-<style>
-  .image-container {
-    display: flex;
-    flex-wrap: wrap; /* Allows wrapping of images */
-    gap: 10px; /* Space between images */
-    justify-content: center; /* Center images horizontally */
-    padding: 20px; /* Padding around the container */
-}
-
-.image-container img {
-    width: 100%; /* Make images responsive */
-    max-width: 400px; /* Set a maximum width for images */
-    height: auto; /* Maintain aspect ratio */
-    border-radius: 8px; /* Optional: rounded corners */
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Optional: shadow effect */
-    object-fit: contain; /* Optional: cover the image area */
-}
-
-/* Media query for responsiveness */
-@media (max-width: 600px) {
-    .image-container img {
-        max-width: 100px; /* Smaller max width on small screens */
-    }
-}
-</style>
-<div class="image-container">
-<img src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/all.JPG" alt="detail post screenshot" height="550"/>
-<img src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/transactions.JPG" alt="detail post screenshot" height="550"/>
-<img src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/app.JPG" alt="detail post screenshot" height="550"/>
-<img src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/posts.JPG" alt="detail post screenshot" height="550"/>
+<div style="display: flex;
+    flex-wrap: wrap; 
+    gap: 10px; 
+    justify-content: center; 
+    padding: 20px; ">
+<img style="width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    object-fit: contain;" src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/all.JPG" alt="detail post screenshot" height="550"/>
+<img style="width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    object-fit: contain;" src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/transactions.JPG" alt="detail post screenshot" height="550"/>
+<img style="width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    object-fit: contain;" src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/app.JPG" alt="detail post screenshot" height="550"/>
+<img style="width: 100%;
+    max-width: 400px;
+    height: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    object-fit: contain;" src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/posts.JPG" alt="detail post screenshot" height="550"/>
 </div>
 
 
