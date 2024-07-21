@@ -7,25 +7,25 @@
     justify-content: center; 
     padding: 20px; ">
 <img style="width: 100%;
-    max-width: 400px;
+    max-width: 200px;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     object-fit: contain;" src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/all.JPG" alt="detail post screenshot" height="550"/>
 <img style="width: 100%;
-    max-width: 400px;
+    max-width: 200px;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     object-fit: contain;" src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/transactions.JPG" alt="detail post screenshot" height="550"/>
 <img style="width: 100%;
-    max-width: 400px;
+    max-width: 200px;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     object-fit: contain;" src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/app.JPG" alt="detail post screenshot" height="550"/>
 <img style="width: 100%;
-    max-width: 400px;
+    max-width: 200px;
     height: auto;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
