@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'drf_spectacular',
     'posts.apps.PostsConfig',
     'debug_toolbar',
     'fcm_django',
@@ -212,5 +213,10 @@ REST_FRAMEWORK = {
         'django.contrib.auth.backends.ModelBackend',
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication'
-    ]
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Emi Shop Ecommerce App Backend",
 }

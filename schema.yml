@@ -1,0 +1,2796 @@
+openapi: 3.0.3
+info:
+  title: Emi Shop Ecommerce App Backend
+  version: 0.0.0
+paths:
+  /app/admin_pending_transactions/:
+    get:
+      operationId: app_admin_pending_transactions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /app/admin_recent_transactions/:
+    get:
+      operationId: app_admin_recent_transactions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /app/admin_recent_transactions/{id}/:
+    get:
+      operationId: app_admin_recent_transactions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /app/admin_rejected_transactions/:
+    get:
+      operationId: app_admin_rejected_transactions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /app/admin_verified_transactions/:
+    get:
+      operationId: app_admin_verified_transactions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /app/call_post/:
+    post:
+      operationId: app_call_post_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/call_profile/:
+    post:
+      operationId: app_call_profile_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/categories/:
+    get:
+      operationId: app_categories_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Categories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryForTraversalList'
+          description: ''
+  /app/categories/{id}/:
+    get:
+      operationId: app_categories_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this category.
+        required: true
+      tags:
+      - Categories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryForTraversal'
+          description: ''
+  /app/categories_recommended/:
+    get:
+      operationId: app_categories_recommended_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Categories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedCategoryForTraversalList'
+          description: ''
+  /app/categories_recommended/{id}/:
+    get:
+      operationId: app_categories_recommended_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this category.
+        required: true
+      tags:
+      - Categories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryForTraversal'
+          description: ''
+  /app/category/:
+    get:
+      operationId: app_category_list
+      tags:
+      - Categories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+  /app/category/{id}/:
+    get:
+      operationId: app_category_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this category.
+        required: true
+      tags:
+      - Categories
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+          description: ''
+  /app/create_ads/:
+    post:
+      operationId: app_create_ads_create
+      tags:
+      - Transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAd'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CreateAd'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CreateAd'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CreateAd'
+          description: ''
+  /app/devices/:
+    get:
+      operationId: app_devices_list
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FCMDevice'
+          description: ''
+    post:
+      operationId: app_devices_create
+      tags:
+      - app
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FCMDevice'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FCMDevice'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FCMDevice'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FCMDevice'
+          description: ''
+  /app/devices/{registration_id}/:
+    get:
+      operationId: app_devices_retrieve
+      parameters:
+      - in: path
+        name: registration_id
+        schema:
+          type: string
+          title: Registration token
+        required: true
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FCMDevice'
+          description: ''
+    put:
+      operationId: app_devices_update
+      parameters:
+      - in: path
+        name: registration_id
+        schema:
+          type: string
+          title: Registration token
+        required: true
+      tags:
+      - app
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FCMDevice'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FCMDevice'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FCMDevice'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FCMDevice'
+          description: ''
+    patch:
+      operationId: app_devices_partial_update
+      parameters:
+      - in: path
+        name: registration_id
+        schema:
+          type: string
+          title: Registration token
+        required: true
+      tags:
+      - app
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedFCMDevice'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedFCMDevice'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedFCMDevice'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FCMDevice'
+          description: ''
+    delete:
+      operationId: app_devices_destroy
+      parameters:
+      - in: path
+        name: registration_id
+        schema:
+          type: string
+          title: Registration token
+        required: true
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /app/edit/{postId}/:
+    get:
+      operationId: app_edit_retrieve
+      parameters:
+      - in: path
+        name: postId
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this post.
+        required: true
+      tags:
+      - Edit Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditPost'
+          description: ''
+    put:
+      operationId: app_edit_update
+      parameters:
+      - in: path
+        name: postId
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this post.
+        required: true
+      tags:
+      - Edit Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditPost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/EditPost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/EditPost'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditPost'
+          description: ''
+    patch:
+      operationId: app_edit_partial_update
+      parameters:
+      - in: path
+        name: postId
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this post.
+        required: true
+      tags:
+      - Edit Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedEditPost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedEditPost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedEditPost'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EditPost'
+          description: ''
+    delete:
+      operationId: app_edit_destroy
+      parameters:
+      - in: path
+        name: postId
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this post.
+        required: true
+      tags:
+      - Edit Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /app/favourites/:
+    get:
+      operationId: app_favourites_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Favourites
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedFavouriteList'
+          description: ''
+  /app/follow/:
+    post:
+      operationId: app_follow_create
+      tags:
+      - Follows
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FollowProfile'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/FollowProfile'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/FollowProfile'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FollowProfile'
+          description: ''
+  /app/follow/{user_followed}/:
+    get:
+      operationId: app_follow_retrieve
+      parameters:
+      - in: path
+        name: user_followed
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Follows
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FollowProfile'
+          description: ''
+    delete:
+      operationId: app_follow_destroy
+      parameters:
+      - in: path
+        name: user_followed
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Follows
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '204':
+          description: No response body
+  /app/get_bids/:
+    get:
+      operationId: app_get_bids_list
+      parameters:
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AdCategories'
+          description: ''
+  /app/get_bids/{id}/:
+    get:
+      operationId: app_get_bids_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this category.
+        required: true
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdCategories'
+          description: ''
+  /app/get_payment_methods/:
+    get:
+      operationId: app_get_payment_methods_list
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PaymentMethods'
+          description: ''
+  /app/get_payment_methods/{id}/:
+    get:
+      operationId: app_get_payment_methods_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this pay method.
+        required: true
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentMethods'
+          description: ''
+  /app/initial_categories/:
+    post:
+      operationId: app_initial_categories_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/like/:
+    post:
+      operationId: app_like_create
+      tags:
+      - Likes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LikePost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LikePost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LikePost'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikePost'
+          description: ''
+  /app/like/{post_id}/:
+    get:
+      operationId: app_like_retrieve
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Likes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LikePost'
+          description: ''
+    delete:
+      operationId: app_like_destroy
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Likes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /app/liked/:
+    get:
+      operationId: app_liked_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Likes
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedLikedListList'
+          description: ''
+  /app/my_pending_transactions/:
+    get:
+      operationId: app_my_pending_transactions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /app/my_posts/:
+    get:
+      operationId: app_my_posts_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedWideCardList'
+          description: ''
+  /app/my_profile/:
+    get:
+      operationId: app_my_profile_list
+      tags:
+      - Profiles
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Profile'
+          description: ''
+  /app/my_rejected_transactions/:
+    get:
+      operationId: app_my_rejected_transactions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /app/my_transactions/:
+    get:
+      operationId: app_my_transactions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /app/my_transactions/{id}/:
+    get:
+      operationId: app_my_transactions_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this transaction.
+        required: true
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+          description: ''
+  /app/my_verified_transactions/:
+    get:
+      operationId: app_my_verified_transactions_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedTransactionList'
+          description: ''
+  /app/new/:
+    get:
+      operationId: app_new_list
+      tags:
+      - Recent Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NewPost'
+          description: ''
+    post:
+      operationId: app_new_create
+      tags:
+      - Recent Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewPost'
+          description: ''
+  /app/new/{postId}/:
+    put:
+      operationId: app_new_update
+      parameters:
+      - in: path
+        name: postId
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this post.
+        required: true
+      tags:
+      - Recent Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/NewPost'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewPost'
+          description: ''
+    patch:
+      operationId: app_new_partial_update
+      parameters:
+      - in: path
+        name: postId
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this post.
+        required: true
+      tags:
+      - Recent Posts
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedNewPost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedNewPost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedNewPost'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NewPost'
+          description: ''
+  /app/notification_button_pressed/:
+    post:
+      operationId: app_notification_button_pressed_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/notification_seen/:
+    post:
+      operationId: app_notification_seen_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/notifications/:
+    get:
+      operationId: app_notifications_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Notifications
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedNotificationList'
+          description: ''
+  /app/notifications/{id}/:
+    get:
+      operationId: app_notifications_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        description: A unique integer value identifying this notification.
+        required: true
+      tags:
+      - Notifications
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Notification'
+          description: ''
+  /app/packages/:
+    get:
+      operationId: app_packages_list
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Package'
+          description: ''
+    post:
+      operationId: app_packages_create
+      tags:
+      - Transactions
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuyPackage'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/BuyPackage'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/BuyPackage'
+        required: true
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BuyPackage'
+          description: ''
+  /app/posts/:
+    get:
+      operationId: app_posts_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/posts/{postId}/:
+    get:
+      operationId: app_posts_retrieve
+      parameters:
+      - in: path
+        name: postId
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this post.
+        required: true
+      tags:
+      - Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/posts_recommended/:
+    get:
+      operationId: app_posts_recommended_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Recommendations
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/profiles/:
+    get:
+      operationId: app_profiles_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - name: search
+        required: false
+        in: query
+        description: A search term.
+        schema:
+          type: string
+      tags:
+      - Profiles
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedProfileList'
+          description: ''
+  /app/profiles/{id}/:
+    get:
+      operationId: app_profiles_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this user.
+        required: true
+      tags:
+      - Profiles
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /app/profiles/{seller_pk}/profile_posts/:
+    get:
+      operationId: app_profiles_profile_posts_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      - in: path
+        name: seller_pk
+        schema:
+          type: string
+        required: true
+      tags:
+      - Transactions
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedWideCardList'
+          description: ''
+  /app/save/:
+    post:
+      operationId: app_save_create
+      tags:
+      - Saves
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SavePost'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SavePost'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SavePost'
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavePost'
+          description: ''
+  /app/save/{post_id}/:
+    get:
+      operationId: app_save_retrieve
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Saves
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavePost'
+          description: ''
+    delete:
+      operationId: app_save_destroy
+      parameters:
+      - in: path
+        name: post_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - Saves
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      responses:
+        '204':
+          description: No response body
+  /app/schema/:
+    get:
+      operationId: app_schema_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
+
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - ug
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /app/send_verification_screenshot/:
+    post:
+      operationId: app_send_verification_screenshot_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/share_post/:
+    post:
+      operationId: app_share_post_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/share_profile/:
+    post:
+      operationId: app_share_profile_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/similar/:
+    get:
+      operationId: app_similar_list
+      parameters:
+      - name: page
+        required: false
+        in: query
+        description: A page number within the paginated result set.
+        schema:
+          type: integer
+      tags:
+      - Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedWideCardList'
+          description: ''
+  /app/similar/{postId}/:
+    get:
+      operationId: app_similar_retrieve
+      parameters:
+      - in: path
+        name: postId
+        schema:
+          type: string
+          format: uuid
+        description: A UUID string identifying this post.
+        required: true
+      tags:
+      - Posts
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WideCard'
+          description: ''
+  /app/update_user/:
+    post:
+      operationId: app_update_user_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /app/verify_transaction/:
+    post:
+      operationId: app_verify_transaction_create
+      tags:
+      - app
+      security:
+      - cookieAuth: []
+      - basicAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+components:
+  schemas:
+    ActionEnum:
+      enum:
+      - L
+      - C
+      - F
+      type: string
+      description: |-
+        * `L` - link
+        * `C` - call
+        * `F` - follow
+    AdCategories:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        countAds:
+          type: integer
+        subcategoriesCount:
+          type: integer
+        hasChildren:
+          type: boolean
+        minimumPrice:
+          type: string
+          readOnly: true
+        standardPrice:
+          type: string
+          readOnly: true
+        highestBid:
+          type: string
+          readOnly: true
+        secondHighestBid:
+          type: string
+          readOnly: true
+        thirdHighestBid:
+          type: string
+          readOnly: true
+        premiumBidMultiplier:
+          type: string
+          readOnly: true
+        trueForSuffixFalseForPrefixCurrency:
+          type: string
+          readOnly: true
+        currency:
+          type: string
+          readOnly: true
+        incrementPrice:
+          type: string
+          readOnly: true
+      required:
+      - countAds
+      - currency
+      - hasChildren
+      - highestBid
+      - id
+      - incrementPrice
+      - minimumPrice
+      - name
+      - premiumBidMultiplier
+      - secondHighestBid
+      - standardPrice
+      - subcategoriesCount
+      - thirdHighestBid
+      - trueForSuffixFalseForPrefixCurrency
+    BlankEnum:
+      enum:
+      - ''
+    BuyPackage:
+      type: object
+      properties:
+        payMethod:
+          type: string
+          format: uuid
+        issuedFor:
+          type: string
+          format: uuid
+        currency:
+          type: string
+          maxLength: 5
+        useVirtualCurrency:
+          type: boolean
+        price:
+          type: integer
+        amount:
+          type: string
+          maxLength: 100
+        coinAmountInt:
+          type: integer
+        tip:
+          type: boolean
+      required:
+      - amount
+      - coinAmountInt
+      - currency
+      - issuedFor
+      - payMethod
+      - price
+      - tip
+      - useVirtualCurrency
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+      required:
+      - id
+      - name
+    CategoryForTraversal:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        children:
+          type: string
+          readOnly: true
+        parent:
+          type: string
+          readOnly: true
+      required:
+      - children
+      - id
+      - name
+      - parent
+    CreateAd:
+      type: object
+      properties:
+        payMethod:
+          type: string
+          format: uuid
+        issuedFor:
+          type: string
+          format: uuid
+        currency:
+          type: string
+          maxLength: 5
+        useVirtualCurrency:
+          type: boolean
+        postIds:
+          type: array
+          items:
+            type: string
+            format: uuid
+        categories:
+          type: array
+          items:
+            $ref: '#/components/schemas/SingleCategoryBid'
+      required:
+      - categories
+      - currency
+      - issuedFor
+      - payMethod
+      - postIds
+      - useVirtualCurrency
+    CurrencyEnum:
+      enum:
+      - Br
+      type: string
+      description: '* `Br` - Birr'
+    DiscountCurrencyEnum:
+      enum:
+      - Br
+      type: string
+      description: '* `Br` - Birr'
+    DiscountPriceCurrencyEnum:
+      enum:
+      - Br
+      type: string
+      description: '* `Br` - Birr'
+    EditPost:
+      type: object
+      properties:
+        postId:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        currencies:
+          type: string
+          readOnly: true
+        discountedPrice:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        discountCurrency:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/DiscountCurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        categories:
+          type: array
+          items:
+            type: string
+        nextIconAction:
+          $ref: '#/components/schemas/NextIconActionEnum'
+        hasDiscount:
+          type: boolean
+        chosenCategories:
+          type: string
+          readOnly: true
+        nextCategories:
+          type: string
+          readOnly: true
+        images:
+          type: string
+          readOnly: true
+        imageBitmaps:
+          type: array
+          items:
+            type: string
+            format: uri
+      required:
+      - chosenCategories
+      - currencies
+      - currency
+      - images
+      - nextCategories
+      - nextIconAction
+      - postId
+      - price
+      - title
+    FCMDevice:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          nullable: true
+          maxLength: 255
+        registration_id:
+          type: string
+          title: Registration token
+        device_id:
+          type: string
+          nullable: true
+          description: Unique device identifier
+          maxLength: 255
+        active:
+          type: boolean
+          default: true
+          title: Is active
+          description: Inactive devices will not be sent notifications
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Creation date
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+      required:
+      - date_created
+      - id
+      - registration_id
+      - type
+    Favourite:
+      type: object
+      properties:
+        favourites:
+          type: string
+          readOnly: true
+      required:
+      - favourites
+    FollowProfile:
+      type: object
+      properties:
+        follows:
+          type: string
+          readOnly: true
+        hasFollowed:
+          type: string
+          readOnly: true
+        user_followed:
+          type: string
+          format: uuid
+        user_follower:
+          type: string
+          format: uuid
+          readOnly: true
+      required:
+      - follows
+      - hasFollowed
+      - user_follower
+    LikePost:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          readOnly: true
+        post_id:
+          type: string
+          format: uuid
+        likes:
+          type: string
+          readOnly: true
+        hasLiked:
+          type: string
+          readOnly: true
+      required:
+      - hasLiked
+      - likes
+      - user_id
+    LikedList:
+      type: object
+      properties:
+        liked:
+          type: string
+          readOnly: true
+      required:
+      - liked
+    NewPost:
+      type: object
+      properties:
+        postId:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        link:
+          type: string
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        discountedPrice:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        discountCurrency:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/DiscountCurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        categoryId:
+          type: string
+          format: uuid
+          nullable: true
+        categories:
+          type: array
+          items:
+            type: string
+        sellerId:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        nextIconAction:
+          $ref: '#/components/schemas/NextIconActionEnum'
+        hasDiscount:
+          type: boolean
+      required:
+      - currency
+      - nextIconAction
+      - postId
+      - price
+      - sellerId
+      - title
+    NextIconActionEnum:
+      enum:
+      - D
+      - L
+      - P
+      type: string
+      description: |-
+        * `D` - detail
+        * `L` - link
+        * `P` - pay
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        notificationId:
+          type: string
+          readOnly: true
+        link:
+          type: string
+          readOnly: true
+        phoneNumber:
+          type: string
+          readOnly: true
+        message:
+          type: string
+          maxLength: 255
+        image:
+          type: string
+          readOnly: true
+        action:
+          $ref: '#/components/schemas/ActionEnum'
+        seen:
+          type: boolean
+        button:
+          type: string
+          readOnly: true
+        profileId:
+          type: string
+          format: uuid
+        postId:
+          type: string
+          format: uuid
+      required:
+      - action
+      - button
+      - id
+      - image
+      - link
+      - message
+      - notificationId
+      - phoneNumber
+      - postId
+      - profileId
+    NullEnum:
+      enum:
+      - null
+    OriginalPriceCurrencyEnum:
+      enum:
+      - Br
+      type: string
+      description: '* `Br` - Birr'
+    Package:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        originalPriceStrikeThrough:
+          type: string
+          readOnly: true
+        coin_amount_in_words:
+          type: string
+          maxLength: 100
+        coin_amount_in_number:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        hasDiscount:
+          type: boolean
+        originalPriceCurrency:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/OriginalPriceCurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        discountPriceCurrency:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/DiscountPriceCurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        original_price_in_words:
+          type: string
+          maxLength: 100
+        discounted_price_in_words:
+          type: string
+          maxLength: 100
+        level_of_payment_1_through_4:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        order:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+      required:
+      - coin_amount_in_number
+      - coin_amount_in_words
+      - hasDiscount
+      - id
+      - level_of_payment_1_through_4
+      - originalPriceStrikeThrough
+      - original_price_in_words
+      - price
+    PaginatedCategoryForTraversalList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryForTraversal'
+    PaginatedFavouriteList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Favourite'
+    PaginatedLikedListList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LikedList'
+    PaginatedNotificationList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Notification'
+    PaginatedProfileList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Profile'
+    PaginatedTransactionList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+    PaginatedWideCardList:
+      type: object
+      properties:
+        count:
+          type: integer
+          example: 123
+        next:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=4
+        previous:
+          type: string
+          nullable: true
+          format: uri
+          example: http://api.example.org/accounts/?page=2
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/WideCard'
+    PatchedEditPost:
+      type: object
+      properties:
+        postId:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        currencies:
+          type: string
+          readOnly: true
+        discountedPrice:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        discountCurrency:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/DiscountCurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        categories:
+          type: array
+          items:
+            type: string
+        nextIconAction:
+          $ref: '#/components/schemas/NextIconActionEnum'
+        hasDiscount:
+          type: boolean
+        chosenCategories:
+          type: string
+          readOnly: true
+        nextCategories:
+          type: string
+          readOnly: true
+        images:
+          type: string
+          readOnly: true
+        imageBitmaps:
+          type: array
+          items:
+            type: string
+            format: uri
+    PatchedFCMDevice:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          nullable: true
+          maxLength: 255
+        registration_id:
+          type: string
+          title: Registration token
+        device_id:
+          type: string
+          nullable: true
+          description: Unique device identifier
+          maxLength: 255
+        active:
+          type: boolean
+          default: true
+          title: Is active
+          description: Inactive devices will not be sent notifications
+        date_created:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+          title: Creation date
+        type:
+          $ref: '#/components/schemas/TypeEnum'
+    PatchedNewPost:
+      type: object
+      properties:
+        postId:
+          type: string
+          format: uuid
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        description:
+          type: string
+        link:
+          type: string
+        price:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        currency:
+          $ref: '#/components/schemas/CurrencyEnum'
+        discountedPrice:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          nullable: true
+        discountCurrency:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/DiscountCurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        categoryId:
+          type: string
+          format: uuid
+          nullable: true
+        categories:
+          type: array
+          items:
+            type: string
+        sellerId:
+          allOf:
+          - $ref: '#/components/schemas/User'
+          readOnly: true
+        nextIconAction:
+          $ref: '#/components/schemas/NextIconActionEnum'
+        hasDiscount:
+          type: boolean
+    PayForEnum:
+      enum:
+      - A
+      - P
+      type: string
+      description: |-
+        * `A` - Ads
+        * `P` - Package
+    PaymentMethods:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        payImage:
+          type: string
+          readOnly: true
+        image:
+          type: string
+        isVirtualCurrency:
+          type: boolean
+        hasQRCode:
+          type: boolean
+        hasLink:
+          type: boolean
+        hasAccountNumber:
+          type: boolean
+        accountNumber:
+          type: string
+          maxLength: 100
+        name:
+          type: string
+          maxLength: 100
+      required:
+      - accountNumber
+      - image
+      - name
+      - payImage
+    Profile:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        is_admin:
+          type: string
+          readOnly: true
+        coins_in_words:
+          type: string
+          readOnly: true
+        follows:
+          type: string
+          readOnly: true
+        profilePicture:
+          type: string
+          readOnly: true
+        brandName:
+          type: string
+          readOnly: true
+        phoneNumber:
+          type: string
+          maxLength: 25
+        last_seen:
+          type: string
+          readOnly: true
+        online:
+          type: string
+          readOnly: true
+        adCount:
+          type: string
+          readOnly: true
+        followerCount:
+          type: string
+          readOnly: true
+        followingCount:
+          type: string
+          readOnly: true
+        hasWebsite:
+          type: string
+          readOnly: true
+        website:
+          type: string
+          readOnly: true
+      required:
+      - adCount
+      - brandName
+      - coins_in_words
+      - followerCount
+      - followingCount
+      - follows
+      - hasWebsite
+      - is_admin
+      - last_seen
+      - online
+      - phoneNumber
+      - profilePicture
+      - website
+    SavePost:
+      type: object
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          readOnly: true
+        post_id:
+          type: string
+          format: uuid
+        hasSaved:
+          type: string
+          readOnly: true
+      required:
+      - hasSaved
+      - user_id
+    SingleCategoryBid:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        amount:
+          type: integer
+        subcategoriesCount:
+          type: integer
+        hasChildren:
+          type: boolean
+      required:
+      - amount
+      - categoryId
+      - hasChildren
+      - subcategoriesCount
+    Transaction:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        verificationScreenshot:
+          type: string
+          readOnly: true
+        issuedFor:
+          $ref: '#/components/schemas/User'
+        issuedBy:
+          $ref: '#/components/schemas/User'
+        date:
+          type: string
+          readOnly: true
+        payMethod:
+          $ref: '#/components/schemas/PaymentMethods'
+        trueForSuffixFalseForPrefixCurrency:
+          type: string
+          readOnly: true
+        amount:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+        reason:
+          type: string
+          nullable: true
+          maxLength: 100
+        currency:
+          nullable: true
+          oneOf:
+          - $ref: '#/components/schemas/CurrencyEnum'
+          - $ref: '#/components/schemas/BlankEnum'
+          - $ref: '#/components/schemas/NullEnum'
+        usedVirtualCurrency:
+          type: boolean
+          nullable: true
+        payVerified:
+          type: boolean
+          nullable: true
+        title:
+          type: string
+          maxLength: 100
+        trueForDepositFalseForWithdraw:
+          type: boolean
+        rejected:
+          type: boolean
+          nullable: true
+        transactionConfirmationCode:
+          type: string
+          nullable: true
+          maxLength: 100
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        pay_for:
+          $ref: '#/components/schemas/PayForEnum'
+        coin_amount:
+          type: integer
+          maximum: 2147483647
+          minimum: -2147483648
+      required:
+      - amount
+      - created_at
+      - date
+      - id
+      - issuedBy
+      - issuedFor
+      - payMethod
+      - pay_for
+      - title
+      - trueForSuffixFalseForPrefixCurrency
+      - verificationScreenshot
+    TypeEnum:
+      enum:
+      - ios
+      - android
+      - web
+      type: string
+      description: |-
+        * `ios` - ios
+        * `android` - android
+        * `web` - web
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        profilePicture:
+          type: string
+          readOnly: true
+        is_admin:
+          type: string
+          readOnly: true
+        brandName:
+          type: string
+          readOnly: true
+        last_seen:
+          type: string
+          readOnly: true
+        online:
+          type: string
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        phoneNumber:
+          type: string
+          maxLength: 25
+      required:
+      - brandName
+      - is_admin
+      - last_seen
+      - online
+      - phoneNumber
+      - profilePicture
+      - username
+    WideCard:
+      type: object
+      properties:
+        postId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 255
+        sellerId:
+          $ref: '#/components/schemas/User'
+        nextIconAction:
+          $ref: '#/components/schemas/NextIconActionEnum'
+        link:
+          type: string
+        image:
+          type: string
+          readOnly: true
+        attributes:
+          type: string
+          readOnly: true
+      required:
+      - attributes
+      - image
+      - nextIconAction
+      - sellerId
+      - title
+  securitySchemes:
+    basicAuth:
+      type: http
+      scheme: basic
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: sessionid

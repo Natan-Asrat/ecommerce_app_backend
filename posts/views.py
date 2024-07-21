@@ -32,7 +32,7 @@ from rest_framework.compat import coreapi, coreschema, distinct
 from functools import reduce
 import math, os
 from django.conf import settings
-
+from drf_spectacular.utils import extend_schema
 INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW = 1
 INCREASE_TO_USER_INTERACTION_PER_VIEW = 1
 INCREASE_TO_POST_INTERACTION_PER_VIEW = 1
@@ -97,6 +97,7 @@ class Search(SearchFilter):
             # We try to avoid this if possible, for performance reasons.
             queryset = distinct(queryset, base)
         return queryset
+@extend_schema(tags=['Posts'])
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
@@ -155,7 +156,7 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
             userToCategory.save()
         return super().retrieve(request, *args, **kwargs)
         
-    
+@extend_schema(tags=['Posts'])    
 class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
     queryset = models.Post.objects.none()  
     serializer_class = serializers.NewPostSerializer
@@ -178,6 +179,7 @@ class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
 
         }
         return Response(info)
+@extend_schema(tags=['Posts'])
 class EditPostAPI(RetrieveAPIView, UpdateAPIView, DestroyAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EditPostSerializer 
@@ -191,6 +193,7 @@ def create_recommendations(request):
     populate_recommendations(user)
 
 # use category with recommendation in the sliding horizontal category choices and not in search filter choices
+@extend_schema(tags=['Posts'])
 class GetRecommendation(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()[:1]
     serializer_class = serializers.EmptySerializer
@@ -212,6 +215,7 @@ class GetRecommendation(ListAPIView, GenericViewSet):
             userToCategory.strength_sum += INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW
             userToCategory.save()
         return super().list(request, *args, **kwargs)
+@extend_schema(tags=['Categories'])
 class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer
@@ -226,7 +230,7 @@ class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
+@extend_schema(tags=['Categories'])    
 class CategoriesRecommendedAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategoryForTraversalSerializer
@@ -240,6 +244,7 @@ class CategoriesRecommendedAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
+@extend_schema(tags=['Categories'])
 class CategoryAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.CategorySerializer
@@ -271,7 +276,7 @@ def populate_recommendations(user):
                 for post in list(recommendations)
         ]
     models.Recommended.objects.bulk_create(recommended_list)
-
+@extend_schema(tags=['Likes'])
 class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
     queryset = models.Like.objects.all()
     serializer_class = serializers.LikePostSerializer
@@ -315,7 +320,7 @@ class LikeAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
                     'error': 'Post and associated user not found in likes table'
                 }, status = status.HTTP_404_NOT_FOUND
             )
-
+@extend_schema(tags=['Saves'])
 class SaveAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
     queryset = models.Favourite.objects.all()
     serializer_class = serializers.SavePostSerializer
@@ -359,7 +364,7 @@ class SaveAPI(RetrieveAPIView, CreateAPIView, DestroyAPIView, GenericViewSet):
                 }, status = status.HTTP_404_NOT_FOUND
             )
 
-
+@extend_schema(tags=['Follows'])
 class FollowAPI(CreateAPIView, DestroyAPIView, GenericViewSet):
     queryset = models.Follower.objects.all()
     serializer_class = serializers.FollowProfileSerializer
@@ -400,7 +405,7 @@ class FollowAPI(CreateAPIView, DestroyAPIView, GenericViewSet):
                 }, status = status.HTTP_404_NOT_FOUND
             )
 
-
+@extend_schema(tags=['Notifications'])
 class NotificationsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Notification.objects.all(
     ).values(
@@ -457,7 +462,7 @@ def group_by_days(notifications):
         daysBefore = (date.today() - notification['date']).days
         groups[daysBefore].append(notification)
     return groups
-
+@extend_schema(tags=['Favourites'])
 class FavouritesAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.FavouriteSerializer
@@ -465,7 +470,7 @@ class FavouritesAPI(ListAPIView, GenericViewSet):
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Favourite.objects.filter(user_id = user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
-
+@extend_schema(tags=['Likes'])
 class LikedAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.LikedListSerializer
@@ -473,6 +478,7 @@ class LikedAPI(ListAPIView, GenericViewSet):
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Like.objects.filter(user_id = user).select_related('post_id', 'post_id__sellerId', 'post_id__categoryId', 'post_id__categoryId__parent')
+@extend_schema(tags=['Posts'])
 class MyPostsAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.WideCardSerializer
@@ -480,6 +486,7 @@ class MyPostsAPI(ListAPIView, GenericViewSet):
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Post.objects.filter(sellerId = user).select_related('sellerId', 'categoryId', 'categoryId__parent')
+@extend_schema(tags=['Profiles'])
 class MyProfileAPI(ListAPIView, GenericViewSet):
     queryset = models.User.objects.none()
     serializer_class = serializers.ProfileSerializer
@@ -493,6 +500,7 @@ class MyProfileAPI(ListAPIView, GenericViewSet):
         context = super().get_serializer_context()
         context['user'] = get_user_from_request(self.request)
         return context
+@extend_schema(tags=['Profiles'])
 class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.User.objects.all()
     serializer_class = serializers.ProfileSerializer
@@ -517,7 +525,7 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
             userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_VIEW
             userToUser.save()
         return super().retrieve(request, *args, **kwargs)
-    
+@extend_schema(tags=['Posts'])
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.none()
     serializer_class = serializers.WideCardSerializer
@@ -537,7 +545,7 @@ def update_last_seen(request):
     user.last_seen = datetime.now().astimezone(serializers.timezone)
     user.save()
     return HttpResponse('Updated last seen of user: ' + str(user))
-
+@extend_schema(tags=['Transactions'])
 class GetMyTransactions(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
@@ -546,7 +554,7 @@ class GetMyTransactions(ListAPIView, RetrieveAPIView, GenericViewSet):
     def get_queryset(self): 
         user = get_user_from_request(self.request)
         return models.Transaction.objects.filter(Q(issuedFor = user ) | Q(issuedBy = user)).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
-
+@extend_schema(tags=['Transactions'])
 class GetMyPendingTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
@@ -555,7 +563,7 @@ class GetMyPendingTransactions(ListAPIView, GenericViewSet):
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Transaction.objects.filter(Q(issuedFor = user ) | Q(issuedBy = user), payVerified = False, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
-    
+@extend_schema(tags=['Transactions']) 
 class GetMyVerifiedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
@@ -563,7 +571,7 @@ class GetMyVerifiedTransactions(ListAPIView, GenericViewSet):
     def get_queryset(self):
         user = get_user_from_request(self.request)
         return models.Transaction.objects.filter(Q(issuedFor = user ) | Q(issuedBy = user), payVerified = True, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
-
+@extend_schema(tags=['Transactions'])
 class GetMyRejectedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
@@ -572,7 +580,7 @@ class GetMyRejectedTransactions(ListAPIView, GenericViewSet):
         user = get_user_from_request(self.request)
         return models.Transaction.objects.filter(Q(issuedFor = user ) | Q(issuedBy = user), rejected = True).select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
 
-
+@extend_schema(tags=['Transactions'])
 class AdminRecentTransactions(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
@@ -596,7 +604,7 @@ class AdminRecentTransactions(ListAPIView, RetrieveAPIView, GenericViewSet):
             return models.Transaction.objects.none()
         return models.Transaction.objects.all().select_related('issuedBy','issuedFor', 'payMethod').order_by('-created_at')
     
-
+@extend_schema(tags=['Transactions'])
 class AdminPendingTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
@@ -619,7 +627,7 @@ class AdminPendingTransactions(ListAPIView, GenericViewSet):
         if user.is_superuser is False:
             return models.Transaction.objects.none()
         return models.Transaction.objects.filter(payVerified = False, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-amount', '-created_at')
-    
+@extend_schema(tags=['Transactions'])  
 class AdminVerifiedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
@@ -642,7 +650,7 @@ class AdminVerifiedTransactions(ListAPIView, GenericViewSet):
         if user.is_superuser is False:
             return models.Transaction.objects.none()
         return models.Transaction.objects.filter(payVerified = True, rejected = False).select_related('issuedBy','issuedFor', 'payMethod').order_by('-amount', '-created_at')
-
+@extend_schema(tags=['Transactions'])
 class AdminRejectedTransactions(ListAPIView, GenericViewSet):
     queryset = models.Transaction.objects.none()
     serializer_class = serializers.TransactionSerializer
@@ -666,7 +674,7 @@ class AdminRejectedTransactions(ListAPIView, GenericViewSet):
             return models.Transaction.objects.none()
         return models.Transaction.objects.filter(rejected = True).select_related('issuedBy','issuedFor', 'payMethod').order_by('-amount', '-created_at')
 
-
+@extend_schema(tags=['Transactions'])
 class CreateAdsAPI(CreateAPIView, GenericViewSet):
     queryset = models.Ads.objects.none()
     serializer_class = serializers.CreateAdSerializer
@@ -696,6 +704,7 @@ class CreateAdsAPI(CreateAPIView, GenericViewSet):
         c = super().get_serializer_context()
         c['request'] = self.request
         return c
+@extend_schema(tags=['Transactions'])
 class GetBids(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
     serializer_class = serializers.AdCategoriesSerializer
@@ -712,7 +721,7 @@ class GetBids(ListAPIView, RetrieveAPIView, GenericViewSet):
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
-    
+@extend_schema(tags=['Transactions'])    
 class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.PayMethod.objects.all()
     serializer_class = serializers.PaymentMethodsSerializer 
@@ -766,6 +775,7 @@ class GetPaymentMethods(ListAPIView, RetrieveAPIView, GenericViewSet):
 def generateLink(price):
     payLink = "https://www.google.com/" + str(price)
     return payLink
+@extend_schema(tags=['Transactions'])
 class BuyPackagesAPI(ListAPIView,CreateAPIView, GenericViewSet):
     queryset = models.Package.objects.all()
     serializer_class = serializers.PackageSerializer
@@ -799,7 +809,7 @@ class BuyPackagesAPI(ListAPIView,CreateAPIView, GenericViewSet):
         c = super().get_serializer_context()
         c['request'] = self.request
         return c
-   
+@extend_schema(tags=['Transactions'])   
 class ProfilePostsAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
     serializer_class = serializers.WideCardSerializer

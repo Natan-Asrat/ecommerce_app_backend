@@ -5,6 +5,7 @@ from django.conf.urls.static import static
 from django.conf import settings
 from rest_framework_nested import routers
 from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet, FCMDeviceViewSet
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 router = DefaultRouter()
 router.register('categories', views.CategoriesAPI)
@@ -55,5 +56,10 @@ urlpatterns = [
     path('notification_button_pressed/', views.notification_button_pressed),
     path('call_profile/', views.call_profile),
     path('share_profile/', views.share_profile),
-    path('share_post/', views.share_post)
+    path('share_post/', views.share_post),
 ] + profile_router.urls
+
+urlpatterns += [
+    path('schema/', SpectacularAPIView.as_view(), name='posts_app_schema'),
+    path('schema/docs/', SpectacularSwaggerView.as_view(url_name='posts_app_schema')),
+]
