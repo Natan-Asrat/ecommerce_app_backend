@@ -489,7 +489,7 @@ paths:
         description: A UUID string identifying this post.
         required: true
       tags:
-      - Edit Posts
+      - Posts
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -512,7 +512,7 @@ paths:
         description: A UUID string identifying this post.
         required: true
       tags:
-      - Edit Posts
+      - Posts
       requestBody:
         content:
           application/json:
@@ -547,7 +547,7 @@ paths:
         description: A UUID string identifying this post.
         required: true
       tags:
-      - Edit Posts
+      - Posts
       requestBody:
         content:
           application/json:
@@ -581,7 +581,7 @@ paths:
         description: A UUID string identifying this post.
         required: true
       tags:
-      - Edit Posts
+      - Posts
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -1031,7 +1031,7 @@ paths:
     get:
       operationId: app_new_list
       tags:
-      - Recent Posts
+      - Posts
       security:
       - cookieAuth: []
       - basicAuth: []
@@ -1048,7 +1048,7 @@ paths:
     post:
       operationId: app_new_create
       tags:
-      - Recent Posts
+      - Posts
       requestBody:
         content:
           application/json:
@@ -1084,7 +1084,7 @@ paths:
         description: A UUID string identifying this post.
         required: true
       tags:
-      - Recent Posts
+      - Posts
       requestBody:
         content:
           application/json:
@@ -1119,7 +1119,7 @@ paths:
         description: A UUID string identifying this post.
         required: true
       tags:
-      - Recent Posts
+      - Posts
       requestBody:
         content:
           application/json:
@@ -1313,7 +1313,7 @@ paths:
         schema:
           type: integer
       tags:
-      - Recommendations
+      - Posts
       security:
       - cookieAuth: []
       - basicAuth: []
