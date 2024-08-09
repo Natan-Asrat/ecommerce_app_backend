@@ -32,6 +32,7 @@ from rest_framework.compat import coreapi, coreschema, distinct
 from functools import reduce
 import math, os
 from django.conf import settings
+from .utils import should_allow_free_post
 from drf_spectacular.utils import extend_schema
 INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW = 1
 INCREASE_TO_USER_INTERACTION_PER_VIEW = 1
@@ -175,7 +176,7 @@ class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
             "currencies": currencies,
             "id": user.id,
             "myCoinsAmount": str(user.coins) + " Coins",
-            "sufficientBalance": bool(user.coins > 0 or settings.ALLOW_FREE_POST)
+            "sufficientBalance": bool(user.coins > 0 or should_allow_free_post(user))
 
         }
         return Response(info)

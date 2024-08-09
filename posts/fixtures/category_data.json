@@ -1,0 +1,418 @@
+[
+    {
+        "model": "posts.Category",
+        "pk": "e39dd512-112e-4dcd-9b5c-b06587cc839d",
+        "fields": {
+            "name": "Fashion",
+            "parent": null
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "f4aab94a-53cf-4061-8268-1268a109f8e1",
+        "fields": {
+            "name": "Shoes",
+            "parent": "e39dd512-112e-4dcd-9b5c-b06587cc839d"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "8bb1f3aa-022d-4072-bbeb-a7e807d803fc",
+        "fields": {
+            "name": "Clothing",
+            "parent": "e39dd512-112e-4dcd-9b5c-b06587cc839d"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "4cfd93c3-c638-47d6-8e2d-e47e3b85f97a",
+        "fields": {
+            "name": "Watches",
+            "parent": "e39dd512-112e-4dcd-9b5c-b06587cc839d"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "f9b4cfbf-b063-41f8-94c7-ba9703ef1e34",
+        "fields": {
+            "name": "Bags",
+            "parent": "e39dd512-112e-4dcd-9b5c-b06587cc839d"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "d4f85bf0-9efa-48c4-a540-023317dd962b",
+        "fields": {
+            "name": "Clothing Accessories",
+            "parent": "e39dd512-112e-4dcd-9b5c-b06587cc839d"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "a4ec3a10-0963-4745-9658-42869241cad7",
+        "fields": {
+            "name": "Jewellery",
+            "parent": "e39dd512-112e-4dcd-9b5c-b06587cc839d"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89",
+        "fields": {
+            "name": "Electronics",
+            "parent": null
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "969ddc5a-5c44-4906-8e02-2845c5e7e8d7",
+        "fields": {
+            "name": "Mobile Phones",
+            "parent": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "69eab57d-ff58-4764-8811-e6db6a067f07",
+        "fields": {
+            "name": "Tablets",
+            "parent": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "028f2d98-a8e4-4b6b-82e0-313e1c6ab981",
+        "fields": {
+            "name": "Smart Watches",
+            "parent": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "25111a7e-c593-4c40-a4d5-1cd73ea8a2dd",
+        "fields": {
+            "name": "Laptops and Computers",
+            "parent": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "f5a9e268-4eaf-4868-9f1b-09c7953d92b8",
+        "fields": {
+            "name": "TV and DVD",
+            "parent": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "a4a33941-ab3f-411e-a199-cecffd0a9a08",
+        "fields": {
+            "name": "Cameras",
+            "parent": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "f84dafe7-d39f-4ddd-862b-396fd439fcf6",
+        "fields": {
+            "name": "Audio and Music",
+            "parent": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "4e7caf65-3265-49ac-8f02-b103fb78ae60",
+        "fields": {
+            "name": "Computer Accessories",
+            "parent": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "b5d7064b-bbfe-437d-a496-52a2639b2e62",
+        "fields": {
+            "name": "Computer Hardware",
+            "parent": "b2aa30e8-7a8f-4470-8718-fbf2d9c47f89"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "a22a805c-e3b0-4b14-a086-b0c82c2a6d9e",
+        "fields": {
+            "name": "Property",
+            "parent": null
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "1f52966b-ccec-48b4-b9a8-f80a0fa06452",
+        "fields": {
+            "name": "Houses",
+            "parent": "a22a805c-e3b0-4b14-a086-b0c82c2a6d9e"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "d477f92b-6466-40e3-9fff-9742d195498b",
+        "fields": {
+            "name": "Appartments",
+            "parent": "a22a805c-e3b0-4b14-a086-b0c82c2a6d9e"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "e40231e9-d88e-41c5-a5bc-49508cdc0278",
+        "fields": {
+            "name": "Land",
+            "parent": "a22a805c-e3b0-4b14-a086-b0c82c2a6d9e"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "ef912038-f2e5-4035-a4a7-c3649ecb74f9",
+        "fields": {
+            "name": "Buildings",
+            "parent": "a22a805c-e3b0-4b14-a086-b0c82c2a6d9e"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "5f7ee652-a58f-40b1-88c3-a21a5115ed37",
+        "fields": {
+            "name": "Cars and Vehicles",
+            "parent": null
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "b01ea159-7f05-459b-b2ab-d335c557f2b3",
+        "fields": {
+            "name": "Cars",
+            "parent": "5f7ee652-a58f-40b1-88c3-a21a5115ed37"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "757ba476-bb2d-4736-af1c-7b8abbe871a1",
+        "fields": {
+            "name": "Motorbikes",
+            "parent": "5f7ee652-a58f-40b1-88c3-a21a5115ed37"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "fdb4b8b2-154b-4fee-9f7c-7ccb84ec6f5c",
+        "fields": {
+            "name": "Trucks",
+            "parent": "5f7ee652-a58f-40b1-88c3-a21a5115ed37"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "f97ba04f-db56-4ea7-b9e7-c016cff2a46d",
+        "fields": {
+            "name": "Car Accessories",
+            "parent": "5f7ee652-a58f-40b1-88c3-a21a5115ed37"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "6a1d49c5-cea9-4da4-8260-ef8291679029",
+        "fields": {
+            "name": "Vehicle Parts",
+            "parent": "5f7ee652-a58f-40b1-88c3-a21a5115ed37"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "3353da87-bcb3-4730-b3f7-b371d3017298",
+        "fields": {
+            "name": "Heavy Equipements",
+            "parent": "5f7ee652-a58f-40b1-88c3-a21a5115ed37"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "4fc218e6-4b26-4cbb-a0cb-de4c497df0c3",
+        "fields": {
+            "name": "Health and Beauty",
+            "parent": null
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "af32183a-b564-4406-a526-2d7af206f2f0",
+        "fields": {
+            "name": "Skincare",
+            "parent": "4fc218e6-4b26-4cbb-a0cb-de4c497df0c3"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "f2d4f651-7bb3-47cc-a654-419859f7b416",
+        "fields": {
+            "name": "Hair Beauty",
+            "parent": "4fc218e6-4b26-4cbb-a0cb-de4c497df0c3"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "18b0052c-b1f2-4377-8ba9-e4dd72ad3133",
+        "fields": {
+            "name": "Cosmetics",
+            "parent": "4fc218e6-4b26-4cbb-a0cb-de4c497df0c3"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "7a04aca1-8548-4d5a-ba4a-9a01b0016f0d",
+        "fields": {
+            "name": "Makeup",
+            "parent": "4fc218e6-4b26-4cbb-a0cb-de4c497df0c3"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "a6cb708c-78be-485b-9c09-49e26a600496",
+        "fields": {
+            "name": "Vitamins and Supplements",
+            "parent": "4fc218e6-4b26-4cbb-a0cb-de4c497df0c3"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "dab0d875-5811-446a-a91f-10ea003c2471",
+        "fields": {
+            "name": "Baby and Kid's Items",
+            "parent": null
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "ba16a885-6eb6-476b-b91e-93ae5bf6bc8d",
+        "fields": {
+            "name": "Toys",
+            "parent": "dab0d875-5811-446a-a91f-10ea003c2471"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "7e224977-94bf-40b8-8c57-b488b8f29c0d",
+        "fields": {
+            "name": "Learning Materials",
+            "parent": "dab0d875-5811-446a-a91f-10ea003c2471"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "fecf7ecb-be4e-4b3f-8ec4-e6fda242038c",
+        "fields": {
+            "name": "Art Supplies",
+            "parent": "dab0d875-5811-446a-a91f-10ea003c2471"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "4122e3df-209e-4540-a5c6-0e9af29363f9",
+        "fields": {
+            "name": "Feeding Supplies",
+            "parent": "dab0d875-5811-446a-a91f-10ea003c2471"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "f061b1ff-3685-4c10-86b0-087dca1335e1",
+        "fields": {
+            "name": "Kids Furnitures",
+            "parent": "dab0d875-5811-446a-a91f-10ea003c2471"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "8e87f914-4a1c-47d5-adfc-e460651376e7",
+        "fields": {
+            "name": "Home and Garden",
+            "parent": null
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "5c056f04-35ba-460a-98e2-ddcc34b25da6",
+        "fields": {
+            "name": "Furniture",
+            "parent": "8e87f914-4a1c-47d5-adfc-e460651376e7"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "87cb79ba-b761-417d-bbc6-dff1ad74bea6",
+        "fields": {
+            "name": "Decor",
+            "parent": "8e87f914-4a1c-47d5-adfc-e460651376e7"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "7860d63b-42e2-4aed-851e-1d5ce0e9f8da",
+        "fields": {
+            "name": "Garden",
+            "parent": "8e87f914-4a1c-47d5-adfc-e460651376e7"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "547d81ab-8421-478d-8844-d32d4449591b",
+        "fields": {
+            "name": "Equiment and Tools",
+            "parent": null
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "d4e97345-8c03-47fe-9623-78604f9ffcf5",
+        "fields": {
+            "name": "Stationery",
+            "parent": "547d81ab-8421-478d-8844-d32d4449591b"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "fcb5d9ef-a156-4031-8567-637ebac7ab8f",
+        "fields": {
+            "name": "Building Materials",
+            "parent": "547d81ab-8421-478d-8844-d32d4449591b"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "ab9efaaf-91ac-4f96-b97c-a6de6816977b",
+        "fields": {
+            "name": "Electrical Equipment",
+            "parent": "547d81ab-8421-478d-8844-d32d4449591b"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "5db884d1-24d5-4065-9d22-c6dfbdb6e9cd",
+        "fields": {
+            "name": "Hand Tools",
+            "parent": "547d81ab-8421-478d-8844-d32d4449591b"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "ce08833f-caff-4272-884f-512aae238ab0",
+        "fields": {
+            "name": "Manufacturing Materials",
+            "parent": "547d81ab-8421-478d-8844-d32d4449591b"
+        }
+    },
+    {
+        "model": "posts.Category",
+        "pk": "6725fb1c-7417-4f11-b844-1857babfe44a",
+        "fields": {
+            "name": "Manufacturing Equipment",
+            "parent": "547d81ab-8421-478d-8844-d32d4449591b"
+        }
+    }
+]
