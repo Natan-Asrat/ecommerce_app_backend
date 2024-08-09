@@ -4,7 +4,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 import os
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
-DEBUG = os.environ.get('DEBUG').lower() == 'true' if os.environ.get('DEBUG') else False
+# DEBUG = os.environ.get('DEBUG').lower() == 'true' if os.environ.get('DEBUG') else False
+DEBUG = True
 ALLOW_FREE_POST = os.environ.get("ALLOW_FREE_POST").lower() == 'true' if os.environ.get('ALLOW_FREE_POST') else False
 ADS_INITIAL_POSITION = int(os.environ.get('ADS_INITIAL_POSITION', 2)) 
 INTERVAL_BETWEEN_ADS = int(os.environ.get('INTERVAL_BETWEEN_ADS', 3))
@@ -36,13 +37,6 @@ FOLLOWING_INITIAL_FOLLOWING = int(os.environ.get('FOLLOWING_INITIAL_FOLLOWING', 
 CATEGORY_REDUCER_CONSTANT = int(os.environ.get('CATEGORY_REDUCER_CONSTANT', 100))
 USER_REDUCER_CONSTANT = int(os.environ.get('USER_REDUCER_CONSTANT', 10))
 
-
-ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '.onrender.com']
-# ALLOWED_HOSTS = ['*']
-
-# import dotenv
-# dotenv.read_dotenv()
-
 FIREBASE_ACCOUNT_TYPE = os.environ.get('FIREBASE_ACCOUNT_TYPE')
 FIREBASE_PROJECT_ID = os.environ.get('FIREBASE_PROJECT_ID')
 FIREBASE_PRIVATE_KEY_ID = os.environ.get('FIREBASE_PRIVATE_KEY_ID')
@@ -54,6 +48,10 @@ FIREBASE_TOKEN_URI = os.environ.get('FIREBASE_TOKEN_URI')
 FIREBASE_AUTH_PROVIDER_X509_CERT_URL = os.environ.get('FIREBASE_AUTH_PROVIDER_X509_CERT_URL')
 FIREBASE_CLIENT_X509_CERT_URL = os.environ.get('FIREBASE_CLIENT_X509_CERT_URL')
 
+
+CLOUDINARY_CLOUD_NAME = os.environ.get('CLOUDINARY_CLOUD_NAME')
+CLOUDINARY_API_KEY = os.environ.get('CLOUDINARY_API_KEY')
+CLOUDINARY_API_SECRET = os.environ.get('CLOUDINARY_API_SECRET')
 # Application definition
 
 INSTALLED_APPS = [
@@ -106,48 +104,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'application2.wsgi.application'
 
 
-# Database
-# https://docs.djangoproject.com/en/4.2/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'application2',
-        'USER': 'postgres',
-        'PASSWORD': 'nats',
-        'HOST': 'localhost',
-        'PORT': '5433'
-    }
-}
-# DATABASE_ENGINE = os.environ.get('DATABASE_ENGINE')
-# DATABASE_NAME = os.environ.get('POSTGRES_DATABASE')
-# DATABASE_USER = os.environ.get('POSTGRES_USER')
-# DATABASE_PASSWORD = os.environ.get('POSTGRES_PASSWORD')
-# DATABASE_HOST = os.environ.get('POSTGRES_HOST')
-# DATABASE_PORT = os.environ.get('DATABASE_PORT')
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-#         'NAME': DATABASE_NAME,
-#         'USER': DATABASE_USER,
-#         'PASSWORD': DATABASE_PASSWORD,
-#         'HOST': DATABASE_HOST,
-#         'PORT': DATABASE_PORT
-#     }
-    
-# }
-
-import dj_database_url
-DATABASES['default'] = dj_database_url.parse(os.environ.get('DATABASE_LINK'))
-
 CONN_MAX_AGE = None
 AUTH_USER_MODEL = 'posts.User'
 # from neomodel import config
@@ -199,9 +155,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 import cloudinary
           
 cloudinary.config( 
-  cloud_name = "dgyblgiuq", 
-  api_key = "326714553129399", 
-  api_secret = "CozE8QQIhyXS0I8WroOXIgnPVVc" ,
+  cloud_name = CLOUDINARY_CLOUD_NAME, 
+  api_key = CLOUDINARY_API_KEY, 
+  api_secret = CLOUDINARY_API_SECRET,
   secure = True
 )
 
