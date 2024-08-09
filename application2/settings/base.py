@@ -9,6 +9,7 @@ SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # DEBUG = os.environ.get('DEBUG').lower() == 'true' if os.environ.get('DEBUG') else False
 DEBUG = True
 ALLOW_FREE_POST = os.environ.get("ALLOW_FREE_POST").lower() == 'true' if os.environ.get('ALLOW_FREE_POST') else True
+COMPRESS_IMAGES = os.environ.get("COMPRESS_IMAGES").lower() == 'true' if os.environ.get('COMPRESS_IMAGES') else True
 ADS_INITIAL_POSITION = int(os.environ.get('ADS_INITIAL_POSITION', 2)) 
 INTERVAL_BETWEEN_ADS = int(os.environ.get('INTERVAL_BETWEEN_ADS', 3))
 

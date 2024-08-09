@@ -10,8 +10,12 @@ from rest_framework.reverse import reverse
 import pytz
 from . import queries
 import math
+from .utils import compress_image
 from django.conf import settings
 from . import authentication
+from django.core.files.base import ContentFile
+import datetime
+from django.utils.dateformat import format
 app_name = __package__.split('.')[-1]
 
 
@@ -288,8 +292,12 @@ class NewPostSerializer(serializers.ModelSerializer):
             print(f"Number of images: {len(images)}")
             for i, image in enumerate(images):
                 order_number = i + 1
-                image.name = f"image_{order_number}.jpg"
-                obj = Image.objects.create(post=instance, image=image, order=order_number)
+                timestamp = format(datetime.datetime.now(), 'Ymd-His')
+                file_name = f"userpost_user_{user.id}_post_{order_number}_date_{timestamp}.jpg"
+                image.name =file_name
+                buffer = compress_image(image)
+                content_file = ContentFile(buffer.read(), file_name)
+                obj = Image.objects.create(post=instance, image=buffer, backup_image=content_file, order=order_number)
             return instance
         
 class EditPostSerializer(serializers.ModelSerializer):

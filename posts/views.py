@@ -32,7 +32,12 @@ from rest_framework.compat import coreapi, coreschema, distinct
 from functools import reduce
 import math, os
 from django.conf import settings
-from .utils import should_allow_free_post
+
+from django.core.files.base import ContentFile
+import datetime
+from django.utils.dateformat import format
+
+from .utils import should_allow_free_post, compress_image
 from drf_spectacular.utils import extend_schema
 INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW = 1
 INCREASE_TO_USER_INTERACTION_PER_VIEW = 1
@@ -852,7 +857,12 @@ def check_if_user_is_new(request, phone):
 def update_user(request):
         user = get_user_from_request(request)
         profile_picture = request.FILES.get('imageBitmap')
-        user.profilePicture = profile_picture
+        buffer = compress_image(profile_picture)
+        timestamp = format(datetime.datetime.now(), 'Ymd-His')
+        file_name = f"pp_user_{user.id}_profilepicture_{timestamp}.jpg"
+        content_file = ContentFile(buffer.read(), file_name)
+        user.profilePicture = buffer
+        user.backup_profile_picture = content_file
         user.first_name = request.data.get('name')
         user.save()
         return JsonResponse({})
@@ -901,7 +911,12 @@ def send_screenshot(request):
             transaction = models.Transaction.objects.get(id = transactionId)
         else:
             transaction = models.Transaction.objects.get(issuedFor=user, id = transactionId)
-        transaction.verificationScreenshot = image
+        buffer = compress_image(image)
+        timestamp = format(datetime.datetime.now(), 'Ymd-His')
+        file_name = f"transaction_user_{user.id}_date_{timestamp}.jpg"
+        content_file = ContentFile(buffer.read(), file_name)
+        transaction.verificationScreenshot = buffer
+        transaction.backup_verification_screenshot = content_file
         transaction.save()
         serializer = serializers.TransactionSerializer(data=transaction, many=False)
         serializer.is_valid()

@@ -13,6 +13,7 @@ class User(AbstractUser):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
     phoneNumber = models.CharField(max_length=25)
     profilePicture = CloudinaryField('image', null=True)
+    backup_profile_picture = models.ImageField(upload_to="backup/profile_pictures/", null=True, blank=True)
     last_seen = models.DateTimeField(default=timezone.now)
     website = models.TextField(default = "", blank=True)
     REQUIRED_FIELDS = ['phoneNumber']
@@ -107,6 +108,7 @@ INTERACTION_ACTORS_OPTIONS = [
 class Image(models.Model):
     post = models.ForeignKey(to="Post", on_delete=models.CASCADE, related_name='postImage', db_index=True)
     image = CloudinaryField('image')
+    backup_image = models.ImageField(upload_to="backup/posts/", null=True, blank=True)
     order = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -214,6 +216,7 @@ class Transaction(models.Model):
     trueForDepositFalseForWithdraw = models.BooleanField(default=True)
     rejected = models.BooleanField(default=False, blank=True, null=True)
     verificationScreenshot = CloudinaryField('image', null=True, blank = True)
+    backup_verification_screenshot = models.ImageField(upload_to="backup/transactions/", null=True, blank=True)
     transactionConfirmationCode = models.CharField(max_length=100, null=True, blank =True)
     created_at = models.DateTimeField(auto_now_add=True)
     pay_for = models.CharField(max_length = 1, choices = PAY_FOR)
