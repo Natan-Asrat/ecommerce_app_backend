@@ -1,5 +1,4 @@
-import dotenv
-dotenv.read_dotenv()
+
 
 from .base import *
 

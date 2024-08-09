@@ -3,6 +3,8 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 import os
+import dotenv
+dotenv.read_dotenv()
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
 # DEBUG = os.environ.get('DEBUG').lower() == 'true' if os.environ.get('DEBUG') else False
 DEBUG = True
