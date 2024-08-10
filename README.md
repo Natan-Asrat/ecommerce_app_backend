@@ -1,5 +1,18 @@
 # Emi Shop Backend
 - Django Backend for Mobile Application
+
+## Setup
+- Run `./run.sh` (Linux) or `run.bat` (Windows) to skip the instructions below
+- Use `python3` if you are on linux for the following,
+- Create a virtual environment `python -m venv venv`
+- Activate virtual environment `call venv/Scripts/activate`
+- Install dependencies `pip install -r requirements.txt`
+- Migrate `python manage.py migrate`
+- Load Categories `python manage.py loaddata category_data.json`
+- Create superuser `python manage.py createsuperuser`
+- Run application `python manage.py runserver`
+- Optionally you can make django listen on all ips `python manage.py runserver 0.0.0.0:8000`
+
 ## Endpoints
 
 <img src="https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/all.JPG" alt="detail post screenshot" height="350"/>

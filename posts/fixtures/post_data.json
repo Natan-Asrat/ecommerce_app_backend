@@ -1,0 +1,19 @@
+[
+    {
+        "model": "posts.Post",
+        "pk": "87589339-66cb-49ea-ab45-ad86265d4111",
+        "fields": {
+            "title": "Welcome To Emi Shop!",
+            "description": "This is a welcome post from Emica Solutions. To contact the developers, call +251908560168",
+            "link": "https://emishopapp.onrender.com",
+            "price": 0,
+            "currency": "Br",
+            "categoryId": "8e87f914-4a1c-47d5-adfc-e460651376e7",
+            "sellerId": "fd612d58-8eb8-4754-b144-e0dc0569ad51",
+            "likes": 0,
+            "date": "2023-08-10T09:26:04Z",
+            "engagement": "100",
+            "nextIconAction": "D" 
+        }
+    }
+]

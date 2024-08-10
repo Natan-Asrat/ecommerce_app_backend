@@ -161,7 +161,21 @@ class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
             userToPost.save()
             userToCategory.save()
         return super().retrieve(request, *args, **kwargs)
-        
+@extend_schema(tags=['Posts Anonymous'])
+class PostsAnonymousAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
+    queryset = models.Post.objects.all()   
+    serializer_class = serializers.EmptySerializer
+    pagination_class = paginators.Pages
+    def get_queryset(self):
+        if self.action == 'retrieve':
+            self.serializer_class = serializers.PostDetailAnonymousSerializer
+        else:  
+            self.serializer_class = serializers.PostAnonymousSerializer
+            category = self.request.query_params.get('category')
+            if category is not None:
+                return queries.get_all_posts_anonymous().filter(categoryId = category)
+        return queries.get_all_posts_anonymous()
+       
 @extend_schema(tags=['Posts'])    
 class NewPostAPI(CreateAPIView, ListAPIView, UpdateAPIView, GenericViewSet):
     queryset = models.Post.objects.none()  
@@ -233,6 +247,17 @@ class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
             return queries.children_categories(user, parent=None)
         elif self.action == 'retrieve':
             return queries.children_categories(user, self.kwargs['pk'])
+        return super().get_queryset()
+    def retrieve(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+class CategoriesAnonymousAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
+    queryset = models.Category.objects.none()
+    serializer_class = serializers.CategoryForTraversalAnonymousSerializer
+    def get_queryset(self):
+        if self.action == 'list':
+            return queries.children_categories_no_user(parent=None)
+        elif self.action == 'retrieve':
+            return queries.children_categories_no_user(self.kwargs['pk'])
         return super().get_queryset()
     def retrieve(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

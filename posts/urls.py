@@ -8,12 +8,13 @@ from fcm_django.api.rest_framework import FCMDeviceAuthorizedViewSet, FCMDeviceV
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 
 router = DefaultRouter()
-router.register('categories', views.CategoriesAPI)
 router.register('posts', views.PostsAPI)
+router.register('posts_anonymous', views.PostsAnonymousAPI)
 router.register('posts_recommended', views.GetRecommendation)
 router.register('new', views.NewPostAPI)
 router.register('edit', views.EditPostAPI)
 router.register('categories', views.CategoriesAPI, basename='categories')
+router.register('categories_anonymous', views.CategoriesAnonymousAPI, basename='categories_anonymous')
 router.register('categories_recommended', views.CategoriesRecommendedAPI, basename='categories_recommended')
 router.register('favourites', views.FavouritesAPI)
 router.register('like', views.LikeAPI)

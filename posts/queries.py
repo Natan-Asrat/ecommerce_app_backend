@@ -121,6 +121,16 @@ def get_all_posts(request):
             user_id = request.user, post_id = OuterRef('postId')
         ))).all()
     return posts
+def get_all_posts_anonymous():
+    posts = models.Post.objects.select_related(
+        'categoryId', 
+        'sellerId', 
+        'categoryId__parent', 
+        'categoryId__parent__parent', 
+        'categoryId__parent__parent__parent', 
+        'categoryId__parent__parent__parent__parent'
+        ).prefetch_related('postImage').all()
+    return posts
 
 def get_ad_by_category(user):
     most_interacted_categories = categories_for_UCCF(user)
@@ -600,9 +610,24 @@ def children_categories(user, parent):
                                Count('children__children__children__id', distinct=True) +
                                Count('children__children__children__children__id', distinct=True),
                 posts = Count('posts_in_category'),
+                hasChildren = Exists(models.Category.objects.filter(
+                    parent = OuterRef('id')
+                )),
                 interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
                 interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
             ).order_by('-interaction_with_user', '-posts', '-interaction_for_category', '-tree')
+def children_categories_no_user(parent):
+    return models.Category.objects.filter(parent = parent).annotate(
+                tree = Count('children__id', distinct=True) +
+                               Count('children__children__id', distinct=True) +
+                               Count('children__children__children__id', distinct=True) +
+                               Count('children__children__children__children__id', distinct=True),
+                posts = Count('posts_in_category'),
+                hasChildren = Exists(models.Category.objects.filter(
+                    parent = OuterRef('id')
+                )),
+                interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
+            ).order_by('-posts', '-interaction_for_category', '-tree')
 
 def recommended_categories(user):
     return models.Category.objects.all().annotate(

@@ -37,10 +37,11 @@ class EmptySerializer(serializers.Serializer):
 class CategoryForTraversalSerializer(serializers.ModelSerializer):
     id = serializers.UUIDField(read_only = True)
     children = serializers.SerializerMethodField()
-    parent = serializers.SerializerMethodField()
+    hasChildren = serializers.BooleanField()
+    parentTree = serializers.SerializerMethodField()
     class Meta:
         model = Category
-        fields = ['id', 'name', 'children', 'parent']
+        fields = ['id', 'name', 'children', 'parent', 'hasChildren', 'parentTree']
     def get_children(self, obj):
         request = self.context.get('request')
         url = reverse('categories-detail', kwargs={'pk': obj.id}, request=request)
@@ -54,6 +55,29 @@ class CategoryForTraversalSerializer(serializers.ModelSerializer):
                 return url
             else:
                 url = reverse('categories-list', request=request)
+                return url
+        return None
+class CategoryForTraversalAnonymousSerializer(serializers.ModelSerializer):
+    id = serializers.UUIDField(read_only = True)
+    children = serializers.SerializerMethodField()
+    hasChildren = serializers.BooleanField()
+    parentTree = serializers.SerializerMethodField()
+    class Meta:
+        model = Category
+        fields = ['id', 'name', 'children', 'parent', 'hasChildren', 'parentTree']
+    def get_children(self, obj):
+        request = self.context.get('request')
+        url = reverse('categories_anonymous-detail', kwargs={'pk': obj.id}, request=request)
+        return url
+    def get_parentTree(self, obj):
+        request = self.context.get('request')
+        parent = obj.parent
+        if parent is not None:
+            if parent.parent is not None:
+                url = reverse('categories_anonymous-detail', kwargs={'pk': parent.parent.id}, request=request)
+                return url
+            else:
+                url = reverse('categories_anonymous-list', request=request)
                 return url
         return None
 class CategorySerializer(serializers.ModelSerializer):
@@ -174,6 +198,65 @@ class PostSerializer(serializers.ModelSerializer):
             representation.pop('discountedPrice')
         
         return representation
+class PostAnonymousSerializer(serializers.ModelSerializer):
+    postId = serializers.UUIDField(read_only = True)
+    categories = serializers.SerializerMethodField()
+    originalPrice = serializers.SerializerMethodField()
+    discountedPrice = serializers.SerializerMethodField()
+    sellerId = UserSerializer()
+    image = serializers.SerializerMethodField(read_only = True)
+    link = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Post
+        fields = [
+            'postId', 
+            'title', 
+            'description',
+            'link',  
+            'originalPrice',
+            'discountedPrice',
+            'categoryId',
+            'categories', 
+            'sellerId',
+            'likes',
+            'engagement', 
+            'nextIconAction', 
+            'hasDiscount',
+            'image'
+            ]
+    def get_link(self, obj):
+        if obj.link == "":
+            return POST_WEB_URL + str(obj.postId)
+        return obj.link
+    def get_originalPrice(self, obj):
+        return get_originalPrice_string(obj)
+    def get_discountedPrice(self, obj):
+        return get_discountedPrice_string(obj)
+    def get_image(self, obj):
+        # image = Image.objects.filter(post = obj).order_by('order').first()
+        image = obj.postImage.first()
+        if image:
+            return image.image.url
+        return None
+    def get_categories(self, obj):
+        category = obj.categoryId
+        ancestors = []
+        depth = 0
+        while category and depth < MAX_CATEGORY_LEVELS:
+            c = CategorySerializer(category, many = False).data
+            ancestors.append(c)
+            category = category.parent
+            depth+=1
+        ancestors = list(reversed(ancestors))
+        return ancestors
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.discountedPrice is None:
+            representation.pop('discountedPrice')
+        
+        return representation
+
 class ImageSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
     def get_image_url(self, obj):
@@ -211,6 +294,63 @@ class PostDetailSerializer(serializers.ModelSerializer):
             'hasDiscount',
             'hasLiked', 
             'hasSaved',
+            'images'
+            ]
+    def get_link(self, obj):
+        if obj.link == "":
+            return POST_WEB_URL + str(obj.postId)
+        return obj.link
+    def get_originalPrice(self, obj):
+        return get_originalPrice_string(obj)
+    def get_discountedPrice(self, obj):
+        return get_discountedPrice_string(obj)
+    def get_images(self, obj):
+        images = obj.postImage.all().values('image').order_by('order')
+        images = list(images)
+        if images:
+            return [image['image'].url for image in images]
+        return []
+    def get_categories(self, obj):
+        category = obj.categoryId
+        ancestors = []
+        depth = 0
+        while category and depth < MAX_CATEGORY_LEVELS:
+            ancestors.append(category.name)
+            category = category.parent
+            depth+=1
+        ancestors = list(reversed(ancestors))
+        return ancestors
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.discountedPrice is None:
+            representation.pop('discountedPrice')
+        representation['showSimilarPosts'] = SHOW_SIMILAR_POSTS_JSON_BOOLEAN
+
+        return representation
+class PostDetailAnonymousSerializer(serializers.ModelSerializer):
+    postId = serializers.UUIDField(read_only = True)
+    categories = serializers.SerializerMethodField()
+    sellerId = UserSerializer(read_only = True)
+    images = serializers.SerializerMethodField(read_only = True)
+    originalPrice = serializers.SerializerMethodField()
+    discountedPrice = serializers.SerializerMethodField()
+    link = serializers.SerializerMethodField(read_only=True)
+    class Meta:
+        model = Post
+        fields = [
+            'postId', 
+            'title', 
+            'description',
+            'link', 
+            'originalPrice',
+            'discountedPrice',
+            'categoryId',
+            'categories', 
+            'sellerId',
+            'likes',
+            'engagement', 
+            'nextIconAction', 
+            'hasDiscount',
             'images'
             ]
     def get_link(self, obj):

@@ -3,6 +3,8 @@ if [! -d "venv"]; then
 fi
 source venv/bin/activate
 pip install -r requirements.txt
-python manage.py makemigrations
-python manage.py migrate
-python manage.py runserver 0.0.0.0:8000
+python3 manage.py makemigrations
+python3 manage.py migrate
+python3 manage.py loaddata category_data.json
+python3 manage.py createsuperuser
+python3 manage.py runserver 0.0.0.0:8000
