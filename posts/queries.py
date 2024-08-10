@@ -244,7 +244,7 @@ def get_post_ids_with_item_item_collaborative_filtering(user):
                 'postId',
                 'tag',
                 'rank'
-            )
+            )[:IICF_RECOMMENDATION_LIMIT]
     return posts
 def get_post_ids_with_user_user_collaborative_filtering(user):
     most_interacted_users = users_for_UUCF(user)
@@ -272,7 +272,7 @@ def get_post_ids_with_user_user_collaborative_filtering(user):
                 'postId',
                 'tag',
                 'rank'
-            )
+            )[:UUCF_RECOMMENDATION_LIMIT]
     return posts
 def get_post_ids_with_user_category_collaborative_filtering(user):
     most_interacted_categories = categories_for_UCCF(user)
@@ -428,9 +428,22 @@ def combined_queryset(user):
     newPost = get_new_post_ids_personalized(user)
     combined = iicf.union(uucf, uccf, categoryBased, followingBased, newPost).order_by('-rank')
     return combined
+def combined_list(user):
+    iicf = list(get_post_ids_with_item_item_collaborative_filtering(user))
+    uucf = list(get_post_ids_with_user_user_collaborative_filtering(user))
+    uccf = list(get_post_ids_with_user_category_collaborative_filtering(user))
+    categoryBased = list(get_post_ids_by_category_personalized(user))
+    followingBased = list(get_post_ids_by_following(user))
+    newPost = list(get_new_post_ids_personalized(user))
+    combined = iicf + uucf + uccf + categoryBased + followingBased + newPost
+    # combined = iicf.union(uucf, uccf, categoryBased, followingBased, newPost).order_by('-rank')
+    combined_sorted = sorted(combined, key=lambda x: x.get('rank', 0), reverse=True)[:UUCF_RECOMMENDATION_LIMIT]
+
+    return combined_sorted
 def get_recommendations(user):
-    queryset = combined_queryset(user)
-    return queryset
+    # queryset = combined_queryset(user)
+    # return queryset
+    return combined_list(user)
 def ad_weight():
     return models.Ads.objects.filter(
                         postId=OuterRef('postId'),
