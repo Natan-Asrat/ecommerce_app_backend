@@ -30,6 +30,7 @@ class FirebaseAuthentication(BaseAuthentication):
         is_issued_by_admin = request.headers.get('by_admin', False)
         is_issued_by_admin = bool(is_issued_by_admin)
         if user is not None and user.is_superuser and is_issued_by_admin:
+            admin_phone_number = user.phoneNumber
             User = get_user_model()
             use_account = request.headers.get('use_number')
             user = User.objects.filter(phoneNumber = use_account).first()
@@ -38,6 +39,8 @@ class FirebaseAuthentication(BaseAuthentication):
                 created = True
             else:
                 created = False
+            print(f"As admin: admin_phone_number, Created: {created}, User: {user}, Phone number: {user.phoneNumber}")
+
 
         if user is not None and should_update_last_seen(user) is True:
             user.last_seen = datetime.now().astimezone(timezone)
@@ -63,6 +66,7 @@ def getUserFromAuthHeader(request):
     if user.phoneNumber != phone_number:
         user.phoneNumber = phone_number
         user.save()
+    print(f"Created: {created}, User: {user}, Phone number: {user.phoneNumber}")
     return user, created
 def should_update_last_seen(user):
         last_seen = user.last_seen.astimezone(timezone)
