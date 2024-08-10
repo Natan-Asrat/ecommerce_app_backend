@@ -1,0 +1,12 @@
+[
+    {
+        "model": "posts.Image",
+        "pk": "1",
+        "fields": {
+            "post": "87589339-66cb-49ea-ab45-ad86265d4111",
+            "image": "https://raw.githubusercontent.com/Natan-Asrat/ecommerce_app_demo/main/screenshots/welcome.jpg.jpg",
+            "order": 1,
+            "created_at": "2023-08-10T09:26:04Z"
+        }
+    }
+]

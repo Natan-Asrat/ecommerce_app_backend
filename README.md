@@ -9,6 +9,9 @@
 - Install dependencies `pip install -r requirements.txt`
 - Migrate `python manage.py migrate`
 - Load Categories `python manage.py loaddata category_data.json`
+- Load User Emica Solutions `python manage.py loaddata user_data.json`
+- Load Welcome Post `python manage.py loaddata post_data.json`
+- Load Welcome Post Image `python manage.py loaddata post_image_data.json`
 - Create superuser `python manage.py createsuperuser`
 - Run application `python manage.py runserver`
 - Optionally you can make django listen on all ips `python manage.py runserver 0.0.0.0:8000`

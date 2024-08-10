@@ -111,7 +111,7 @@ class Image(models.Model):
     backup_image = models.ImageField(upload_to="backup/posts/", null=True, blank=True)
     order = models.PositiveIntegerField(default=1)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    
     def __str__(self) -> str:
         return "Image of Post: " + str(self.post)
     class Meta:

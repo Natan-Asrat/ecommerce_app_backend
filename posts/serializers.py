@@ -785,7 +785,7 @@ class ProfileSerializer(serializers.ModelSerializer):
             return True
         return False
     def get_adCount(self, obj):
-        return obj.seller.count()
+        return obj.posts.count()
     def get_follows(self, obj):
         user = self.context.get('user')
         user_follows_profile = Follower.objects.filter(user_follower=user,user_followed=obj).exists()
@@ -833,6 +833,64 @@ class ProfileSerializer(serializers.ModelSerializer):
         model = User
         fields = ['id', 'is_admin', 'coins_in_words', 'follows', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
   
+class ProfileAnonymousSerializer(serializers.ModelSerializer):
+    brandName = serializers.SerializerMethodField()
+    profilePicture = serializers.SerializerMethodField()
+    online = serializers.SerializerMethodField()
+    last_seen = serializers.SerializerMethodField()
+    adCount = serializers.SerializerMethodField()
+    followerCount = serializers.SerializerMethodField()
+    followingCount = serializers.SerializerMethodField()
+    hasWebsite = serializers.SerializerMethodField()
+    is_admin = serializers.SerializerMethodField()
+    coins_in_words = serializers.SerializerMethodField()
+    website = serializers.SerializerMethodField(read_only=True)
+    def get_website(self, obj):
+        if obj.website == "":
+            return PROFILE_WEB_URL + str(obj.id)
+        return obj.website
+    def get_hasWebsite(self, obj):
+        link = obj.website
+        if link is not None and link != "":
+            return True
+        return False
+    def get_adCount(self, obj):
+        return obj.posts.count()
+    def get_followerCount(self, obj):
+        return obj.followers.count()
+    def get_followingCount(self, obj):
+        return obj.following.count()
+    def get_profilePicture(self, obj):
+        image = obj.profilePicture
+        if image:
+            return image.url
+        return None
+    def get_brandName(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+    def get_last_seen(self, obj):
+        last_seen = obj.last_seen.astimezone(timezone)
+        now = datetime.now().astimezone(timezone)
+        hours = int((now - last_seen).total_seconds() // 3600)
+        return hours
+    def get_online(self, obj):
+        last_seen = obj.last_seen.astimezone(timezone)
+        now = datetime.now().astimezone(timezone)
+        seconds = int((now - last_seen).total_seconds())
+        if seconds < SECONDS_BEFORE_OFFLINE:
+            return True
+        return False
+    def get_is_admin(self, obj):
+        return obj.is_superuser
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation["usernameToLink"] = USERNAME_TO_LINK_JSON_BOOLEAN
+        return representation
+    def get_coins_in_words(self, obj):
+        return str(obj.coins) + " Coins"
+    class Meta:
+        model = User
+        fields = ['id', 'is_admin', 'coins_in_words', 'profilePicture', 'brandName', 'phoneNumber', 'last_seen', 'online', 'adCount', 'followerCount', 'followingCount', 'hasWebsite', 'website']
+ 
 class SingleCategoryBidSerializer(serializers.Serializer):
     categoryId = serializers.UUIDField()
     amount = serializers.IntegerField()

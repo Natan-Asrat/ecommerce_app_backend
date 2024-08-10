@@ -556,6 +556,13 @@ class ProfileAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
             userToUser.strength_sum += INCREASE_TO_USER_INTERACTION_PER_VIEW
             userToUser.save()
         return super().retrieve(request, *args, **kwargs)
+    
+@extend_schema(tags=['Profiles'])
+class ProfileAnonymousAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
+    queryset = models.User.objects.all()
+    serializer_class = serializers.ProfileAnonymousSerializer
+    pagination_class = paginators.Pages
+    
 @extend_schema(tags=['Posts'])
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.none()
