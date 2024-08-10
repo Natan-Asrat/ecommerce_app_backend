@@ -7,5 +7,4 @@ python manage.py loaddata category_data.json
 python manage.py loaddata user_data.json
 python manage.py loaddata post_data.json
 python manage.py loaddata post_image_data.json
-python manage.py createsuperuser
 python manage.py runserver 0.0.0.0:8000
