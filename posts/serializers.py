@@ -14,7 +14,6 @@ from .utils import compress_image
 from django.conf import settings
 from . import authentication
 from django.core.files.base import ContentFile
-import datetime
 from django.utils.dateformat import format
 app_name = __package__.split('.')[-1]
 
@@ -432,7 +431,7 @@ class NewPostSerializer(serializers.ModelSerializer):
             print(f"Number of images: {len(images)}")
             for i, image in enumerate(images):
                 order_number = i + 1
-                timestamp = format(datetime.datetime.now(), 'Ymd-His')
+                timestamp = format(datetime.now(), 'Ymd-His')
                 file_name = f"userpost_user_{user.id}_post_{order_number}_date_{timestamp}.jpg"
                 image.name =file_name
                 buffer = compress_image(image)
