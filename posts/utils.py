@@ -28,7 +28,7 @@ def compress_image(image, target_size = 10):
         # final = buffer.seek(0, 0)
         # image = 
         buffer.seek(0)
-        return buffer.read()
+        return buffer
         # image = buffer
     return image
 
