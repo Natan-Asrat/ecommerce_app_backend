@@ -1131,8 +1131,11 @@ def share_post(request):
 def get_user_from_request(request):
     user = request.user
     if isinstance(user, tuple):
+        print("User is tuple")
         user_obj, _ = user
         return user_obj
+    
+    print("User is no tuple")
     return user
 
 

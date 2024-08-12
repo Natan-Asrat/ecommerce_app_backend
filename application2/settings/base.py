@@ -74,17 +74,46 @@ INSTALLED_APPS = [
 INTERNAL_IPS = [
     '127.0.0.1',
 ]
+# MIDDLEWARE = [
+#     'debug_toolbar.middleware.DebugToolbarMiddleware',
+#     'django.middleware.security.SecurityMiddleware',
+#     "whitenoise.middleware.WhiteNoiseMiddleware",
+#     'django.contrib.sessions.middleware.SessionMiddleware',
+#     'django.middleware.common.CommonMiddleware',
+#     'django.middleware.csrf.CsrfViewMiddleware',
+#     'django.contrib.auth.middleware.AuthenticationMiddleware',
+#     'django.contrib.messages.middleware.MessageMiddleware',
+#     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+# ]
 MIDDLEWARE = [
+    # Debug Toolbar Middleware (for development)
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    
+    # Security Middleware
     'django.middleware.security.SecurityMiddleware',
+    
+    # Static File Middleware
     "whitenoise.middleware.WhiteNoiseMiddleware",
+    
+    # Session Middleware
     'django.contrib.sessions.middleware.SessionMiddleware',
+    
+    # Common Middleware
     'django.middleware.common.CommonMiddleware',
+    
+    # CSRF Middleware
     'django.middleware.csrf.CsrfViewMiddleware',
+    
+    # Authentication Middleware
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    
+    # Message Middleware
     'django.contrib.messages.middleware.MessageMiddleware',
+    
+    # Clickjacking Middleware
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
 
 ROOT_URLCONF = 'application2.urls'
 
