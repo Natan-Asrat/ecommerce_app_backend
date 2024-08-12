@@ -81,6 +81,8 @@ def customGetUserFromAuthHeader(request):
         return None, False
     User = get_user_model()
     # phone_number = decoded_token['phone_number']
+    
+    print(f"Token: {token}, Device: {device.phone_number if device else device}")
     if device:
         phone_number = device.phone_number
         user = User.objects.filter(phoneNumber = phone_number).first()
