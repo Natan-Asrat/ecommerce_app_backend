@@ -1231,6 +1231,7 @@ def verify_otp(android_id, otp):
 def custom_otp_request(request):
     phone_number = request.POST.get("phone_number")
     android_id = request.POST.get("android_id")
+    print(f"Phone number: {phone_number}, Android id: {android_id}")
     # phone_number = request.GET.get("phone_number")
     # android_id = request.GET.get("android_id")
     if send_otp(phone_number, android_id):
