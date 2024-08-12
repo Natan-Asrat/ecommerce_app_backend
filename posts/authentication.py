@@ -71,6 +71,7 @@ def getUserFromAuthHeader(request):
     return user, created
 def customGetUserFromAuthHeader(request):
     token = request.headers.get('Authorization')
+    print("**************Token: ", token)
     device = None
     if not token:
         return None, False
