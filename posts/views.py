@@ -42,6 +42,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from .utils import should_allow_free_post, compress_image
 from drf_spectacular.utils import extend_schema
+import json
 INCREASE_TO_CATEGORY_INTERACTION_PER_VIEW = 1
 INCREASE_TO_USER_INTERACTION_PER_VIEW = 1
 INCREASE_TO_POST_INTERACTION_PER_VIEW = 1
@@ -1229,8 +1230,12 @@ def verify_otp(android_id, otp):
 
 @csrf_exempt
 def custom_otp_request(request):
-    phone_number = request.POST.get("phone_number")
-    android_id = request.POST.get("android_id")
+    # phone_number = request.POST.get("phone_number")
+    # android_id = request.POST.get("android_id")
+    data = json.loads(request.body.decode('utf-8'))
+            
+    phone_number = data.get("phone_number")
+    android_id = data.get("android_id")
     print(f"Phone number: {phone_number}, Android id: {android_id}")
     # phone_number = request.GET.get("phone_number")
     # android_id = request.GET.get("android_id")
@@ -1240,16 +1245,22 @@ def custom_otp_request(request):
         return JsonResponse({}, status = 500)
 @csrf_exempt
 def check_device_exists(request):
-    android_id = request.POST.get("android_id")
+    # android_id = request.POST.get("android_id")
+    data = json.loads(request.body.decode('utf-8'))
+    android_id = data.get("android_id")
+
     device = models.Device.objects.filter(android_id=android_id)
     return JsonResponse({'exists': device.exists()})
 
 @csrf_exempt
 def custom_otp_verify(request):
-    android_id = request.POST.get("android_id")
-    otp = request.POST.get("otp")
+    # android_id = request.POST.get("android_id")
+    # otp = request.POST.get("otp")
     # android_id = request.GET.get("android_id")
     # otp = request.GET.get("otp")
+    data = json.loads(request.body.decode('utf-8'))
+    android_id = data.get("android_id")
+    otp = data.get("otp")
     if verify_otp(android_id, otp):
         return JsonResponse({})
     else:
@@ -1258,7 +1269,7 @@ def custom_otp_verify(request):
 def logout(request):
     user = get_user_from_request(request)
     if user:
-        android_id = request.POST.get("android_id")
+        android_id = request.data.get("android_id")
         device = models.Device.objects.filter(android_id = android_id, phone_number = user.phoneNumber)
         if device.exists():
             device.delete()
