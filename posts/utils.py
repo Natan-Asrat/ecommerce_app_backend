@@ -19,17 +19,18 @@ def compress_image(image, target_size = 10):
         buffer = io.BytesIO()
         quality = 95
         while quality>10:
+            buffer = io.BytesIO()
             image.save(buffer, format='JPEG', quality=quality, optimize=True)
             size_kb = buffer.tell() / 1024
             if size_kb <= target_size or quality <= 10:
                 break
             quality -=5
-        final = buffer.seek(0, 0)
-        # image = buffer.seek(0)
-        image.save(buffer, format='JPEG', quality=quality, optimize=True)
-
+        # final = buffer.seek(0, 0)
+        # image = 
+        buffer.seek(0)
+        return buffer.read()
         # image = buffer
-    return final
+    return image
 
 def generate_otp():
     totp = pyotp.TOTP(pyotp.random_base32(), interval=300)  # 5 minutes validity
