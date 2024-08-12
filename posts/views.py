@@ -1234,6 +1234,10 @@ def custom_otp_request(request):
         return JsonResponse({})
     else:
         return JsonResponse({}, status = 500)
+def check_device_exists(request):
+    android_id = request.POST.get("android_id")
+    device = models.Device.objects.filter(android_id=android_id)
+    return JsonResponse({'exists': device.exists()})
 
 def custom_otp_verify(request):
     android_id = request.POST.get("android_id")
