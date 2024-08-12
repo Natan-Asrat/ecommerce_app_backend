@@ -45,7 +45,7 @@ class CategoryForTraversalSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         url = reverse('categories-detail', kwargs={'pk': obj.id}, request=request)
         return url
-    def get_parent(self, obj):
+    def get_parentTree(self, obj):
         request = self.context.get('request')
         parent = obj.parent
         if parent is not None:
