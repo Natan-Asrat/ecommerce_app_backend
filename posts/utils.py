@@ -27,7 +27,7 @@ def compress_image(image, target_size = 10):
         # image = buffer.seek(0)
         image.save(buffer, format='JPEG', quality=quality, optimize=True)
 
-        image = buffer
+        # image = buffer
     return image
 
 def generate_otp():
