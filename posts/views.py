@@ -32,6 +32,7 @@ from rest_framework.compat import coreapi, coreschema, distinct
 from functools import reduce
 import math, os
 from django.conf import settings
+from django.core.cache import cache
 
 from django.core.files.base import ContentFile
 import datetime
@@ -1184,3 +1185,71 @@ def ask_profile_to_follow_user_if_not(user, seller):
                 action = 'F',
                 message = followMessage
             )
+import pyotp
+from django.conf import settings
+import requests
+def send_sms(phone_number, otp):
+    message = f"""
+                Emi Shop App
+                Your one time verification code is:
+                {otp}
+                """
+    url = f"{settings.SMS_GATEWAY_URL}/"
+    params = {
+        'number': phone_number,
+        'message': message
+    }
+    try:
+        response = requests.get(url, params=params)
+        response.raise_for_status
+        print(response.json())
+        return True
+    except requests.RequestException as e:
+        print(f"Error sending sms: {e}")
+        return False
+
+def send_otp(phone_number, android_id):
+    interval = 60
+    otp = pyotp.TOTP(pyotp.random_base32(), interval=interval).now()
+    cache.set(f"otp_{android_id}", otp, timeout=interval)
+    device = models.Device.objects.create(phone_number = phone_number, android_id = android_id)
+    return send_sms(phone_number, otp)
+
+def verify_otp(android_id, otp):
+    stored_otp = cache.get(f"otp_{android_id}")
+    if stored_otp and stored_otp == otp:
+        cache.delete(f"otp_{android_id}")
+        device = models.Device.objects.filter(android_id = android_id).first()
+        device.verified = True
+        device.save()
+        return True
+    return False
+
+def custom_otp_request(request):
+    phone_number = request.POST.get("phone_number")
+    android_id = request.POST.get("android_id")
+    # phone_number = request.GET.get("phone_number")
+    # android_id = request.GET.get("android_id")
+    if send_otp(phone_number, android_id):
+        return JsonResponse({})
+    else:
+        return JsonResponse({}, status = 500)
+
+def custom_otp_verify(request):
+    android_id = request.POST.get("android_id")
+    otp = request.POST.get("otp")
+    # android_id = request.GET.get("android_id")
+    # otp = request.GET.get("otp")
+    if verify_otp(android_id, otp):
+        return JsonResponse({})
+    else:
+        return JsonResponse({}, status = 401)
+@api_view(['POST'])
+def logout(request):
+    user = get_user_from_request(request)
+    if user:
+        android_id = request.POST.get("android_id")
+        device = models.Device.objects.filter(android_id = android_id, phone_number = user.phoneNumber)
+        if device.exists():
+            device.delete()
+            print(f"Logged out: {user.phoneNumber} from device android id:  {android_id}")

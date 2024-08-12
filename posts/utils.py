@@ -2,6 +2,7 @@ from django.conf import settings
 from django.conf import settings
 from PIL import Image
 import io
+import pyotp
 
 def should_allow_free_post(user):
     allow_free_post = settings.ALLOW_FREE_POST
@@ -25,3 +26,10 @@ def compress_image(image, target_size = 10):
             quality -=5
         image = buffer.seek(0)
     return image
+
+def generate_otp():
+    totp = pyotp.TOTP(pyotp.random_base32(), interval=300)  # 5 minutes validity
+    return totp.now()
+
+def verify_otp(otp, user_otp):
+    return otp == user_otp

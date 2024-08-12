@@ -6,7 +6,7 @@ from firebase_admin import credentials, auth
 from django.conf import settings
 import pytz
 from datetime import datetime, timedelta
-
+from . import models
 timezone = pytz.timezone('UTC')
 SECONDS_TO_WAIT_FOR_NEXT_LAST_SEEN_UPDATE = 4 * 60
 
@@ -26,7 +26,8 @@ default_app = firebase_admin.initialize_app(cred)
 class FirebaseAuthentication(BaseAuthentication):
     def authenticate(self, request):
 
-        user, created = getUserFromAuthHeader(request)
+        # user, created = getUserFromAuthHeader(request)
+        user, created = customGetUserFromAuthHeader(request)
         is_issued_by_admin = request.headers.get('by_admin', False)
         is_issued_by_admin = bool(is_issued_by_admin)
         if user is not None and user.is_superuser and is_issued_by_admin:
@@ -58,6 +59,33 @@ def getUserFromAuthHeader(request):
     User = get_user_model()
     phone_number = decoded_token['phone_number']
     user = User.objects.filter(phoneNumber = phone_number).first()
+    if not user:
+        user = User.objects.create(phoneNumber = phone_number, username = phone_number)
+        created = True
+    else:
+        created = False
+    if user.phoneNumber != phone_number:
+        user.phoneNumber = phone_number
+        user.save()
+    print(f"Created: {created}, User: {user}, Phone number: {user.phoneNumber}")
+    return user, created
+def customGetUserFromAuthHeader(request):
+    token = request.headers.get('Authorization')
+    device = None
+    if not token:
+        return None, False
+    try:
+        # decoded_token = auth.verify_id_token(token)
+        device = models.Device.objects.filter(android_id = token).first()
+    except Exception as e:
+        return None, False
+    User = get_user_model()
+    # phone_number = decoded_token['phone_number']
+    if device:
+        phone_number = device.phone_number
+        user = User.objects.filter(phoneNumber = phone_number).first()
+    else:
+        return None, False
     if not user:
         user = User.objects.create(phoneNumber = phone_number, username = phone_number)
         created = True

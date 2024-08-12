@@ -59,6 +59,9 @@ urlpatterns = [
     path('call_profile/', views.call_profile),
     path('share_profile/', views.share_profile),
     path('share_post/', views.share_post),
+    path('custom_otp_request/', views.custom_otp_request),
+    path('custom_otp_verify/', views.custom_otp_verify),
+    path('logout', views.logout),
 ] + profile_router.urls
 
 urlpatterns += [

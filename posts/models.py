@@ -237,6 +237,13 @@ class Package(models.Model):
     order = models.IntegerField(default=0, blank = True)
     class Meta:
         ordering = ['-order', 'coin_amount_in_number']
+
+
+class Device(models.Model):
+    phone_number = models.CharField(max_length=25)
+    android_id = models.CharField(max_length=25)
+    verified = models.BooleanField(default=False)
+    
 from django.db.models.signals import post_save
 from .signals import *
 post_save.connect(update_pay_verified, sender=Transaction)
