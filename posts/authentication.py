@@ -79,6 +79,7 @@ def customGetUserFromAuthHeader(request):
         # decoded_token = auth.verify_id_token(token)
         device = models.Device.objects.filter(android_id = token).first()
     except Exception as e:
+        print(f"Exception in fetching device from token: {e}")
         return None, False
     User = get_user_model()
     # phone_number = decoded_token['phone_number']
