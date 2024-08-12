@@ -195,6 +195,11 @@ cloudinary.config(
  
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
+SPECTACULAR_SETTINGS = {
+    "TITLE": "Emi Shop Ecommerce App Backend",
+}
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'posts.authentication.FirebaseAuthentication',
@@ -203,8 +208,4 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticated',
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-}
-
-SPECTACULAR_SETTINGS = {
-    "TITLE": "Emi Shop Ecommerce App Backend",
 }
