@@ -46,6 +46,7 @@ class FirebaseAuthentication(BaseAuthentication):
         if user is not None and should_update_last_seen(user) is True:
             user.last_seen = datetime.now().astimezone(timezone)
             user.save()
+        print(f"Returning from authenticate() in custom auth backend: {user}, {created}")
         return user, created
 # def getUserFromAuthHeader(request):
 #     token = request.headers.get('Authorization')
