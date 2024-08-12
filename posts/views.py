@@ -37,6 +37,8 @@ from django.core.cache import cache
 from django.core.files.base import ContentFile
 import datetime
 from django.utils.dateformat import format
+from django.views.decorators.csrf import csrf_exempt
+
 
 from .utils import should_allow_free_post, compress_image
 from drf_spectacular.utils import extend_schema
@@ -1225,6 +1227,7 @@ def verify_otp(android_id, otp):
         return True
     return False
 
+@csrf_exempt
 def custom_otp_request(request):
     phone_number = request.POST.get("phone_number")
     android_id = request.POST.get("android_id")
@@ -1234,11 +1237,13 @@ def custom_otp_request(request):
         return JsonResponse({})
     else:
         return JsonResponse({}, status = 500)
+@csrf_exempt
 def check_device_exists(request):
     android_id = request.POST.get("android_id")
     device = models.Device.objects.filter(android_id=android_id)
     return JsonResponse({'exists': device.exists()})
 
+@csrf_exempt
 def custom_otp_verify(request):
     android_id = request.POST.get("android_id")
     otp = request.POST.get("otp")
