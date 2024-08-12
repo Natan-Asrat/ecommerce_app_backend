@@ -15,7 +15,7 @@ def compress_image(image, target_size = 10):
     if settings.COMPRESS_IMAGES:
         if not isinstance(image, Image.Image):
             image = Image.open(image)
-        buffer = io.BiotesIO()
+        buffer = io.BytesIO()
         quality = 95
         while quality>10:
             image.save(buffer, format='JPEG', quality=quality, optimize=True)
