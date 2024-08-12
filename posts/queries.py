@@ -649,6 +649,9 @@ def recommended_categories(user):
                                Count('children__children__children__id', distinct=True) +
                                Count('children__children__children__children__id', distinct=True),
                 posts = Count('posts_in_category'),
+                hasChildren = Exists(models.Category.objects.filter(
+                    parent = OuterRef('id')
+                )),
                 interaction_with_user = Coalesce(Subquery(subquery_for_categories(user)), 0),
                 interaction_for_category = Coalesce(Sum('interaction__strength_sum'), 0)
             ).order_by('-interaction_with_user', '-posts', '-interaction_for_category', '-tree')
