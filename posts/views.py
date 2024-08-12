@@ -891,8 +891,9 @@ def check_if_user_is_new(request, phone):
             'name': None
         }
     return JsonResponse(response)
-
+from rest_framework.decorators import authentication_classes
 @api_view(['POST'])
+@authentication_classes([authentication.FirebaseAuthentication])
 def update_user(request):
         user = get_user_from_request(request)
         profile_picture = request.FILES.get('imageBitmap')
