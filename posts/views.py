@@ -1192,11 +1192,9 @@ import pyotp
 from django.conf import settings
 import requests
 def send_sms(phone_number, otp):
-    message = f"""
-                Emi Shop App
-                Your one time verification code is:
-                {otp}
-                """
+    message = f"""Emi Shop App
+    Your one time verification code is:
+    {otp}"""
     url = f"{settings.SMS_GATEWAY_URL}/"
     params = {
         'number': phone_number,
@@ -1205,8 +1203,13 @@ def send_sms(phone_number, otp):
     try:
         response = requests.get(url, params=params)
         response.raise_for_status
-        print(response.json())
-        return True
+        print('Raw response:', response.text)  # Log the raw response
+        try:
+            json_response = response.json()  # Attempt to parse JSON from the response
+            print('Parsed response:', json_response)
+        except ValueError:
+            print('Response is not valid JSON')
+        return True       
     except requests.RequestException as e:
         print(f"Error sending sms: {e}")
         return False
