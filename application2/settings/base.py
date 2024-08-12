@@ -64,11 +64,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    
-    'posts.apps.PostsConfig',
     'rest_framework',
     'drf_spectacular',
+    'posts.apps.PostsConfig',
     'debug_toolbar',
     'fcm_django',
     # 'whitenoise.runserver_nostatic'
@@ -186,14 +184,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     'debug_toolbar.panels.profiling.ProfilingPanel'
 # ]
 
-import cloudinary
-          
-cloudinary.config( 
-  cloud_name = CLOUDINARY_CLOUD_NAME, 
-  api_key = CLOUDINARY_API_KEY, 
-  api_secret = CLOUDINARY_API_SECRET,
-  secure = True
-)
+
  
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -211,3 +202,12 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
+
+import cloudinary
+          
+cloudinary.config( 
+  cloud_name = CLOUDINARY_CLOUD_NAME, 
+  api_key = CLOUDINARY_API_KEY, 
+  api_secret = CLOUDINARY_API_SECRET,
+  secure = True
+)
