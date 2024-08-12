@@ -38,7 +38,7 @@ from django.core.files.base import ContentFile
 import datetime
 from django.utils.dateformat import format
 from django.views.decorators.csrf import csrf_exempt
-
+from . import authentication
 
 from .utils import should_allow_free_post, compress_image
 from drf_spectacular.utils import extend_schema
@@ -110,6 +110,7 @@ class Search(SearchFilter):
 @extend_schema(tags=['Posts'])
 class PostsAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
+    authentication_classes = [authentication.FirebaseAuthentication]
     serializer_class = serializers.EmptySerializer
     filter_backends = [Search]
     search_fields = [
@@ -221,6 +222,7 @@ def create_recommendations(request):
 class GetRecommendation(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()[:1]
     serializer_class = serializers.EmptySerializer
+    authentication_classes = [authentication.FirebaseAuthentication]
     pagination_class = paginators.RecommendedPages
     def get_queryset(self):
         user = get_user_from_request(self.request)
@@ -256,6 +258,7 @@ class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         return super().list(request, *args, **kwargs)
 class CategoriesAnonymousAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
+    authentication_classes = [authentication.FirebaseAuthentication]
     serializer_class = serializers.CategoryForTraversalAnonymousSerializer
     def get_queryset(self):
         if self.action == 'list':
