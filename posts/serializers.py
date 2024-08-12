@@ -15,6 +15,7 @@ from django.conf import settings
 from . import authentication
 from django.core.files.base import ContentFile
 from django.utils.dateformat import format
+from django.core.files import File
 app_name = __package__.split('.')[-1]
 
 
@@ -436,7 +437,7 @@ class NewPostSerializer(serializers.ModelSerializer):
                 image.name =file_name
                 buffer = compress_image(image)
                 # content_file = ContentFile(buffer.read(), file_name)
-                content_file = ContentFile(buffer, file_name)
+                content_file = File(buffer, name=file_name)
                 obj = Image.objects.create(post=instance, image=buffer, backup_image=content_file, order=order_number)
             return instance
         
