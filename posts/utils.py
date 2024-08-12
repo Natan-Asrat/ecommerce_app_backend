@@ -24,7 +24,8 @@ def compress_image(image, target_size = 10):
             if size_kb <= target_size or quality <= 10:
                 break
             quality -=5
-        image = buffer.seek(0)
+        # image = buffer.seek(0)
+        image = buffer
     return image
 
 def generate_otp():

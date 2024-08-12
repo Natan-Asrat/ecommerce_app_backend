@@ -435,7 +435,8 @@ class NewPostSerializer(serializers.ModelSerializer):
                 file_name = f"userpost_user_{user.id}_post_{order_number}_date_{timestamp}.jpg"
                 image.name =file_name
                 buffer = compress_image(image)
-                content_file = ContentFile(buffer.read(), file_name)
+                # content_file = ContentFile(buffer.read(), file_name)
+                content_file = ContentFile(buffer, file_name)
                 obj = Image.objects.create(post=instance, image=buffer, backup_image=content_file, order=order_number)
             return instance
         
