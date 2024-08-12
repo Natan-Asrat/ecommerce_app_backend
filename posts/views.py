@@ -889,12 +889,13 @@ def check_if_user_is_new(request, phone):
 def update_user(request):
         user = get_user_from_request(request)
         profile_picture = request.FILES.get('imageBitmap')
-        buffer = compress_image(profile_picture)
-        timestamp = format(datetime.datetime.now(), 'Ymd-His')
-        file_name = f"pp_user_{user.id}_profilepicture_{timestamp}.jpg"
-        content_file = ContentFile(buffer.read(), file_name)
-        user.profilePicture = buffer
-        user.backup_profile_picture = content_file
+        # buffer = compress_image(profile_picture)
+        # timestamp = format(datetime.datetime.now(), 'Ymd-His')
+        # file_name = f"pp_user_{user.id}_profilepicture_{timestamp}.jpg"
+        # content_file = ContentFile(buffer.read(), file_name)
+        # user.profilePicture = buffer
+        user.profilePicture = profile_picture
+        # user.backup_profile_picture = content_file
         user.first_name = request.data.get('name')
         user.save()
         return JsonResponse({})
