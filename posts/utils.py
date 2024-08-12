@@ -27,7 +27,6 @@ def compress_image(image, target_size = 10):
             quality -=5
         # final = buffer.seek(0, 0)
         # image = 
-        buffer.seek(0)
         return buffer
         # image = buffer
     return image
