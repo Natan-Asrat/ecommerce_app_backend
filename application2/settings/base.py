@@ -64,9 +64,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    
+    
+    'posts.apps.PostsConfig',
     'rest_framework',
     'drf_spectacular',
-    'posts.apps.PostsConfig',
     'debug_toolbar',
     'fcm_django',
     # 'whitenoise.runserver_nostatic'
