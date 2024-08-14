@@ -903,6 +903,7 @@ def update_user(request):
         # content_file = ContentFile(buffer.read(), file_name)
         # user.profilePicture = buffer
         user.profilePicture = profile_picture
+        user.backup_profile_picture = profile_picture
         # user.backup_profile_picture = content_file
         user.first_name = request.data.get('name')
         user.save()
