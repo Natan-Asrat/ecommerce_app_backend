@@ -432,15 +432,16 @@ class NewPostSerializer(serializers.ModelSerializer):
             print(f"Number of images: {len(images)}")
             for i, image in enumerate(images):
                 order_number = i + 1
-                timestamp = format(datetime.now(), 'Ymd-His')
-                file_name = f"userpost_user_{user.id}_post_{order_number}_date_{timestamp}.jpg"
-                image.name =file_name
-                buffer = compress_image(image)
+                # timestamp = format(datetime.now(), 'Ymd-His')
+                # file_name = f"userpost_user_{user.id}_post_{order_number}_date_{timestamp}.jpg"
+                # image.name =file_name
+                # buffer = compress_image(image)
                 # content_file = ContentFile(buffer.read(), file_name)
-                content_file = File(buffer, name=file_name)
-                obj = Image.objects.create(post=instance, image=buffer, order=order_number)
+                # content_file = File(buffer, name=file_name)
+                # obj = Image.objects.create(post=instance, image=buffer, order=order_number)
+                obj = Image.objects.create(post=instance, image=image, backup_image=image, order=order_number)
                 obj.save()
-                obj.backup_image.save(file_name, content_file, save=True)
+                # obj.backup_image.save(file_name, content_file, save=True)
             return instance
         
 class EditPostSerializer(serializers.ModelSerializer):
