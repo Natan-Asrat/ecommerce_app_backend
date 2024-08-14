@@ -952,12 +952,15 @@ def send_screenshot(request):
             transaction = models.Transaction.objects.get(id = transactionId)
         else:
             transaction = models.Transaction.objects.get(issuedFor=user, id = transactionId)
-        buffer = compress_image(image)
-        timestamp = format(datetime.datetime.now(), 'Ymd-His')
-        file_name = f"transaction_user_{user.id}_date_{timestamp}.jpg"
-        content_file = ContentFile(buffer.read(), file_name)
-        transaction.verificationScreenshot = buffer
-        transaction.backup_verification_screenshot = content_file
+        # buffer = compress_image(image)
+        # timestamp = format(datetime.datetime.now(), 'Ymd-His')
+        # file_name = f"transaction_user_{user.id}_date_{timestamp}.jpg"
+        # content_file = ContentFile(buffer.read(), file_name)
+        # transaction.verificationScreenshot = buffer
+        # transaction.backup_verification_screenshot = content_file
+        transaction.verificationScreenshot = image
+        transaction.backup_verification_screenshot = image
+
         transaction.save()
         serializer = serializers.TransactionSerializer(data=transaction, many=False)
         serializer.is_valid()
