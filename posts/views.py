@@ -39,6 +39,7 @@ import datetime
 from django.utils.dateformat import format
 from django.views.decorators.csrf import csrf_exempt
 from . import authentication
+from rest_framework.permissions import AllowAny
 
 from .utils import should_allow_free_post, compress_image
 from drf_spectacular.utils import extend_schema
@@ -171,6 +172,8 @@ class PostsAnonymousAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Post.objects.all()   
     serializer_class = serializers.EmptySerializer
     pagination_class = paginators.Pages
+    authentication_classes = []  # Disable authentication
+    permission_classes = [AllowAny]
     def get_queryset(self):
         if self.action == 'retrieve':
             self.serializer_class = serializers.PostDetailAnonymousSerializer
@@ -258,7 +261,8 @@ class CategoriesAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
         return super().list(request, *args, **kwargs)
 class CategoriesAnonymousAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.Category.objects.none()
-    authentication_classes = [authentication.FirebaseAuthentication]
+    authentication_classes = []  # Disable authentication
+    permission_classes = [AllowAny]
     serializer_class = serializers.CategoryForTraversalAnonymousSerializer
     def get_queryset(self):
         if self.action == 'list':
@@ -569,6 +573,8 @@ class ProfileAnonymousAPI(ListAPIView, RetrieveAPIView, GenericViewSet):
     queryset = models.User.objects.all()
     serializer_class = serializers.ProfileAnonymousSerializer
     pagination_class = paginators.Pages
+    authentication_classes = []  # Disable authentication
+    permission_classes = [AllowAny]
     
 @extend_schema(tags=['Posts'])
 class SimilarPostsAPI(ListAPIView,RetrieveAPIView, GenericViewSet):
