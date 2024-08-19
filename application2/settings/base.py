@@ -68,6 +68,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'posts.apps.PostsConfig',
     'debug_toolbar',
+    'corsheaders',
     'fcm_django',
     # 'whitenoise.runserver_nostatic'
 ]
@@ -86,6 +87,7 @@ INTERNAL_IPS = [
 #     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 # ]
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     # Debug Toolbar Middleware (for development)
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     
@@ -114,7 +116,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-
+CORS_ALLOW_ALL_ORIGINS = True
 ROOT_URLCONF = 'application2.urls'
 
 TEMPLATES = [
