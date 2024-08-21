@@ -1,0 +1,82 @@
+[
+    {
+        "model": "posts.Package",
+        "pk": 1,
+        "fields": {
+            "coin_amount_in_words": "3,000 Coins",
+            "coin_amount_in_number": 3000,
+            "price": 40000,
+            "hasDiscount": true,
+            "originalPriceCurrency": "Br",
+            "discountPriceCurrency": "Br",
+            "original_price_in_words": "Birr 60,000",
+            "discounted_price_in_words": "Birr 40,000",
+            "level_of_payment_1_through_4": 4,
+            "order": 1
+        }
+    },
+    {
+        "model": "posts.Package",
+        "pk": 2,
+        "fields": {
+            "coin_amount_in_words": "1,000 Coins",
+            "coin_amount_in_number": 1000,
+            "price": 15000,
+            "hasDiscount": true,
+            "originalPriceCurrency": "Br",
+            "discountPriceCurrency": "Br",
+            "original_price_in_words": "Birr 20,000",
+            "discounted_price_in_words": "Birr 15,000",
+            "level_of_payment_1_through_4": 3,
+            "order": 1
+        }
+    },
+    {
+        "model": "posts.Package",
+        "pk": 3,
+        "fields": {
+            "coin_amount_in_words": "300 Coins",
+            "coin_amount_in_number": 300,
+            "price": 5000,
+            "hasDiscount": true,
+            "originalPriceCurrency": "Br",
+            "discountPriceCurrency": "Br",
+            "original_price_in_words": "Birr 6,000",
+            "discounted_price_in_words": "Birr 5,000",
+            "level_of_payment_1_through_4": 3,
+            "order": 1
+        }
+    },
+    {
+        "model": "posts.Package",
+        "pk": 4,
+        "fields": {
+            "coin_amount_in_words": "50 Coins",
+            "coin_amount_in_number": 50,
+            "price": 750,
+            "hasDiscount": true,
+            "originalPriceCurrency": "Br",
+            "discountPriceCurrency": "Br",
+            "original_price_in_words": "Birr 1000",
+            "discounted_price_in_words": "Birr 750",
+            "level_of_payment_1_through_4": 2,
+            "order": 1
+        }
+    },
+    {
+        "model": "posts.Package",
+        "pk": 5,
+        "fields": {
+            "coin_amount_in_words": "20 Coins",
+            "coin_amount_in_number": 20,
+            "price": 400,
+            "hasDiscount": false,
+            "originalPriceCurrency": "Br",
+            "discountPriceCurrency": "",
+            "original_price_in_words": "Birr 400",
+            "discounted_price_in_words": "",
+            "level_of_payment_1_through_4": 1,
+            "order": 1
+        }
+    }
+]

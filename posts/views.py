@@ -860,6 +860,13 @@ class BuyPackagesAPI(ListAPIView,CreateAPIView, GenericViewSet):
         c = super().get_serializer_context()
         c['request'] = self.request
         return c
+@extend_schema(tags=['Packages'])
+class PackagesAnonymousAPI(ListAPIView, GenericViewSet):
+    queryset = models.Package.objects.all()
+    serializer_class = serializers.PackageSerializer
+    authentication_classes = []  # Disable authentication
+    permission_classes = [AllowAny]
+    
 @extend_schema(tags=['Transactions'])   
 class ProfilePostsAPI(ListAPIView, GenericViewSet):
     queryset = models.Post.objects.all()
