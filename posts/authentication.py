@@ -26,8 +26,8 @@ default_app = firebase_admin.initialize_app(cred)
 class FirebaseAuthentication(BaseAuthentication):
     def authenticate(self, request):
 
-        user, created = getUserFromAuthHeader(request)
-        # user, created = customGetUserFromAuthHeader(request)
+        # user, created = getUserFromAuthHeader(request)
+        user, created = customGetUserFromAuthHeader(request)
         is_issued_by_admin = request.headers.get('by_admin', False)
         is_issued_by_admin = bool(is_issued_by_admin)
         if user is not None and user.is_superuser and is_issued_by_admin:
