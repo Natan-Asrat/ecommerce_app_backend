@@ -884,7 +884,7 @@ from xhtml2pdf import pisa
 def generate_receipt_pdf(request, transaction_id):
     try:
         # Retrieve the transaction object
-        transaction = models.Transaction.objects.get(id=transaction_id)
+        transaction = models.Transaction.objects.get(pk=transaction_id)
     except models.Transaction.DoesNotExist:
         return HttpResponse("Transaction not found.", status=404)
 
