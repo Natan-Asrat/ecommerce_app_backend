@@ -9,7 +9,7 @@
     <title>Receipt</title>
     <style>
         #body{
-            font-size: 120px;
+            font-size: 400px;
         }
         #invoice-POS {
             box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);
@@ -48,9 +48,7 @@
         .tabletitle {
             background: #EEE;
         }
-        .service {
-            border-bottom: 1px solid #EEE;
-        }
+        
         
         
         #legalcopy {
@@ -83,11 +81,11 @@
             <div id="table">
                 <table>
                     <tr class="tabletitle">
-                        <td class="item"><h2>Description</h2></td>
-                        <td class="amount"><h2>Amount</h2></td>
+                        <td class="amount"><h2>Description</h2></td>
+                        <td class="amounttext"><h2>Amount</h2></td>
                     </tr>
                     <tr class="service">
-                        <td class="itemtext">{{ transaction.reason }}</td>
+                        <td class="amount">{{ transaction.reason }}</td>
                         <td class="amounttext"><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</td>
                     </tr>
                     <!-- Add more rows as needed -->
