@@ -9,7 +9,7 @@
     <title>Receipt</title>
     <style>
         body{
-            font-size: 40px;
+            font-size: 20px;
         }
         
         #top, #mid, #bot {
@@ -47,7 +47,6 @@
     </style>
 </head>
 <body>
-    <center>
     <div id="invoice-POS">
         <center id="top">
             <div class="logo">
@@ -68,23 +67,39 @@
                 </p>
             </div>
         </div>
-        <h2>Description:</h2>{{ transaction.reason }}<br>
-        <h3>Coins:</h3>{{ transaction.coin_amount }}
-        <h3>Total Amount:</h3>{{ transaction.currency }} {{ transaction.amount }}
-          <br><br>
-        <div id="bot">
-            <div id="legalcopy">
-                <p class="legal"><strong>Thank you!</strong> You can verify this receipt using the Emi Shop App by going to Profile > Settings > Verify Receipt.</p>
-            </div>
-        </div><br>
         <div id="bot">
             <div id="table">
                 <table>
-                    
+                    <tr class="tabletitle">
+                      <td></td>
+                        <td class="item"><h2>Description</h2></td>
+                        <td></td>
+                    </tr>
+                    <tr class="service">
+                      <td></td>
+                      
+                      <td class="tableitem"><p class="itemtext">{{ transaction.reason }}</p></td>
+                      
+                      <td></td>
+                    </tr>
+                    <tr class="tabletitle">
+                      <td></td>
+                      <td class="Rate"><h2>Amount</h2></td>
+                      <td></td>
+                    </tr>
+
+                    <tr class="service">
+                      
+
+                      <td></td>                        <td class="tableitem"><p class="itemtext"><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</p></td>
+                      
+                      <td></td>  
+                    </tr>
+                    <!-- Add more rows as needed -->
                     <tr class="tabletitle">
                         <td></td>
-                        <td class="amount"><h2>Total</h2></td>
-                        <td class="amounttext"><h2><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.currency }} {{ transaction.amount }}</h2></td>
+                        <td class="Rate"><h2>Total</h2></td>
+                        <td class="payment"><h2><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</h2></td>
                     </tr>
                 </table>
             </div>
@@ -115,6 +130,5 @@
             <input type="hidden" id="transaction-current_hash" value="{{ transaction.current_hash }}">
         </div>
     </div>
-</center>
 </body>
 </html>
