@@ -63,7 +63,7 @@
         <center id="top">
             <div class="logo">
                 <!-- PNG Logo -->
-                <img src="logo.png" alt="Emica Solutions Logo">
+                <img src="{% static 'images/logo.png' %}" alt="Emica Solutions Logo">
             </div>
             <div class="info">
                 <h2>Emica Solutions</h2>
@@ -85,17 +85,17 @@
                 <table>
                     <tr class="tabletitle">
                         <td class="item"><h2>Description</h2></td>
-                        <td class="Rate"><h2>Amount</h2></td>
+                        <td class="amount"><h2>Amount</h2></td>
                     </tr>
                     <tr class="service">
-                        <td class="tableitem"><p class="itemtext">{{ transaction.reason }}</p></td>
-                        <td class="tableitem"><p class="itemtext"><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</p></td>
+                        <td class="itemtext">{{ transaction.reason }}</td>
+                        <td class="amounttext"><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</td>
                     </tr>
                     <!-- Add more rows as needed -->
                     <tr class="tabletitle">
                         <td></td>
-                        <td class="Rate"><h2>Total</h2></td>
-                        <td class="payment"><h2><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</h2></td>
+                        <td class="amount"><h2>Total</h2></td>
+                        <td class="amounttext"><h2><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</h2></td>
                     </tr>
                 </table>
             </div>
