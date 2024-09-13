@@ -8,4 +8,5 @@ python manage.py loaddata user_data.json
 python manage.py loaddata post_data.json
 python manage.py loaddata post_image_data.json
 python manage.py loaddata packages_data.json
+python manage.py collectstatic
 python manage.py runserver 0.0.0.0:8000

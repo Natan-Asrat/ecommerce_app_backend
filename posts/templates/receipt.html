@@ -9,13 +9,12 @@
     <title>Receipt</title>
     <style>
         #body{
-            font-size: 40px;
+            font-size: 120px;
         }
         #invoice-POS {
             box-shadow: 0 0 1in -0.25in rgba(0, 0, 0, 0.5);
             padding: 2mm;
             margin: 0 auto;
-            width: 90mm;
             background: #FFF;
         }
         #top, #mid, #bot {
@@ -64,8 +63,7 @@
         <center id="top">
             <div class="logo">
                 <!-- PNG Logo -->
-                <img src="{% static 'images/logo.png' %}" alt="Emica Solutions Logo">
-            </div>
+                <img src="data:image/png;base64,{{ logo_base64 }}" alt="Emica Solutions Logo"/>            </div>
             <div class="info">
                 <h2>Emica Solutions</h2>
             </div>

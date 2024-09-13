@@ -880,6 +880,12 @@ class ProfilePostsAPI(ListAPIView, GenericViewSet):
 from django.template.loader import render_to_string
 from io import BytesIO
 from xhtml2pdf import pisa
+import base64
+
+def get_base64_image(image_path):
+    with open(image_path, "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
+
 
 def generate_receipt_pdf(request, transaction_id):
     try:
@@ -889,7 +895,10 @@ def generate_receipt_pdf(request, transaction_id):
         return HttpResponse("Transaction not found.", status=404)
 
     # Render the HTML template with transaction data
-    html_string = render_to_string('receipt.html', {'transaction': transaction})
+    logo_base64 = get_base64_image(os.path.join(settings.STATIC_ROOT, 'images', 'logo.png'))
+
+    html_string = render_to_string('receipt.html', {'transaction': transaction,
+        'logo_base64': logo_base64})
     
     # Create a BytesIO buffer to receive the PDF data
     pdf_buffer = BytesIO()
