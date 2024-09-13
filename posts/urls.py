@@ -67,6 +67,7 @@ urlpatterns = [
 ] + profile_router.urls
 
 urlpatterns += [
+    path('generate-receipt/<uuid:transaction_id>/', views.generate_receipt_pdf, name='generate_receipt_pdf'),
     path('schema/', SpectacularAPIView.as_view(), name='posts_app_schema'),
     path('schema/docs/', SpectacularSwaggerView.as_view(url_name='posts_app_schema')),
 ]

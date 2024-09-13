@@ -875,6 +875,41 @@ class ProfilePostsAPI(ListAPIView, GenericViewSet):
     def get_queryset(self):
         return models.Post.objects.filter(sellerId = self.kwargs['seller_pk']).select_related('sellerId', 'categoryId', 'categoryId__parent')
     
+
+
+from django.template.loader import render_to_string
+from io import BytesIO
+from xhtml2pdf import pisa
+
+def generate_receipt_pdf(request, transaction_id):
+    try:
+        # Retrieve the transaction object
+        transaction = models.Transaction.objects.get(id=transaction_id)
+    except models.Transaction.DoesNotExist:
+        return HttpResponse("Transaction not found.", status=404)
+
+    # Render the HTML template with transaction data
+    html_string = render_to_string('receipt.html', {'transaction': transaction})
+    
+    # Create a BytesIO buffer to receive the PDF data
+    pdf_buffer = BytesIO()
+
+    # Convert the HTML string into a PDF using xhtml2pdf (pisa)
+    pisa_status = pisa.CreatePDF(BytesIO(html_string.encode("UTF-8")), dest=pdf_buffer)
+
+    # Check if PDF generation was successful
+    if pisa_status.err:
+        return HttpResponse("Error generating PDF", status=500)
+
+    # Get the PDF content from the buffer
+    pdf_file = pdf_buffer.getvalue()
+    pdf_buffer.close()
+
+    # Create and return the HTTP response with PDF file
+    response = HttpResponse(pdf_file, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename=receipt_{transaction_id}.pdf'
+    
+    return response
 def check_if_user_is_new(request, phone):
     user = None
     try:

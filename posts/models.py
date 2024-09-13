@@ -1,5 +1,7 @@
 from django.db import models
 import uuid
+from hashlib import sha256
+
 from django.contrib.auth.models import AbstractUser
 from cloudinary.models import CloudinaryField
 from django.db.models import Count
@@ -221,9 +223,40 @@ class Transaction(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     pay_for = models.CharField(max_length = 1, choices = PAY_FOR)
     coin_amount = models.IntegerField(default=0, blank = True)
+
+    # New fields for blockchain hashing
+    previous_hash = models.CharField(max_length=64, null=True, blank=True)
+    current_hash = models.CharField(max_length=64, null=True, blank=True)
+
     def __str__(self):
         return "For: " + str(self.issuedFor) + ", Amount: " + str(self.amount)
-    
+    def save(self, *args, **kwargs):
+        # Get the previous transaction for this user
+        if self.pk:
+            # Exclude the current transaction from the query when it already exists
+            previous_transaction = Transaction.objects.filter(issuedBy=self.issuedBy).exclude(pk=self.pk).order_by('-created_at').first()
+        else:
+            # For a new transaction (no primary key), query as usual
+            previous_transaction = Transaction.objects.filter(issuedBy=self.issuedBy).order_by('-created_at').first()
+
+        if previous_transaction:
+            self.previous_hash = previous_transaction.current_hash
+        else:
+            # If no previous transaction exists, set the previous_hash to an empty string
+            self.previous_hash = ""
+
+        # Generate the current hash based on transaction details
+        self.current_hash = self.generate_hash()
+
+        super().save(*args, **kwargs)
+
+    def generate_hash(self):
+        """Generates a hash using transaction details and the previous hash."""
+        transaction_data = f"{self.issuedBy}{self.issuedFor}{self.amount}{self.reason}{self.currency}" \
+                           f"{self.usedVirtualCurrency}{self.payMethod}{self.payVerified}{self.title}" \
+                           f"{self.trueForDepositFalseForWithdraw}{self.created_at}{self.previous_hash}"
+        
+        return sha256(transaction_data.encode('utf-8')).hexdigest()
 class Package(models.Model):
     coin_amount_in_words = models.CharField(max_length=100)
     coin_amount_in_number = models.IntegerField()
