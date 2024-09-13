@@ -43,12 +43,7 @@
         .tabletitle {
             background: #EEE;
         }
-        
-        
-        
-        #legalcopy {
-            margin-top: 5mm;
-        }
+    
     </style>
 </head>
 <body>
@@ -76,14 +71,14 @@
             <div id="table">
                 <table>
                     <tr class="tabletitle">
+                        <td></td>
                         <td class="amount"><h2>Description</h2></td>
-                        <td class="amounttext"><h2>Amount</h2></td>
+                        <td class="amounttext"><h2><i class="fa fa-{{ transaction.currency }}"></i> Amount</h2></td>
+                    </tr><tr >
+                        <td></td>
+                        <td class="amount"><h2>{{ transaction.reason }}</h2></td>
+                        <td class="amounttext"><h2><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</h2></td>
                     </tr>
-                    <tr class="service">
-                        <td class="amount">{{ transaction.reason }}</td>
-                        <td class="amounttext"><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</td>
-                    </tr>
-                    <!-- Add more rows as needed -->
                     <tr class="tabletitle">
                         <td></td>
                         <td class="amount"><h2>Total</h2></td>
