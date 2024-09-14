@@ -1336,8 +1336,10 @@ def custom_otp_verify(request):
         return JsonResponse({})
     else:
         return JsonResponse({}, status = 401)
-@api_view(['POST'])
+
+
 @csrf_exempt
+@api_view(['POST'])
 def logout(request):
     user = get_user_from_request(request)
     if user:
