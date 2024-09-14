@@ -1339,14 +1339,8 @@ def custom_otp_verify(request):
 
 
 @csrf_exempt
-@api_view(['POST'])
-@authentication_classes([authentication.FirebaseAuthentication])
-
 def logout(request):
-    user = get_user_from_request(request)
-    if user:
-        android_id = request.data.get("android_id")
-        device = models.Device.objects.filter(android_id = android_id, phone_number = user.phoneNumber)
-        if device.exists():
-            device.delete()
-            print(f"Logged out: {user.phoneNumber} from device android id:  {android_id}")
+    android_id = request.data.get("android_id")
+    device = models.Device.objects.filter(android_id = android_id)
+    if device.exists():
+        device.delete()
