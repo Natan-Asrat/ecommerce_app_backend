@@ -236,6 +236,9 @@ class Transaction(models.Model):
         return "For: " + str(self.issuedFor) + ", Amount: " + str(self.amount)
     def save(self, *args, **kwargs):
         # Get the previous transaction for this user
+        if not self.created_at:
+            # Set created_at to the current time if it's not set
+            self.created_at = timezone.now()
         if self.pk:
             # Exclude the current transaction from the query when it already exists
             previous_transaction = Transaction.objects.filter(issuedBy=self.issuedBy).exclude(pk=self.pk).order_by('-created_at').first()
