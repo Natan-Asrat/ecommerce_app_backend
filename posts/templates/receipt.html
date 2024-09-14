@@ -2,7 +2,7 @@
 
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="{% if transaction.rejected %}status-rejected{% elif transaction.payVerified %}status-verified{% else %}status-pending{% endif %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -56,7 +56,7 @@
     
     </style>
 </head>
-<body class="{% if transaction.rejected %}status-rejected{% elif transaction.payVerified %}status-verified{% else %}status-pending{% endif %}">
+<body >
     <div id="invoice-POS">
         <center id="top">
             <div class="logo">
@@ -122,8 +122,16 @@
                     <tr class="tabletitle">
                         <td></td>
                         <td class="Rate"><h2>Total</h2></td>
-                        <td class="payment"><h2><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</h2></td>
+                        <td></td>           
+
                     </tr>
+                    <tr class="service">
+                        
+  
+                        <td></td>           
+                        <td class="payment"><h2><i class="fa fa-{{ transaction.currency }}"></i> {{ transaction.amount }}</h2></td>                        
+                        <td></td>  
+                      </tr>
                 </table>
             </div>
             <div id="legalcopy">
