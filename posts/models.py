@@ -262,8 +262,8 @@ class Transaction(models.Model):
         formatted_created_at = self.created_at.strftime("%b. %d, %Y, %I:%M %p")
         pay_for_long_version = PAY_FOR_CHOICES.get(self.pay_for, 'Unknown')
 
-        transaction_data = f"{self.issuedBy}{self.issuedFor}{self.amount}{self.reason}{self.currency}" \
-                       f"{self.usedVirtualCurrency}{self.payMethod}{self.payVerified}{self.title}" \
+        transaction_data = f"{self.issuedBy.username}{self.issuedFor.username}{self.amount}{self.reason}{self.currency}" \
+                       f"{self.usedVirtualCurrency}{self.payMethod.name}{self.payVerified}{self.title}" \
                        f"{self.trueForDepositFalseForWithdraw}{formatted_created_at}{pay_for_long_version}{self.previous_hash}"
                        
         print("Transaction data: ", transaction_data)

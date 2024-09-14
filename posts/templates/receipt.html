@@ -140,13 +140,13 @@
         </div>
         <!-- Hidden transaction details for PDF extraction -->
         <div style="font-size:5px">
-            <div><strong>Transaction Issued By:</strong> {{ transaction.issuedBy|str }}</div>
-            <div><strong>Transaction Issued For:</strong> {{ transaction.issuedFor|str }}</div>
+            <div><strong>Transaction Issued By:</strong> {{ transaction.issuedBy.username }}</div>
+            <div><strong>Transaction Issued For:</strong> {{ transaction.issuedFor.username }}</div>
             <div><strong>Transaction Amount:</strong> {{ transaction.amount }}</div>
             <div><strong>Transaction Reason:</strong> {{ transaction.reason }}</div>
             <div><strong>Transaction Currency:</strong> {{ transaction.currency }}</div>
             <div><strong>Transaction Used Virtual Currency:</strong> {{ transaction.usedVirtualCurrency }}</div>
-            <div><strong>Transaction Pay Method:</strong> {{ transaction.payMethod|str }}</div>
+            <div><strong>Transaction Pay Method:</strong> {{ transaction.payMethod.name }}</div>
             <div><strong>Transaction Pay Verified:</strong> {{ transaction.payVerified }}</div>
             <div><strong>Transaction Title:</strong> {{ transaction.title }}</div>
             <div><strong>True for Deposit / False for Withdraw:</strong> {{ transaction.trueForDepositFalseForWithdraw }}</div>
