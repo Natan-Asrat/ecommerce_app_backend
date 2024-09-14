@@ -139,28 +139,28 @@
             </div>
         </div>
         <!-- Hidden transaction details for PDF extraction -->
-        <div style="font-size:10px">
-            <textarea id="transaction-issuedBy">{{ transaction.issuedBy.id }}</textarea>
-            <textarea id="transaction-issuedFor">{{ transaction.issuedFor.id }}</textarea>
-            <textarea id="transaction-amount">{{ transaction.amount }}</textarea>
-            <textarea id="transaction-reason">{{ transaction.reason }}</textarea>
-            <textarea id="transaction-currency">{{ transaction.currency }}</textarea>
-            <textarea id="transaction-usedVirtualCurrency">{{ transaction.usedVirtualCurrency }}</textarea>
-            <textarea id="transaction-payMethod">{{ transaction.payMethod.id }}</textarea>
-            <textarea id="transaction-payVerified">{{ transaction.payVerified }}</textarea>
-            <textarea id="transaction-title">{{ transaction.title }}</textarea>
-            <textarea id="transaction-trueForDepositFalseForWithdraw">{{ transaction.trueForDepositFalseForWithdraw }}</textarea>
-            <textarea id="transaction-rejected">{{ transaction.rejected }}</textarea>
-            <textarea id="transaction-verificationScreenshot">{{ transaction.verificationScreenshot.url }}</textarea>
-            <textarea id="transaction-backup_verification_screenshot">{{ transaction.backup_verification_screenshot.url }}</textarea>
-            <textarea id="transaction-transactionConfirmationCode">{{ transaction.transactionConfirmationCode }}</textarea>
-            <textarea id="transaction-created_at">{{ transaction.created_at }}</textarea>
-            <textarea id="transaction-pay_for">{{ transaction.pay_for }}</textarea>
-            <textarea id="transaction-coin_amount">{{ transaction.coin_amount }}</textarea>
-            <textarea id="transaction-previous_hash">{{ transaction.previous_hash }}</textarea>
-            <textarea id="transaction-current_hash">{{ transaction.current_hash }}</textarea>
-
+        <div style="font-size:5px">
+            <div><strong>Transaction Issued By:</strong> {{ transaction.issuedBy.id }}</div>
+            <div><strong>Transaction Issued For:</strong> {{ transaction.issuedFor.id }}</div>
+            <div><strong>Transaction Amount:</strong> {{ transaction.amount }}</div>
+            <div><strong>Transaction Reason:</strong> {{ transaction.reason }}</div>
+            <div><strong>Transaction Currency:</strong> {{ transaction.currency }}</div>
+            <div><strong>Transaction Used Virtual Currency:</strong> {{ transaction.usedVirtualCurrency }}</div>
+            <div><strong>Transaction Pay Method:</strong> {{ transaction.payMethod.id }}</div>
+            <div><strong>Transaction Pay Verified:</strong> {{ transaction.payVerified }}</div>
+            <div><strong>Transaction Title:</strong> {{ transaction.title }}</div>
+            <div><strong>True for Deposit / False for Withdraw:</strong> {{ transaction.trueForDepositFalseForWithdraw }}</div>
+            <div><strong>Transaction Rejected:</strong> {{ transaction.rejected }}</div>
+            <div><strong>Verification Screenshot:</strong> <a href="{{ transaction.verificationScreenshot.url }}" target="_blank">{{ transaction.verificationScreenshot.url }}</a></div>
+            <div><strong>Backup Verification Screenshot:</strong> <a href="{{ transaction.backup_verification_screenshot.url }}" target="_blank">{{ transaction.backup_verification_screenshot.url }}</a></div>
+            <div><strong>Transaction Confirmation Code:</strong> {{ transaction.transactionConfirmationCode }}</div>
+            <div><strong>Transaction Created At:</strong> {{ transaction.created_at }}</div>
+            <div><strong>Transaction Pay For:</strong> {{ transaction.pay_for }}</div>
+            <div><strong>Transaction Coin Amount:</strong> {{ transaction.coin_amount }}</div>
+            <div><strong>Transaction Previous Hash:</strong> {{ transaction.previous_hash }}</div>
+            <div><strong>Transaction Current Hash:</strong> {{ transaction.current_hash }}</div>
         </div>
+        
     </div>
 </body>
 </html>
