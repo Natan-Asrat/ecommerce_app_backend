@@ -259,7 +259,7 @@ class Transaction(models.Model):
 
     def generate_hash(self):
         """Generates a hash using transaction details and the previous hash."""
-        formatted_created_at = self.created_at.strftime("%b. %d, %Y, %I:%M %p")
+        formatted_created_at = self.created_at.strftime("%b. %d, %Y, %I:%M %p").lower()
         pay_for_long_version = PAY_FOR_CHOICES.get(self.pay_for, 'Unknown')
 
         transaction_data = f"{self.issuedBy.username}{self.issuedFor.username}{self.amount}{self.reason}{self.currency}" \
