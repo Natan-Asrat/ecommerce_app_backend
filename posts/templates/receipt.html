@@ -12,6 +12,16 @@
             font-size: 20px;
         }
         
+        .status-rejected {
+            background-color: #ffdddd; /* Light red */
+        }
+        .status-verified {
+            background-color: #ddffdd; /* Light green */
+        }
+        .status-pending {
+            background-color: #ffffdd; /* Light yellow */
+        }
+
         #top, #mid, #bot {
             border-bottom: 1px solid #EEE;
         }
@@ -46,7 +56,7 @@
     
     </style>
 </head>
-<body>
+<body class="{% if transaction.rejected %}status-rejected{% elif transaction.payVerified %}status-verified{% else %}status-pending{% endif %}">
     <div id="invoice-POS">
         <center id="top">
             <div class="logo">
@@ -95,6 +105,19 @@
                       
                       <td></td>  
                     </tr>
+                    <tr class="tabletitle">
+                        <td></td>
+                        <td class="Rate"><h2>Status</h2></td>
+                        <td></td>
+                      </tr>
+  
+                      <tr class="service">
+                        
+  
+                        <td></td>                        <td class="tableitem"><p class="itemtext"><i class="fa fa-{{ transaction.currency }}"></i> {% if transaction.rejected %}Rejected{% elif transaction.payVerified %}Verified{% else %}Pending{% endif %}</p></td>
+                        
+                        <td></td>  
+                      </tr>
                     <!-- Add more rows as needed -->
                     <tr class="tabletitle">
                         <td></td>
