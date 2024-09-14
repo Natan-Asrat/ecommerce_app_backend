@@ -1344,3 +1344,6 @@ def logout(request, android_id):
     device = models.Device.objects.filter(android_id = android_id)
     if device.exists():
         device.delete()
+        return JsonResponse({"status": "success", "message": f"Device with android_id {android_id} has been logged out."})
+    else:
+        return JsonResponse({"status": "failure", "message": "Device not found."})
