@@ -63,7 +63,7 @@ urlpatterns = [
     path('custom_otp_request/', views.custom_otp_request),
     path('custom_otp_verify/', views.custom_otp_verify),
     path('check_device_exists/', views.check_device_exists),
-    path('logout', views.logout),
+    path('logout/<str:android_id>', views.logout),
 ] + profile_router.urls
 
 urlpatterns += [

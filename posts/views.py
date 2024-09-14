@@ -1339,8 +1339,8 @@ def custom_otp_verify(request):
 
 
 @csrf_exempt
-def logout(request):
-    android_id = request.data.get("android_id")
+def logout(request, android_id):
+    # android_id = request.data.get("android_id")
     device = models.Device.objects.filter(android_id = android_id)
     if device.exists():
         device.delete()
