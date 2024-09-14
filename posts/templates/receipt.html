@@ -140,13 +140,13 @@
         </div>
         <!-- Hidden transaction details for PDF extraction -->
         <div style="font-size:5px">
-            <div><strong>Transaction Issued By:</strong> {{ transaction.issuedBy.id }}</div>
-            <div><strong>Transaction Issued For:</strong> {{ transaction.issuedFor.id }}</div>
+            <div><strong>Transaction Issued By:</strong> {{ transaction.issuedBy|str }}</div>
+            <div><strong>Transaction Issued For:</strong> {{ transaction.issuedFor|str }}</div>
             <div><strong>Transaction Amount:</strong> {{ transaction.amount }}</div>
             <div><strong>Transaction Reason:</strong> {{ transaction.reason }}</div>
             <div><strong>Transaction Currency:</strong> {{ transaction.currency }}</div>
             <div><strong>Transaction Used Virtual Currency:</strong> {{ transaction.usedVirtualCurrency }}</div>
-            <div><strong>Transaction Pay Method:</strong> {{ transaction.payMethod.id }}</div>
+            <div><strong>Transaction Pay Method:</strong> {{ transaction.payMethod|str }}</div>
             <div><strong>Transaction Pay Verified:</strong> {{ transaction.payVerified }}</div>
             <div><strong>Transaction Title:</strong> {{ transaction.title }}</div>
             <div><strong>True for Deposit / False for Withdraw:</strong> {{ transaction.trueForDepositFalseForWithdraw }}</div>
@@ -154,12 +154,18 @@
             <div><strong>Verification Screenshot:</strong> <a href="{{ transaction.verificationScreenshot.url }}" target="_blank">{{ transaction.verificationScreenshot.url }}</a></div>
             <div><strong>Backup Verification Screenshot:</strong> <a href="{{ transaction.backup_verification_screenshot.url }}" target="_blank">{{ transaction.backup_verification_screenshot.url }}</a></div>
             <div><strong>Transaction Confirmation Code:</strong> {{ transaction.transactionConfirmationCode }}</div>
-            <div><strong>Transaction Created At:</strong> {{ transaction.created_at }}</div>
-            <div><strong>Transaction Pay For:</strong> {{ transaction.pay_for }}</div>
+            <div><strong>Transaction Created At:</strong> {{ transaction.created_at|date:"M. d, Y, h:i a" }}</div>
+            <div><strong>Transaction Pay For:</strong> 
+                {% if transaction.pay_for == 'A' %} Ads
+                {% elif transaction.pay_for == 'P' %} Package
+                {% else %} Unknown
+                {% endif %}
+            </div>
             <div><strong>Transaction Coin Amount:</strong> {{ transaction.coin_amount }}</div>
             <div><strong>Transaction Previous Hash:</strong> {{ transaction.previous_hash }}</div>
             <div><strong>Transaction Current Hash:</strong> {{ transaction.current_hash }}</div>
         </div>
+        
         
     </div>
 </body>

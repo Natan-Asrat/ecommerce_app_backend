@@ -204,6 +204,10 @@ PAY_FOR = [
     ('A', 'Ads'),
     ('P', 'Package')
 ]
+PAY_FOR_CHOICES = {
+        'A': 'Ads',
+        'P': 'Package'
+    }
 
 class Transaction(models.Model):
     issuedBy = models.ForeignKey(to="User", on_delete=models.DO_NOTHING, related_name = 'byUser')
@@ -252,9 +256,13 @@ class Transaction(models.Model):
 
     def generate_hash(self):
         """Generates a hash using transaction details and the previous hash."""
+        formatted_created_at = self.created_at.strftime("%b. %d, %Y, %I:%M %p")
+        pay_for_long_version = PAY_FOR_CHOICES.get(self.pay_for, 'Unknown')
+
         transaction_data = f"{self.issuedBy}{self.issuedFor}{self.amount}{self.reason}{self.currency}" \
-                           f"{self.usedVirtualCurrency}{self.payMethod}{self.payVerified}{self.title}" \
-                           f"{self.trueForDepositFalseForWithdraw}{self.created_at}{self.previous_hash}"
+                       f"{self.usedVirtualCurrency}{self.payMethod}{self.payVerified}{self.title}" \
+                       f"{self.trueForDepositFalseForWithdraw}{formatted_created_at}{pay_for_long_version}{self.previous_hash}"
+                       
         print("Transaction data: ", transaction_data)
         return sha256(transaction_data.encode('utf-8')).hexdigest()
 class Package(models.Model):
