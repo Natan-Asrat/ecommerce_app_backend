@@ -247,7 +247,7 @@ class Transaction(models.Model):
 
         # Generate the current hash based on transaction details
         self.current_hash = self.generate_hash()
-
+        print("Transaction hash: ", self.current_hash)
         super().save(*args, **kwargs)
 
     def generate_hash(self):
@@ -255,7 +255,7 @@ class Transaction(models.Model):
         transaction_data = f"{self.issuedBy}{self.issuedFor}{self.amount}{self.reason}{self.currency}" \
                            f"{self.usedVirtualCurrency}{self.payMethod}{self.payVerified}{self.title}" \
                            f"{self.trueForDepositFalseForWithdraw}{self.created_at}{self.previous_hash}"
-        
+        print("Transaction data: ", transaction_data)
         return sha256(transaction_data.encode('utf-8')).hexdigest()
 class Package(models.Model):
     coin_amount_in_words = models.CharField(max_length=100)

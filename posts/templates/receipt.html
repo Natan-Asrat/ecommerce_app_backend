@@ -2,14 +2,14 @@
 
 
 <!DOCTYPE html>
-<html lang="en" class="{% if transaction.rejected %}status-rejected{% elif transaction.payVerified %}status-verified{% else %}status-pending{% endif %}">
+<html lang="en" >
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receipt</title>
     <style>
         body{
-            font-size: 20px;
+            font-size: 16px;
         }
         
         .status-rejected {
@@ -111,7 +111,7 @@
                         <td></td>
                       </tr>
   
-                      <tr class="service">
+                      <tr class="service {% if transaction.rejected %}status-rejected{% elif transaction.payVerified %}status-verified{% else %}status-pending{% endif %}">
                         
   
                         <td></td>                        <td class="tableitem"><p class="itemtext"><i class="fa fa-{{ transaction.currency }}"></i> {% if transaction.rejected %}Rejected{% elif transaction.payVerified %}Verified{% else %}Pending{% endif %}</p></td>
