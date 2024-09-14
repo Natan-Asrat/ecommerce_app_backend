@@ -131,26 +131,27 @@
             </div>
         </div>
         <!-- Hidden transaction details for PDF extraction -->
-        <div >
-            <input type="text" id="transaction-issuedBy" value="{{ transaction.issuedBy.id }}">
-            <input type="text" id="transaction-issuedFor" value="{{ transaction.issuedFor.id }}">
-            <input type="text" id="transaction-amount" value="{{ transaction.amount }}">
-            <input type="text" id="transaction-reason" value="{{ transaction.reason }}">
-            <input type="text" id="transaction-currency" value="{{ transaction.currency }}">
-            <input type="text" id="transaction-usedVirtualCurrency" value="{{ transaction.usedVirtualCurrency }}">
-            <input type="text" id="transaction-payMethod" value="{{ transaction.payMethod.id }}">
-            <input type="text" id="transaction-payVerified" value="{{ transaction.payVerified }}">
-            <input type="text" id="transaction-title" value="{{ transaction.title }}">
-            <input type="text" id="transaction-trueForDepositFalseForWithdraw" value="{{ transaction.trueForDepositFalseForWithdraw }}">
-            <input type="text" id="transaction-rejected" value="{{ transaction.rejected }}">
-            <input type="text" id="transaction-verificationScreenshot" value="{{ transaction.verificationScreenshot.url }}">
-            <input type="text" id="transaction-backup_verification_screenshot" value="{{ transaction.backup_verification_screenshot.url }}">
-            <input type="text" id="transaction-transactionConfirmationCode" value="{{ transaction.transactionConfirmationCode }}">
-            <input type="text" id="transaction-created_at" value="{{ transaction.created_at }}">
-            <input type="text" id="transaction-pay_for" value="{{ transaction.pay_for }}">
-            <input type="text" id="transaction-coin_amount" value="{{ transaction.coin_amount }}">
-            <input type="text" id="transaction-previous_hash" value="{{ transaction.previous_hash }}">
-            <input type="text" id="transaction-current_hash" value="{{ transaction.current_hash }}">
+        <div style="font-size:10px">
+            <textarea id="transaction-issuedBy">{{ transaction.issuedBy.id }}</textarea>
+            <textarea id="transaction-issuedFor">{{ transaction.issuedFor.id }}</textarea>
+            <textarea id="transaction-amount">{{ transaction.amount }}</textarea>
+            <textarea id="transaction-reason">{{ transaction.reason }}</textarea>
+            <textarea id="transaction-currency">{{ transaction.currency }}</textarea>
+            <textarea id="transaction-usedVirtualCurrency">{{ transaction.usedVirtualCurrency }}</textarea>
+            <textarea id="transaction-payMethod">{{ transaction.payMethod.id }}</textarea>
+            <textarea id="transaction-payVerified">{{ transaction.payVerified }}</textarea>
+            <textarea id="transaction-title">{{ transaction.title }}</textarea>
+            <textarea id="transaction-trueForDepositFalseForWithdraw">{{ transaction.trueForDepositFalseForWithdraw }}</textarea>
+            <textarea id="transaction-rejected">{{ transaction.rejected }}</textarea>
+            <textarea id="transaction-verificationScreenshot">{{ transaction.verificationScreenshot.url }}</textarea>
+            <textarea id="transaction-backup_verification_screenshot">{{ transaction.backup_verification_screenshot.url }}</textarea>
+            <textarea id="transaction-transactionConfirmationCode">{{ transaction.transactionConfirmationCode }}</textarea>
+            <textarea id="transaction-created_at">{{ transaction.created_at }}</textarea>
+            <textarea id="transaction-pay_for">{{ transaction.pay_for }}</textarea>
+            <textarea id="transaction-coin_amount">{{ transaction.coin_amount }}</textarea>
+            <textarea id="transaction-previous_hash">{{ transaction.previous_hash }}</textarea>
+            <textarea id="transaction-current_hash">{{ transaction.current_hash }}</textarea>
+
         </div>
     </div>
 </body>
