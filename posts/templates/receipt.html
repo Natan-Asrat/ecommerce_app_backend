@@ -132,25 +132,25 @@
         </div>
         <!-- Hidden transaction details for PDF extraction -->
         <div style="display: none;">
-            <input type="hidden" id="transaction-issuedBy" value="{{ transaction.issuedBy.id }}">
-            <input type="hidden" id="transaction-issuedFor" value="{{ transaction.issuedFor.id }}">
-            <input type="hidden" id="transaction-amount" value="{{ transaction.amount }}">
-            <input type="hidden" id="transaction-reason" value="{{ transaction.reason }}">
-            <input type="hidden" id="transaction-currency" value="{{ transaction.currency }}">
-            <input type="hidden" id="transaction-usedVirtualCurrency" value="{{ transaction.usedVirtualCurrency }}">
-            <input type="hidden" id="transaction-payMethod" value="{{ transaction.payMethod.id }}">
-            <input type="hidden" id="transaction-payVerified" value="{{ transaction.payVerified }}">
-            <input type="hidden" id="transaction-title" value="{{ transaction.title }}">
-            <input type="hidden" id="transaction-trueForDepositFalseForWithdraw" value="{{ transaction.trueForDepositFalseForWithdraw }}">
-            <input type="hidden" id="transaction-rejected" value="{{ transaction.rejected }}">
-            <input type="hidden" id="transaction-verificationScreenshot" value="{{ transaction.verificationScreenshot.url }}">
-            <input type="hidden" id="transaction-backup_verification_screenshot" value="{{ transaction.backup_verification_screenshot.url }}">
-            <input type="hidden" id="transaction-transactionConfirmationCode" value="{{ transaction.transactionConfirmationCode }}">
-            <input type="hidden" id="transaction-created_at" value="{{ transaction.created_at }}">
-            <input type="hidden" id="transaction-pay_for" value="{{ transaction.pay_for }}">
-            <input type="hidden" id="transaction-coin_amount" value="{{ transaction.coin_amount }}">
-            <input type="hidden" id="transaction-previous_hash" value="{{ transaction.previous_hash }}">
-            <input type="hidden" id="transaction-current_hash" value="{{ transaction.current_hash }}">
+            <input type="text" id="transaction-issuedBy" value="{{ transaction.issuedBy.id }}">
+            <input type="text" id="transaction-issuedFor" value="{{ transaction.issuedFor.id }}">
+            <input type="text" id="transaction-amount" value="{{ transaction.amount }}">
+            <input type="text" id="transaction-reason" value="{{ transaction.reason }}">
+            <input type="text" id="transaction-currency" value="{{ transaction.currency }}">
+            <input type="text" id="transaction-usedVirtualCurrency" value="{{ transaction.usedVirtualCurrency }}">
+            <input type="text" id="transaction-payMethod" value="{{ transaction.payMethod.id }}">
+            <input type="text" id="transaction-payVerified" value="{{ transaction.payVerified }}">
+            <input type="text" id="transaction-title" value="{{ transaction.title }}">
+            <input type="text" id="transaction-trueForDepositFalseForWithdraw" value="{{ transaction.trueForDepositFalseForWithdraw }}">
+            <input type="text" id="transaction-rejected" value="{{ transaction.rejected }}">
+            <input type="text" id="transaction-verificationScreenshot" value="{{ transaction.verificationScreenshot.url }}">
+            <input type="text" id="transaction-backup_verification_screenshot" value="{{ transaction.backup_verification_screenshot.url }}">
+            <input type="text" id="transaction-transactionConfirmationCode" value="{{ transaction.transactionConfirmationCode }}">
+            <input type="text" id="transaction-created_at" value="{{ transaction.created_at }}">
+            <input type="text" id="transaction-pay_for" value="{{ transaction.pay_for }}">
+            <input type="text" id="transaction-coin_amount" value="{{ transaction.coin_amount }}">
+            <input type="text" id="transaction-previous_hash" value="{{ transaction.previous_hash }}">
+            <input type="text" id="transaction-current_hash" value="{{ transaction.current_hash }}">
         </div>
     </div>
 </body>
