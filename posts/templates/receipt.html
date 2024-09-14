@@ -154,7 +154,7 @@
             <div><strong>Verification Screenshot:</strong> <a href="{{ transaction.verificationScreenshot.url }}" target="_blank">{{ transaction.verificationScreenshot.url }}</a></div>
             <div><strong>Backup Verification Screenshot:</strong> <a href="{{ transaction.backup_verification_screenshot.url }}" target="_blank">{{ transaction.backup_verification_screenshot.url }}</a></div>
             <div><strong>Transaction Confirmation Code:</strong> {{ transaction.transactionConfirmationCode }}</div>
-            <div><strong>Transaction Created At:</strong> {{ transaction.created_at|date:"M. d, Y, h:i a" }}</div>
+            <div><strong>Transaction Created At:</strong> {{ transaction.created_at|date:"b. d, Y, I:i p" }}</div>
             <div><strong>Transaction Pay For:</strong> 
                 {% if transaction.pay_for == 'A' %} Ads
                 {% elif transaction.pay_for == 'P' %} Package
