@@ -1340,6 +1340,8 @@ def custom_otp_verify(request):
 
 @csrf_exempt
 @api_view(['POST'])
+@authentication_classes([authentication.FirebaseAuthentication])
+
 def logout(request):
     user = get_user_from_request(request)
     if user:
