@@ -38,11 +38,12 @@ USER_REDUCER_CONSTANT = int(os.environ.get('USER_REDUCER_CONSTANT', 10))
 
 
 ALLOWED_HOSTS = ['.vercel.app', '.now.sh', '.onrender.com']
-# ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['*']
 
-# import dotenv
-# dotenv.read_dotenv()
+import dotenv
+dotenv.read_dotenv()
 
+NEOMODEL_NEO4J_BOLT_URL = os.environ.get('NEO4J_URL')
 FIREBASE_ACCOUNT_TYPE = os.environ.get('FIREBASE_ACCOUNT_TYPE')
 FIREBASE_PROJECT_ID = os.environ.get('FIREBASE_PROJECT_ID')
 FIREBASE_PRIVATE_KEY_ID = os.environ.get('FIREBASE_PRIVATE_KEY_ID')
@@ -67,6 +68,7 @@ INSTALLED_APPS = [
     'posts.apps.PostsConfig',
     'debug_toolbar',
     'fcm_django',
+    'django_neomodel',
     # 'whitenoise.runserver_nostatic'
 ]
 INTERNAL_IPS = [
